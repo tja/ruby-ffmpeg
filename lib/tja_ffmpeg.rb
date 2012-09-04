@@ -1,20 +1,16 @@
 require "tja_ffmpeg/tja_ffmpeg"
 
 module FFMPEG
-
-  def open(io, &block)
-    ffmpeg = FFMPEG.new(io)
-    if block
-      val = block.call(ffmpeg)
-      ffmpeg.close
-      val
-    else
-      ffmpeg
+  class Format
+    def self.open(io, &block)
+      format = Format.new(io)
+      if block
+        val = block.call(format)
+        # format.close
+        val
+      else
+        format
+      end
     end
-  end
-
-  class FFMPEG
-    # def self.version
-    # end
   end
 end

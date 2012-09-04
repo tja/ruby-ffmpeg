@@ -9,16 +9,14 @@
 /*
 ** Deinitialize.
 */
-void DeInit_tja_ffmpeg(VALUE unused)
-{
+void DeInit_tja_ffmpeg(VALUE unused) {
 	/* nothing right now */
 }
 
 /*
 ** Initialize.
 */
-void Init_tja_ffmpeg(void)
-{
+void Init_tja_ffmpeg(void) {
 	VALUE module, format_klass;
 
 	// Set up FFMPEG
@@ -32,11 +30,15 @@ void Init_tja_ffmpeg(void)
 	format_klass = rb_define_class_under(module, "Format", rb_cObject);
 	rb_define_alloc_func(format_klass, format_alloc);
 
+	rb_define_const (format_klass, "VERSION",		rb_str_new2(format_version_string()));
+	rb_define_const (format_klass, "CONFIGURATION",	rb_str_new2(avformat_configuration()));
+	rb_define_const (format_klass, "LICENSE",		rb_str_new2(avformat_license()));
+
 	rb_define_method(format_klass, "initialize",	format_initialize, 1);
 
-	rb_define_const(format_klass, "VERSION",		rb_str_new2(format_version_string()));
-	rb_define_const(format_klass, "CONFIGURATION",	rb_str_new2(avformat_configuration()));
-	rb_define_const(format_klass, "LICENSE",		rb_str_new2(avformat_license()));
+	rb_define_method(format_klass, "tag", 			format_tag, 0);
+	rb_define_method(format_klass, "name", 			format_name, 0);
+	rb_define_method(format_klass, "description", 	format_description, 0);
 
 	// ...
 	// rb_define_singleton_method(klass, "version_int", ffmpeg_version_int, 0);

@@ -1,7 +1,7 @@
 #include <ruby.h>
 
-#include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
+#include <libavcodec/avcodec.h>
 #include <libswscale/swscale.h>
 
 #include "tja_ffmpeg_format.h"
@@ -20,8 +20,7 @@ typedef struct {
 /*
 **
 */
-char const * format_version_string()
-{
+char const * format_version_string() {
 	static char version[256];
 	snprintf(&version[0], sizeof(version), "%d.%d.%d", (avformat_version() >> 16) & 0xffff,
 													   (avformat_version() >>  8) & 0x00ff,
@@ -32,8 +31,7 @@ char const * format_version_string()
 /*
 **
 */
-int read_packet(void * opaque, uint8_t * buffer, int buffer_size)
-{
+int read_packet(void * opaque, uint8_t * buffer, int buffer_size) {
 	Format_Internal * internal = (Format_Internal *)opaque;
 
 	VALUE string = rb_funcall(internal->stream, rb_intern("read"), 1, INT2FIX(buffer_size));
@@ -46,8 +44,7 @@ int read_packet(void * opaque, uint8_t * buffer, int buffer_size)
 /*
 **
 */
-void klass_free(void * opaque)
-{
+void klass_free(void * opaque) {
 	Format_Internal * internal = (Format_Internal *)opaque;
 	if (internal) {
 		if (internal->format)
@@ -61,8 +58,7 @@ void klass_free(void * opaque)
 /*
 **
 */
-void klass_mark(void * opaque)
-{
+void klass_mark(void * opaque) {
 	Format_Internal * internal = (Format_Internal *)opaque;
 	if (internal) {
 		rb_gc_mark(internal->stream);
@@ -72,8 +68,7 @@ void klass_mark(void * opaque)
 /*
 **
 */
-VALUE format_alloc(VALUE klass)
-{
+VALUE format_alloc(VALUE klass) {
 	Format_Internal * internal = (Format_Internal *)av_mallocz(sizeof(Format_Internal));
 	if (!internal) rb_raise(rb_eNoMemError, "Filed to allocate internal structure");
 
@@ -92,8 +87,7 @@ VALUE format_alloc(VALUE klass)
 /*
 **
 */
-VALUE format_initialize(VALUE self, VALUE stream)
-{
+VALUE format_initialize(VALUE self, VALUE stream) {
 	Format_Internal * internal;
 	Data_Get_Struct(self, Format_Internal, internal);
 
@@ -108,4 +102,34 @@ VALUE format_initialize(VALUE self, VALUE stream)
 
 	printf("Successfully detected file format: %s\n", internal->format->iformat->name);
 	return self;
+}
+
+/*
+**
+*/
+VALUE format_tag(VALUE self) {
+	Format_Internal * internal;
+	Data_Get_Struct(self, Format_Internal, internal);
+	
+	return INT2NUM(internal->format->video_codec_id);
+}
+
+/*
+**
+*/
+VALUE format_name(VALUE self) {
+	Format_Internal * internal;
+	Data_Get_Struct(self, Format_Internal, internal);
+	
+	return rb_str_new2(internal->format->iformat->name);
+}
+
+/*
+**
+*/
+VALUE format_description(VALUE self) {
+	Format_Internal * internal;
+	Data_Get_Struct(self, Format_Internal, internal);
+	
+	return rb_str_new2(internal->format->iformat->long_name);
 }

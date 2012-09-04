@@ -7,11 +7,9 @@ class FFMPEGTest < Test::Unit::TestCase
   end
 
   def test_ffmpeg_open
-    FFMPEG::Format.new(File.open("./test/test.mov"))
-  end
-
-  def test_dump
-#    puts FFMPEG::CONFIGURATION
-#    puts FFMPEG::LICENSE
+    FFMPEG::Format.open(File.open("./test/test.mov")) do |format|
+      assert_equal "mov,mp4,m4a,3gp,3g2,mj2", format.name
+      assert_equal "QuickTime/MPEG-4/Motion JPEG 2000 format", format.description
+    end
   end
 end
