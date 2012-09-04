@@ -5,27 +5,35 @@
 #include <libswscale/swscale.h>
 
 #include "tja_ffmpeg_format.h"
+#include "tja_ffmpeg_stream.h"
 
 #define FORMAT_READ_BUFFER_SIZE		8192
+
+// ...
+VALUE format_klass;
 
 // Internal data
 typedef struct {
 	// LibAV
 	AVFormatContext *	format;
-	AVIOContext *		io;
+	AVIOContext *		protocol;
 	// Ruby
-	VALUE				stream;
+	VALUE				io;
+	VALUE				streams;
 } Format_Internal;
 
 /*
 **
 */
-char const * format_version_string() {
-	static char version[256];
-	snprintf(&version[0], sizeof(version), "%d.%d.%d", (avformat_version() >> 16) & 0xffff,
-													   (avformat_version() >>  8) & 0x00ff,
-													   (avformat_version()      ) & 0x00ff);
-	return version;
+VALUE wrap_streams(VALUE self, AVFormatContext * format) {
+	VALUE streams = rb_ary_new();
+
+	int i = 0;
+	while(i < format->nb_streams) {
+		rb_ary_push(streams, stream_create_instance(self, format->streams[i++]));
+	}
+
+	return streams;
 }
 
 /*
@@ -34,7 +42,7 @@ char const * format_version_string() {
 int read_packet(void * opaque, uint8_t * buffer, int buffer_size) {
 	Format_Internal * internal = (Format_Internal *)opaque;
 
-	VALUE string = rb_funcall(internal->stream, rb_intern("read"), 1, INT2FIX(buffer_size));
+	VALUE string = rb_funcall(internal->io, rb_intern("read"), 1, INT2FIX(buffer_size));
 	Check_Type(string, T_STRING);
 	
 	memcpy(buffer, RSTRING_PTR(string), RSTRING_LEN(string));
@@ -44,24 +52,25 @@ int read_packet(void * opaque, uint8_t * buffer, int buffer_size) {
 /*
 **
 */
-void klass_free(void * opaque) {
+void format_mark(void * opaque) {
 	Format_Internal * internal = (Format_Internal *)opaque;
 	if (internal) {
-		if (internal->format)
-			avformat_free_context(internal->format);
-		if (internal->io)
-			av_free(internal->io);
-		av_free(internal);
+		rb_gc_mark(internal->io);
+		rb_gc_mark(internal->streams);
 	}
 }
 
 /*
 **
 */
-void klass_mark(void * opaque) {
+void format_free(void * opaque) {
 	Format_Internal * internal = (Format_Internal *)opaque;
 	if (internal) {
-		rb_gc_mark(internal->stream);
+		if (internal->format)
+			avformat_free_context(internal->format);
+		if (internal->protocol)
+			av_free(internal->protocol);
+		av_free(internal);
 	}
 }
 
@@ -72,27 +81,28 @@ VALUE format_alloc(VALUE klass) {
 	Format_Internal * internal = (Format_Internal *)av_mallocz(sizeof(Format_Internal));
 	if (!internal) rb_raise(rb_eNoMemError, "Filed to allocate internal structure");
 
-	internal->io = avio_alloc_context(av_malloc(FORMAT_READ_BUFFER_SIZE), FORMAT_READ_BUFFER_SIZE, 0, internal, read_packet, NULL, NULL);
-	if (!internal->io) rb_raise(rb_eNoMemError, "Failed to allocate FFMPEG IO context");
-	internal->io->seekable = 0;
-
 	internal->format = avformat_alloc_context();
 	if (!internal->format) rb_raise(rb_eNoMemError, "Failed to allocate FFMPEG format context");
 
-	internal->format->pb = internal->io;
+	internal->protocol = avio_alloc_context(av_malloc(FORMAT_READ_BUFFER_SIZE), FORMAT_READ_BUFFER_SIZE, 0, internal, read_packet, NULL, NULL);
+	if (!internal->protocol) rb_raise(rb_eNoMemError, "Failed to allocate FFMPEG IO context");
 
-	return Data_Wrap_Struct(klass, klass_mark, klass_free, (void *)internal);
+	internal->protocol->seekable = 0;
+	internal->format->pb = internal->protocol;
+
+	return Data_Wrap_Struct(klass, format_mark, format_free, (void *)internal);
 }
 
 /*
 **
 */
-VALUE format_initialize(VALUE self, VALUE stream) {
+VALUE format_initialize(VALUE self, VALUE io) {
 	Format_Internal * internal;
 	Data_Get_Struct(self, Format_Internal, internal);
 
-	internal->stream = stream;
+	internal->io = io;
 
+	// Open file via Ruby stream
 	int err = avformat_open_input(&internal->format, "unnamed", NULL, NULL);
 	if (err) {
 		char strerror[1024];
@@ -100,18 +110,18 @@ VALUE format_initialize(VALUE self, VALUE stream) {
 		rb_raise(rb_eLoadError, strerror);
 	}
 
-	printf("Successfully detected file format: %s\n", internal->format->iformat->name);
-	return self;
-}
+	// Read in stream information
+	err = av_find_stream_info(internal->format);
+	if (err < 0) {
+		char strerror[1024];
+		av_strerror(err, &strerror[0], sizeof(strerror));
+		rb_raise(rb_eLoadError, strerror);
+	}
 
-/*
-**
-*/
-VALUE format_tag(VALUE self) {
-	Format_Internal * internal;
-	Data_Get_Struct(self, Format_Internal, internal);
-	
-	return INT2NUM(internal->format->video_codec_id);
+	// Wrap streams
+	internal->streams = wrap_streams(self, internal->format);
+
+	return self;
 }
 
 /*
@@ -132,4 +142,25 @@ VALUE format_description(VALUE self) {
 	Data_Get_Struct(self, Format_Internal, internal);
 	
 	return rb_str_new2(internal->format->iformat->long_name);
+}
+
+/*
+**
+*/
+VALUE format_streams(VALUE self) {
+	Format_Internal * internal;
+	Data_Get_Struct(self, Format_Internal, internal);
+	
+	return internal->streams;
+}
+
+/*
+**
+*/
+char const * format_version_string() {
+	static char version[256];
+	snprintf(&version[0], sizeof(version), "%d.%d.%d", (avformat_version() >> 16) & 0xffff,
+													   (avformat_version() >>  8) & 0x00ff,
+													   (avformat_version()      ) & 0x00ff);
+	return version;
 }

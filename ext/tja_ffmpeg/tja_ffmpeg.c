@@ -5,6 +5,7 @@
 #include <libswscale/swscale.h>
 
 #include "tja_ffmpeg_format.h"
+#include "tja_ffmpeg_stream.h"
 
 /*
 ** Deinitialize.
@@ -17,14 +18,14 @@ void DeInit_tja_ffmpeg(VALUE unused) {
 ** Initialize.
 */
 void Init_tja_ffmpeg(void) {
-	VALUE module, format_klass;
-
-	// Set up FFMPEG
+	// Global setup
 	av_register_all();
 	av_log_set_level(AV_LOG_QUIET);
 
+	rb_set_end_proc(DeInit_tja_ffmpeg, 0);
+
 	// FFMPEG module
-	module = rb_define_module("FFMPEG");
+	VALUE module = rb_define_module("FFMPEG");
 
 	// Format class
 	format_klass = rb_define_class_under(module, "Format", rb_cObject);
@@ -36,14 +37,19 @@ void Init_tja_ffmpeg(void) {
 
 	rb_define_method(format_klass, "initialize",	format_initialize, 1);
 
-	rb_define_method(format_klass, "tag", 			format_tag, 0);
 	rb_define_method(format_klass, "name", 			format_name, 0);
 	rb_define_method(format_klass, "description", 	format_description, 0);
+	rb_define_method(format_klass, "streams", 		format_streams, 0);
 
-	// ...
-	// rb_define_singleton_method(klass, "version_int", ffmpeg_version_int, 0);
-	// rb_define_singleton_method(klass, "configuration", ffmpeg_configuration, 0);
-	// rb_define_singleton_method(klass, "license", ffmpeg_license, 0);
+	// Stream class
+	stream_klass = rb_define_class_under(module, "Stream", rb_cObject);
+	rb_define_alloc_func(stream_klass, stream_alloc);
 
-	rb_set_end_proc(DeInit_tja_ffmpeg, 0);
+	rb_define_method(stream_klass, "format", 		stream_format, 0);
+	rb_define_method(stream_klass, "index", 		stream_index, 0);
+	rb_define_method(stream_klass, "type", 			stream_type, 0);
+	rb_define_method(stream_klass, "tag", 			stream_tag, 0);
+	rb_define_method(stream_klass, "start_time", 	stream_start_time, 0);
+	rb_define_method(stream_klass, "duration", 		stream_duration, 0);
+	rb_define_method(stream_klass, "frame_count", 	stream_frame_count, 0);
 }

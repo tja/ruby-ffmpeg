@@ -10,6 +10,11 @@ class FFMPEGTest < Test::Unit::TestCase
     FFMPEG::Format.open(File.open("./test/test.mov")) do |format|
       assert_equal "mov,mp4,m4a,3gp,3g2,mj2", format.name
       assert_equal "QuickTime/MPEG-4/Motion JPEG 2000 format", format.description
+      
+      puts "Stream Count: #{format.streams.count}"
+      format.streams.each do |stream|
+        puts "   #{stream.index} - #{stream.type} - #{stream.tag} - #{stream.start_time} - #{stream.duration} - #{stream.frame_count}"
+      end
     end
   end
 end
