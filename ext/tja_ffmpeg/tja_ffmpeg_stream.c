@@ -5,6 +5,7 @@
 #include <libswscale/swscale.h>
 
 #include "tja_ffmpeg_stream.h"
+#include "tja_ffmpeg_util.h"
 
 // ...
 VALUE stream_klass;
@@ -15,6 +16,7 @@ typedef struct {
 	AVStream *			stream;
 	// Ruby
 	VALUE				format;
+	VALUE				metadata;
 } Stream_Internal;
 
 /*
@@ -24,6 +26,7 @@ void stream_mark(void * opaque) {
 	Stream_Internal * internal = (Stream_Internal *)opaque;
 	if (internal) {
 		rb_gc_mark(internal->format);
+		rb_gc_mark(internal->metadata);
 	}
 }
 
@@ -58,6 +61,7 @@ VALUE stream_create_instance(VALUE format, AVStream * stream) {
 
 	internal->stream = stream;
 	internal->format = format;
+	internal->metadata = av_dictionary_to_ruby_hash(internal->stream->metadata);
 
 	return self;
 }
@@ -118,6 +122,16 @@ VALUE stream_tag(VALUE self) {
 					internal->stream->codec->codec_tag >> 24 & 0xff };
 
 	return rb_str_new(tag, 4);
+}
+
+/*
+**
+*/
+VALUE stream_metadata(VALUE self) {
+	Stream_Internal * internal;
+	Data_Get_Struct(self, Stream_Internal, internal);
+	
+	return internal->metadata;
 }
 
 /*

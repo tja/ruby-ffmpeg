@@ -6,6 +6,7 @@
 
 #include "tja_ffmpeg_format.h"
 #include "tja_ffmpeg_stream.h"
+#include "tja_ffmpeg_util.h"
 
 #define FORMAT_READ_BUFFER_SIZE		8192
 
@@ -20,17 +21,18 @@ typedef struct {
 	// Ruby
 	VALUE				io;
 	VALUE				streams;
+	VALUE				metadata;
 } Format_Internal;
 
 /*
 **
 */
-VALUE wrap_streams(VALUE self, AVFormatContext * format) {
+VALUE extract_streams(VALUE self, AVFormatContext * format) {
 	VALUE streams = rb_ary_new();
 
-	int i = 0;
-	while(i < format->nb_streams) {
-		rb_ary_push(streams, stream_create_instance(self, format->streams[i++]));
+	unsigned i = 0;
+	for(; i < format->nb_streams; ++i) {
+		rb_ary_push(streams, stream_create_instance(self, format->streams[i]));
 	}
 
 	return streams;
@@ -57,6 +59,7 @@ void format_mark(void * opaque) {
 	if (internal) {
 		rb_gc_mark(internal->io);
 		rb_gc_mark(internal->streams);
+		rb_gc_mark(internal->metadata);
 	}
 }
 
@@ -118,8 +121,9 @@ VALUE format_initialize(VALUE self, VALUE io) {
 		rb_raise(rb_eLoadError, strerror);
 	}
 
-	// Wrap streams
-	internal->streams = wrap_streams(self, internal->format);
+	// Extract properties
+	internal->streams = extract_streams(self, internal->format);
+	internal->metadata = av_dictionary_to_ruby_hash(internal->format->metadata);
 
 	return self;
 }
@@ -152,6 +156,16 @@ VALUE format_streams(VALUE self) {
 	Data_Get_Struct(self, Format_Internal, internal);
 	
 	return internal->streams;
+}
+
+/*
+**
+*/
+VALUE format_metadata(VALUE self) {
+	Format_Internal * internal;
+	Data_Get_Struct(self, Format_Internal, internal);
+	
+	return internal->metadata;
 }
 
 /*

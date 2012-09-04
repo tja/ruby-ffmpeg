@@ -4,7 +4,7 @@
 #include <ruby.h>
 #include <libavformat/avformat.h>
 
-// ...
+// Class object
 extern VALUE stream_klass;
 
 // entry points
@@ -15,6 +15,7 @@ VALUE stream_format(VALUE self);
 VALUE stream_index(VALUE self);
 VALUE stream_type(VALUE self);
 VALUE stream_tag(VALUE self);
+VALUE stream_metadata(VALUE self);
 VALUE stream_start_time(VALUE self);
 VALUE stream_duration(VALUE self);
 VALUE stream_frame_count(VALUE self);

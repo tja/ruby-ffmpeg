@@ -40,6 +40,7 @@ void Init_tja_ffmpeg(void) {
 	rb_define_method(format_klass, "name", 			format_name, 0);
 	rb_define_method(format_klass, "description", 	format_description, 0);
 	rb_define_method(format_klass, "streams", 		format_streams, 0);
+	rb_define_method(format_klass, "metadata", 		format_metadata, 0);
 
 	// Stream class
 	stream_klass = rb_define_class_under(module, "Stream", rb_cObject);
@@ -49,6 +50,7 @@ void Init_tja_ffmpeg(void) {
 	rb_define_method(stream_klass, "index", 		stream_index, 0);
 	rb_define_method(stream_klass, "type", 			stream_type, 0);
 	rb_define_method(stream_klass, "tag", 			stream_tag, 0);
+	rb_define_method(stream_klass, "metadata", 		stream_metadata, 0);
 	rb_define_method(stream_klass, "start_time", 	stream_start_time, 0);
 	rb_define_method(stream_klass, "duration", 		stream_duration, 0);
 	rb_define_method(stream_klass, "frame_count", 	stream_frame_count, 0);

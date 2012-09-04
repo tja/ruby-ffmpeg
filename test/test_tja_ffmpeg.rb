@@ -12,8 +12,10 @@ class FFMPEGTest < Test::Unit::TestCase
       assert_equal "QuickTime/MPEG-4/Motion JPEG 2000 format", format.description
       
       puts "Stream Count: #{format.streams.count}"
+      puts format.metadata
       format.streams.each do |stream|
         puts "   #{stream.index} - #{stream.type} - #{stream.tag} - #{stream.start_time} - #{stream.duration} - #{stream.frame_count}"
+        puts stream.metadata
       end
     end
   end
