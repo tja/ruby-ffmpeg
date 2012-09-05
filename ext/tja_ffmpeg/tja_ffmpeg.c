@@ -39,6 +39,8 @@ void Init_tja_ffmpeg(void) {
 
 	rb_define_method(format_klass, "name", 			format_name, 0);
 	rb_define_method(format_klass, "description", 	format_description, 0);
+	rb_define_method(format_klass, "start_time", 	format_start_time, 0);
+	rb_define_method(format_klass, "duration", 		format_duration, 0);
 	rb_define_method(format_klass, "streams", 		format_streams, 0);
 	rb_define_method(format_klass, "metadata", 		format_metadata, 0);
 

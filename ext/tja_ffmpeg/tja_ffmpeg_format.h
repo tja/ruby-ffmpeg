@@ -13,6 +13,8 @@ VALUE format_initialize(VALUE self, VALUE stream);
 // properties
 VALUE format_name(VALUE self);
 VALUE format_description(VALUE self);
+VALUE format_start_time(VALUE self);
+VALUE format_duration(VALUE self);
 VALUE format_streams(VALUE self);
 VALUE format_metadata(VALUE self);
 

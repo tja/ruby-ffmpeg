@@ -151,6 +151,26 @@ VALUE format_description(VALUE self) {
 /*
 **
 */
+VALUE format_start_time(VALUE self) {
+	Format_Internal * internal;
+	Data_Get_Struct(self, Format_Internal, internal);
+	
+	return rb_float_new(internal->format->start_time / (double)AV_TIME_BASE);
+}
+
+/*
+**
+*/
+VALUE format_duration(VALUE self) {
+	Format_Internal * internal;
+	Data_Get_Struct(self, Format_Internal, internal);
+	
+	return rb_float_new(internal->format->duration / (double)AV_TIME_BASE);
+}
+
+/*
+**
+*/
 VALUE format_streams(VALUE self) {
 	Format_Internal * internal;
 	Data_Get_Struct(self, Format_Internal, internal);
