@@ -8,14 +8,14 @@
 #include "ruby_ffmpeg_stream.h"
 
 /*
-** Deinitialize.
+**	Deinitialize.
 */
 void DeInit_ruby_ffmpeg(VALUE unused) {
 	/* nothing for now */
 }
 
 /*
-** Initialize.
+**	Initialize.
 */
 void Init_ruby_ffmpeg_ext(void) {
 	// FFMPEG
@@ -26,6 +26,6 @@ void Init_ruby_ffmpeg_ext(void) {
 	rb_set_end_proc(DeInit_ruby_ffmpeg, 0);
 
 	VALUE module = rb_define_module("FFMPEG");
-	format_create(module);
-	stream_create(module);
+	format_register_class(module);
+	stream_register_class(module);
 }

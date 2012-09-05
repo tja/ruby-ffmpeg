@@ -5,60 +5,34 @@
 #include <libswscale/swscale.h>
 
 #include "ruby_ffmpeg_stream.h"
+#include "ruby_ffmpeg_stream_private.h"
 #include "ruby_ffmpeg_util.h"
 
-// ...
+// Globals
 static VALUE _klass;
 
-// Internal data
-typedef struct {
-	// LibAV
-	AVStream *			stream;
-	// Ruby
-	VALUE				format;
-	VALUE				metadata;
-} Stream_Internal;
 
 /*
-**
+**	Object Lifetime.
 */
-void stream_mark(void * opaque) {
-	Stream_Internal * internal = (Stream_Internal *)opaque;
-	if (internal) {
-		rb_gc_mark(internal->format);
-		rb_gc_mark(internal->metadata);
-	}
-}
 
-/*
-**
-*/
-void stream_free(void * opaque) {
-	Stream_Internal * internal = (Stream_Internal *)opaque;
-	if (internal) {
-		// nothing yet
-	}
-}
-
-/*
-**
-*/
-VALUE stream_create(VALUE module) {
+// Register class
+VALUE stream_register_class(VALUE module) {
 	_klass = rb_define_class_under(module, "Stream", rb_cObject);
 	rb_define_alloc_func(_klass, stream_alloc);
 
-	rb_define_method(_klass, "format", 		stream_format, 0);
-	rb_define_method(_klass, "index", 		stream_index, 0);
+	rb_define_method(_klass, "format", 			stream_format, 0);
+	rb_define_method(_klass, "index", 			stream_index, 0);
 	rb_define_method(_klass, "type", 			stream_type, 0);
 	rb_define_method(_klass, "tag", 			stream_tag, 0);
-	rb_define_method(_klass, "start_time", 	stream_start_time, 0);
+	rb_define_method(_klass, "start_time", 		stream_start_time, 0);
 	rb_define_method(_klass, "duration", 		stream_duration, 0);
 	rb_define_method(_klass, "frame_count", 	stream_frame_count, 0);
 	rb_define_method(_klass, "bit_rate", 		stream_bit_rate, 0);
-	rb_define_method(_klass, "frame_rate", 	stream_frame_rate, 0);
-	rb_define_method(_klass, "sample_rate",	stream_sample_rate, 0);
-	rb_define_method(_klass, "width", 		stream_width, 0);
-	rb_define_method(_klass, "height", 		stream_height, 0);
+	rb_define_method(_klass, "frame_rate", 		stream_frame_rate, 0);
+	rb_define_method(_klass, "sample_rate",		stream_sample_rate, 0);
+	rb_define_method(_klass, "width", 			stream_width, 0);
+	rb_define_method(_klass, "height", 			stream_height, 0);
 	rb_define_method(_klass, "aspect_ratio",	stream_aspect_ratio, 0);
 	rb_define_method(_klass, "channels",		stream_channels, 0);
 	rb_define_method(_klass, "metadata", 		stream_metadata, 0);
@@ -66,24 +40,37 @@ VALUE stream_create(VALUE module) {
 	return _klass;
 }
 
-/*
-**
-*/
+// Allocate object
 VALUE stream_alloc(VALUE klass) {
-	Stream_Internal * internal = (Stream_Internal *)av_mallocz(sizeof(Stream_Internal));
-	if (!internal) rb_raise(rb_eNoMemError, "Filed to allocate internal structure");
+	StreamInternal * internal = (StreamInternal *)av_mallocz(sizeof(StreamInternal));
+	if (!internal) rb_raise(rb_eNoMemError, "Failed to allocate internal structure");
 
 	return Data_Wrap_Struct(klass, stream_mark, stream_free, (void *)internal);
 }
 
-/*
-**
-*/
-VALUE stream_create_instance(VALUE format, AVStream * stream) {
+// Free object
+void stream_free(void * opaque) {
+	StreamInternal * internal = (StreamInternal *)opaque;
+	if (internal) {
+		// nothing for now
+	}
+}
+
+// Mark for garbage collection
+void stream_mark(void * opaque) {
+	StreamInternal * internal = (StreamInternal *)opaque;
+	if (internal) {
+		rb_gc_mark(internal->format);
+		rb_gc_mark(internal->metadata);
+	}
+}
+
+// Create new instance for given FFMPEG stream
+VALUE stream_new(VALUE format, AVStream * stream) {
 	VALUE self = rb_class_new_instance(0, NULL, _klass);
 
-	Stream_Internal * internal;
-	Data_Get_Struct(self, Stream_Internal, internal);
+	StreamInternal * internal;
+	Data_Get_Struct(self, StreamInternal, internal);
 
 	internal->stream = stream;
 	internal->format = format;
@@ -92,32 +79,31 @@ VALUE stream_create_instance(VALUE format, AVStream * stream) {
 	return self;
 }
 
+
 /*
-**
+**	Properties.
 */
+
+// Point back to format
 VALUE stream_format(VALUE self) {
-	Stream_Internal * internal;
-	Data_Get_Struct(self, Stream_Internal, internal);
+	StreamInternal * internal;
+	Data_Get_Struct(self, StreamInternal, internal);
 
 	return internal->format;
 }
 
-/*
-**
-*/
+// Index in media file
 VALUE stream_index(VALUE self) {
-	Stream_Internal * internal;
-	Data_Get_Struct(self, Stream_Internal, internal);
+	StreamInternal * internal;
+	Data_Get_Struct(self, StreamInternal, internal);
 
 	return INT2NUM(internal->stream->index);
 }
 
-/*
-**
-*/
+// Stream type
 VALUE stream_type(VALUE self) {
-	Stream_Internal * internal;
-	Data_Get_Struct(self, Stream_Internal, internal);
+	StreamInternal * internal;
+	Data_Get_Struct(self, StreamInternal, internal);
 
 	switch (internal->stream->codec->codec_type) {
 		case AVMEDIA_TYPE_VIDEO:
@@ -135,12 +121,10 @@ VALUE stream_type(VALUE self) {
 	}
 }
 
-/*
-**
-*/
+// Codec tag
 VALUE stream_tag(VALUE self) {
-	Stream_Internal * internal;
-	Data_Get_Struct(self, Stream_Internal, internal);
+	StreamInternal * internal;
+	Data_Get_Struct(self, StreamInternal, internal);
 
 	char tag[4] = { internal->stream->codec->codec_tag >>  0 & 0xff,
 		 			internal->stream->codec->codec_tag >>  8 & 0xff,
@@ -150,112 +134,90 @@ VALUE stream_tag(VALUE self) {
 	return rb_str_new(tag, 4);
 }
 
-/*
-**
-*/
+// Start time (in seconds)
 VALUE stream_start_time(VALUE self) {
-	Stream_Internal * internal;
-	Data_Get_Struct(self, Stream_Internal, internal);
+	StreamInternal * internal;
+	Data_Get_Struct(self, StreamInternal, internal);
 
 	return rb_float_new(internal->stream->start_time * av_q2d(internal->stream->time_base));
 }
 
-/*
-**
-*/
+// Duration (in seconds)
 VALUE stream_duration(VALUE self) {
-	Stream_Internal * internal;
-	Data_Get_Struct(self, Stream_Internal, internal);
+	StreamInternal * internal;
+	Data_Get_Struct(self, StreamInternal, internal);
 
 	return rb_float_new(internal->stream->duration * av_q2d(internal->stream->time_base));
 }
 
-/*
-**
-*/
+// Number of frames
 VALUE stream_frame_count(VALUE self) {
-	Stream_Internal * internal;
-	Data_Get_Struct(self, Stream_Internal, internal);
+	StreamInternal * internal;
+	Data_Get_Struct(self, StreamInternal, internal);
 
 	return INT2NUM(internal->stream->nb_frames);
 }
 
-/*
-**
-*/
+// Bit rate (bits per second)
 VALUE stream_bit_rate(VALUE self) {
-	Stream_Internal * internal;
-	Data_Get_Struct(self, Stream_Internal, internal);
+	StreamInternal * internal;
+	Data_Get_Struct(self, StreamInternal, internal);
 
 	return INT2NUM(internal->stream->codec->bit_rate);
 }
 
-/*
-**
-*/
-VALUE stream_frame_rate(VALUE self) {
-	Stream_Internal * internal;
-	Data_Get_Struct(self, Stream_Internal, internal);
-
-	return internal->stream->avg_frame_rate.den ? rb_float_new(av_q2d(internal->stream->avg_frame_rate)) : Qnil;
-}
-
-/*
-**
-*/
-VALUE stream_sample_rate(VALUE self) {
-	Stream_Internal * internal;
-	Data_Get_Struct(self, Stream_Internal, internal);
-
-	return internal->stream->codec->sample_rate ? INT2NUM(internal->stream->codec->sample_rate) : Qnil;
-}
-
-/*
-**
-*/
+// Video frame width (in pixels), nil if not available
 VALUE stream_width(VALUE self) {
-	Stream_Internal * internal;
-	Data_Get_Struct(self, Stream_Internal, internal);
+	StreamInternal * internal;
+	Data_Get_Struct(self, StreamInternal, internal);
 
 	return internal->stream->codec->width ? INT2NUM(internal->stream->codec->width) : Qnil;
 }
 
-/*
-**
-*/
+// Video frame height (in pixels), nil if not available
 VALUE stream_height(VALUE self) {
-	Stream_Internal * internal;
-	Data_Get_Struct(self, Stream_Internal, internal);
+	StreamInternal * internal;
+	Data_Get_Struct(self, StreamInternal, internal);
 
 	return internal->stream->codec->height ? INT2NUM(internal->stream->codec->height) : Qnil;
 }
 
-/*
-**
-*/
+// Video pixel aspect ratio, nil if not available
 VALUE stream_aspect_ratio(VALUE self) {
-	Stream_Internal * internal;
-	Data_Get_Struct(self, Stream_Internal, internal);
+	StreamInternal * internal;
+	Data_Get_Struct(self, StreamInternal, internal);
 
 	return internal->stream->codec->sample_aspect_ratio.num ? rb_float_new(av_q2d(internal->stream->codec->sample_aspect_ratio)) : Qnil;
 }
 
-/*
-**
-*/
+// Video frame rate (frames per second), nil if not available
+VALUE stream_frame_rate(VALUE self) {
+	StreamInternal * internal;
+	Data_Get_Struct(self, StreamInternal, internal);
+
+	return internal->stream->avg_frame_rate.den ? rb_float_new(av_q2d(internal->stream->avg_frame_rate)) : Qnil;
+}
+
+// Audio sample rate (samples per second), nil if not available
+VALUE stream_sample_rate(VALUE self) {
+	StreamInternal * internal;
+	Data_Get_Struct(self, StreamInternal, internal);
+
+	return internal->stream->codec->sample_rate ? INT2NUM(internal->stream->codec->sample_rate) : Qnil;
+}
+
+// Number of audio channels, nil if not available
 VALUE stream_channels(VALUE self) {
-	Stream_Internal * internal;
-	Data_Get_Struct(self, Stream_Internal, internal);
+	StreamInternal * internal;
+	Data_Get_Struct(self, StreamInternal, internal);
 
 	return internal->stream->codec->channels ? INT2NUM(internal->stream->codec->channels) : Qnil;
 }
 
-/*
-**
-*/
+// Metadata
 VALUE stream_metadata(VALUE self) {
-	Stream_Internal * internal;
-	Data_Get_Struct(self, Stream_Internal, internal);
+	StreamInternal * internal;
+	Data_Get_Struct(self, StreamInternal, internal);
 	
 	return internal->metadata;
 }

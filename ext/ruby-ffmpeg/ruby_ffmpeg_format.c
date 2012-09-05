@@ -5,105 +5,32 @@
 #include <libswscale/swscale.h>
 
 #include "ruby_ffmpeg_format.h"
+#include "ruby_ffmpeg_format_private.h"
 #include "ruby_ffmpeg_stream.h"
 #include "ruby_ffmpeg_util.h"
 
-#define FORMAT_READ_BUFFER_SIZE		8192
-
-// ...
+// Globals
 static VALUE _klass;
 
-// Internal data
-typedef struct {
-	// LibAV
-	AVFormatContext *	format;
-	AVIOContext *		protocol;
-	// Ruby
-	VALUE				io;
-	VALUE				streams;
-	VALUE				metadata;
-} Format_Internal;
 
 /*
-**
+**	Object Lifetime.
 */
-char const * format_version_string() {
-	static char version[256];
-	snprintf(&version[0], sizeof(version), "%d.%d.%d", (avformat_version() >> 16) & 0xffff,
-													   (avformat_version() >>  8) & 0x00ff,
-													   (avformat_version()      ) & 0x00ff);
-	return version;
-}
 
-/*
-**
-*/
-VALUE extract_streams(VALUE self, AVFormatContext * format) {
-	VALUE streams = rb_ary_new();
-
-	unsigned i = 0;
-	for(; i < format->nb_streams; ++i) {
-		rb_ary_push(streams, stream_create_instance(self, format->streams[i]));
-	}
-
-	return streams;
-}
-
-/*
-**
-*/
-int read_packet(void * opaque, uint8_t * buffer, int buffer_size) {
-	Format_Internal * internal = (Format_Internal *)opaque;
-
-	VALUE string = rb_funcall(internal->io, rb_intern("read"), 1, INT2FIX(buffer_size));
-	Check_Type(string, T_STRING);
-	
-	memcpy(buffer, RSTRING_PTR(string), RSTRING_LEN(string));
-	return RSTRING_LEN(string);
-}
-
-/*
-**
-*/
-void format_mark(void * opaque) {
-	Format_Internal * internal = (Format_Internal *)opaque;
-	if (internal) {
-		rb_gc_mark(internal->io);
-		rb_gc_mark(internal->streams);
-		rb_gc_mark(internal->metadata);
-	}
-}
-
-/*
-**
-*/
-void format_free(void * opaque) {
-	Format_Internal * internal = (Format_Internal *)opaque;
-	if (internal) {
-		if (internal->format)
-			avformat_free_context(internal->format);
-		if (internal->protocol)
-			av_free(internal->protocol);
-		av_free(internal);
-	}
-}
-
-/*
-**
-*/
-VALUE format_create(VALUE module) {
+// Register class
+VALUE format_register_class(VALUE module) {
 	_klass = rb_define_class_under(module, "Format", rb_cObject);
 	rb_define_alloc_func(_klass, format_alloc);
 
-	rb_define_const (_klass, "VERSION",		rb_str_new2(format_version_string()));
+	rb_define_const (_klass, "VERSION",			rb_str_new2(human_readable_version()));
 	rb_define_const (_klass, "CONFIGURATION",	rb_str_new2(avformat_configuration()));
-	rb_define_const (_klass, "LICENSE",		rb_str_new2(avformat_license()));
+	rb_define_const (_klass, "LICENSE",			rb_str_new2(avformat_license()));
 
-	rb_define_method(_klass, "initialize",	format_initialize, 1);
+	rb_define_method(_klass, "initialize",		format_initialize, 1);
 
 	rb_define_method(_klass, "name", 			format_name, 0);
 	rb_define_method(_klass, "description", 	format_description, 0);
-	rb_define_method(_klass, "start_time", 	format_start_time, 0);
+	rb_define_method(_klass, "start_time", 		format_start_time, 0);
 	rb_define_method(_klass, "duration", 		format_duration, 0);
 	rb_define_method(_klass, "bit_rate", 		format_bit_rate, 0);
 	rb_define_method(_klass, "streams", 		format_streams, 0);
@@ -112,12 +39,10 @@ VALUE format_create(VALUE module) {
 	return _klass;
 }
 
-/*
-**
-*/
+// Allocate object
 VALUE format_alloc(VALUE klass) {
-	Format_Internal * internal = (Format_Internal *)av_mallocz(sizeof(Format_Internal));
-	if (!internal) rb_raise(rb_eNoMemError, "Filed to allocate internal structure");
+	FormatInternal * internal = (FormatInternal *)av_mallocz(sizeof(FormatInternal));
+	if (!internal) rb_raise(rb_eNoMemError, "Failed to allocate internal structure");
 
 	internal->format = avformat_alloc_context();
 	if (!internal->format) rb_raise(rb_eNoMemError, "Failed to allocate FFMPEG format context");
@@ -131,94 +56,91 @@ VALUE format_alloc(VALUE klass) {
 	return Data_Wrap_Struct(klass, format_mark, format_free, (void *)internal);
 }
 
-/*
-**
-*/
+// Free object
+void format_free(void * opaque) {
+	FormatInternal * internal = (FormatInternal *)opaque;
+	if (internal) {
+		if (internal->format)
+			avformat_free_context(internal->format);
+		if (internal->protocol)
+			av_free(internal->protocol);
+		av_free(internal);
+	}
+}
+
+// Mark for garbage collection
+void format_mark(void * opaque) {
+	FormatInternal * internal = (FormatInternal *)opaque;
+	if (internal) {
+		rb_gc_mark(internal->io);
+		rb_gc_mark(internal->streams);
+		rb_gc_mark(internal->metadata);
+	}
+}
+
+// Initialize object
 VALUE format_initialize(VALUE self, VALUE io) {
-	Format_Internal * internal;
-	Data_Get_Struct(self, Format_Internal, internal);
+	FormatInternal * internal;
+	Data_Get_Struct(self, FormatInternal, internal);
 
 	internal->io = io;
 
 	// Open file via Ruby stream
 	int err = avformat_open_input(&internal->format, "unnamed", NULL, NULL);
-	if (err) {
-		char strerror[1024];
-		av_strerror(err, &strerror[0], sizeof(strerror));
-		rb_raise(rb_eLoadError, strerror);
-	}
+	if (err) rb_raise(rb_eLoadError, av_error_to_ruby_string(err));
 
 	// Read in stream information
 	err = av_find_stream_info(internal->format);
-	if (err < 0) {
-		char strerror[1024];
-		av_strerror(err, &strerror[0], sizeof(strerror));
-		rb_raise(rb_eLoadError, strerror);
-	}
+	if (err < 0) rb_raise(rb_eLoadError, av_error_to_ruby_string(err));
 
 	// Extract properties
-	internal->streams = extract_streams(self, internal->format);
+	internal->streams = streams_to_ruby_array(self, internal->format);
 	internal->metadata = av_dictionary_to_ruby_hash(internal->format->metadata);
 
 	return self;
 }
 
+
 /*
-**
+**	Properties.
 */
+
+// Name
 VALUE format_name(VALUE self) {
-	Format_Internal * internal;
-	Data_Get_Struct(self, Format_Internal, internal);
+	FormatInternal * internal;
+	Data_Get_Struct(self, FormatInternal, internal);
 	
 	return rb_str_new2(internal->format->iformat->name);
 }
 
-/*
-**
-*/
+// Description
 VALUE format_description(VALUE self) {
-	Format_Internal * internal;
-	Data_Get_Struct(self, Format_Internal, internal);
+	FormatInternal * internal;
+	Data_Get_Struct(self, FormatInternal, internal);
 	
 	return rb_str_new2(internal->format->iformat->long_name);
 }
 
-/*
-**
-*/
+// Start time (in seconds)
 VALUE format_start_time(VALUE self) {
-	Format_Internal * internal;
-	Data_Get_Struct(self, Format_Internal, internal);
+	FormatInternal * internal;
+	Data_Get_Struct(self, FormatInternal, internal);
 	
 	return rb_float_new(internal->format->start_time / (double)AV_TIME_BASE);
 }
 
-/*
-**
-*/
+// Duration (in seconds)
 VALUE format_duration(VALUE self) {
-	Format_Internal * internal;
-	Data_Get_Struct(self, Format_Internal, internal);
+	FormatInternal * internal;
+	Data_Get_Struct(self, FormatInternal, internal);
 	
 	return rb_float_new(internal->format->duration / (double)AV_TIME_BASE);
 }
 
-/*
-**
-*/
-VALUE format_streams(VALUE self) {
-	Format_Internal * internal;
-	Data_Get_Struct(self, Format_Internal, internal);
-	
-	return internal->streams;
-}
-
-/*
-**
-*/
+// Bit rate (in bits per second)
 VALUE format_bit_rate(VALUE self) {
-	Format_Internal * internal;
-	Data_Get_Struct(self, Format_Internal, internal);
+	FormatInternal * internal;
+	Data_Get_Struct(self, FormatInternal, internal);
 
 	// We don't have a file size, and therefore not direct bit rate
 	// Instead, we iterate through all streams and add them up
@@ -232,12 +154,55 @@ VALUE format_bit_rate(VALUE self) {
 	return INT2NUM(aggregate_bitrate);
 }
 
-/*
-**
-*/
+// Media streams
+VALUE format_streams(VALUE self) {
+	FormatInternal * internal;
+	Data_Get_Struct(self, FormatInternal, internal);
+	
+	return internal->streams;
+}
+
+// Metadata
 VALUE format_metadata(VALUE self) {
-	Format_Internal * internal;
-	Data_Get_Struct(self, Format_Internal, internal);
+	FormatInternal * internal;
+	Data_Get_Struct(self, FormatInternal, internal);
 	
 	return internal->metadata;
+}
+
+
+/*
+**	Helper Functions.
+*/
+
+// Human-readable AVFormat version
+char const * human_readable_version() {
+	static char version[256];
+	snprintf(&version[0], sizeof(version), "%d.%d.%d", (avformat_version() >> 16) & 0xffff,
+													   (avformat_version() >>  8) & 0x00ff,
+													   (avformat_version()      ) & 0x00ff);
+	return version;
+}
+
+// Wrap streams in Ruby objects
+VALUE streams_to_ruby_array(VALUE self, AVFormatContext * format) {
+	VALUE streams = rb_ary_new();
+
+	unsigned i = 0;
+	for(; i < format->nb_streams; ++i) {
+		rb_ary_push(streams, stream_new(self, format->streams[i]));
+	}
+
+	return streams;
+}
+
+// Read next block of data
+int read_packet(void * opaque, uint8_t * buffer, int buffer_size) {
+	FormatInternal * internal = (FormatInternal *)opaque;
+
+	VALUE string = rb_funcall(internal->io, rb_intern("read"), 1, INT2FIX(buffer_size));
+	Check_Type(string, T_STRING);
+	
+	memcpy(buffer, RSTRING_PTR(string), RSTRING_LEN(string));
+	return RSTRING_LEN(string);
 }

@@ -7,8 +7,10 @@
 #include "ruby_ffmpeg_util.h"
 
 /*
-**
+**	Conversion.
 */
+
+// Convert FFMPEG dictionary to Ruby hash
 VALUE av_dictionary_to_ruby_hash(AVDictionary * dict) {
 	VALUE metadata = rb_hash_new();
 
@@ -18,4 +20,11 @@ VALUE av_dictionary_to_ruby_hash(AVDictionary * dict) {
 	}
 
 	return metadata;
+}
+
+// Convert FFMPEG error to Ruby string description
+VALUE av_error_to_ruby_string(int error) {
+	char temp[1024];
+	av_strerror(error, &temp[0], sizeof(temp));
+	return rb_str_new2(temp);
 }
