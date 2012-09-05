@@ -41,6 +41,7 @@ void Init_tja_ffmpeg(void) {
 	rb_define_method(format_klass, "description", 	format_description, 0);
 	rb_define_method(format_klass, "start_time", 	format_start_time, 0);
 	rb_define_method(format_klass, "duration", 		format_duration, 0);
+	rb_define_method(format_klass, "bit_rate", 		format_bit_rate, 0);
 	rb_define_method(format_klass, "streams", 		format_streams, 0);
 	rb_define_method(format_klass, "metadata", 		format_metadata, 0);
 
@@ -52,8 +53,15 @@ void Init_tja_ffmpeg(void) {
 	rb_define_method(stream_klass, "index", 		stream_index, 0);
 	rb_define_method(stream_klass, "type", 			stream_type, 0);
 	rb_define_method(stream_klass, "tag", 			stream_tag, 0);
-	rb_define_method(stream_klass, "metadata", 		stream_metadata, 0);
 	rb_define_method(stream_klass, "start_time", 	stream_start_time, 0);
 	rb_define_method(stream_klass, "duration", 		stream_duration, 0);
 	rb_define_method(stream_klass, "frame_count", 	stream_frame_count, 0);
+	rb_define_method(stream_klass, "bit_rate", 		stream_bit_rate, 0);
+	rb_define_method(stream_klass, "frame_rate", 	stream_frame_rate, 0);
+	rb_define_method(stream_klass, "sample_rate",	stream_sample_rate, 0);
+	rb_define_method(stream_klass, "width", 		stream_width, 0);
+	rb_define_method(stream_klass, "height", 		stream_height, 0);
+	rb_define_method(stream_klass, "aspect_ratio",	stream_aspect_ratio, 0);
+	rb_define_method(stream_klass, "channels",		stream_channels, 0);
+	rb_define_method(stream_klass, "metadata", 		stream_metadata, 0);
 }

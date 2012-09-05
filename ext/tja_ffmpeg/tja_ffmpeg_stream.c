@@ -127,21 +127,11 @@ VALUE stream_tag(VALUE self) {
 /*
 **
 */
-VALUE stream_metadata(VALUE self) {
-	Stream_Internal * internal;
-	Data_Get_Struct(self, Stream_Internal, internal);
-	
-	return internal->metadata;
-}
-
-/*
-**
-*/
 VALUE stream_start_time(VALUE self) {
 	Stream_Internal * internal;
 	Data_Get_Struct(self, Stream_Internal, internal);
 
-	return rb_float_new((double)internal->stream->start_time * (double)internal->stream->time_base.num / (double)internal->stream->time_base.den);
+	return rb_float_new(internal->stream->start_time * av_q2d(internal->stream->time_base));
 }
 
 /*
@@ -151,7 +141,7 @@ VALUE stream_duration(VALUE self) {
 	Stream_Internal * internal;
 	Data_Get_Struct(self, Stream_Internal, internal);
 
-	return rb_float_new((double)internal->stream->duration * (double)internal->stream->time_base.num / (double)internal->stream->time_base.den);
+	return rb_float_new(internal->stream->duration * av_q2d(internal->stream->time_base));
 }
 
 /*
@@ -162,4 +152,84 @@ VALUE stream_frame_count(VALUE self) {
 	Data_Get_Struct(self, Stream_Internal, internal);
 
 	return INT2NUM(internal->stream->nb_frames);
+}
+
+/*
+**
+*/
+VALUE stream_bit_rate(VALUE self) {
+	Stream_Internal * internal;
+	Data_Get_Struct(self, Stream_Internal, internal);
+
+	return INT2NUM(internal->stream->codec->bit_rate);
+}
+
+/*
+**
+*/
+VALUE stream_frame_rate(VALUE self) {
+	Stream_Internal * internal;
+	Data_Get_Struct(self, Stream_Internal, internal);
+
+	return internal->stream->avg_frame_rate.den ? rb_float_new(av_q2d(internal->stream->avg_frame_rate)) : Qnil;
+}
+
+/*
+**
+*/
+VALUE stream_sample_rate(VALUE self) {
+	Stream_Internal * internal;
+	Data_Get_Struct(self, Stream_Internal, internal);
+
+	return internal->stream->codec->sample_rate ? INT2NUM(internal->stream->codec->sample_rate) : Qnil;
+}
+
+/*
+**
+*/
+VALUE stream_width(VALUE self) {
+	Stream_Internal * internal;
+	Data_Get_Struct(self, Stream_Internal, internal);
+
+	return internal->stream->codec->width ? INT2NUM(internal->stream->codec->width) : Qnil;
+}
+
+/*
+**
+*/
+VALUE stream_height(VALUE self) {
+	Stream_Internal * internal;
+	Data_Get_Struct(self, Stream_Internal, internal);
+
+	return internal->stream->codec->height ? INT2NUM(internal->stream->codec->height) : Qnil;
+}
+
+/*
+**
+*/
+VALUE stream_aspect_ratio(VALUE self) {
+	Stream_Internal * internal;
+	Data_Get_Struct(self, Stream_Internal, internal);
+
+	return internal->stream->codec->sample_aspect_ratio.num ? rb_float_new(av_q2d(internal->stream->codec->sample_aspect_ratio)) : Qnil;
+}
+
+/*
+**
+*/
+VALUE stream_channels(VALUE self) {
+	Stream_Internal * internal;
+	Data_Get_Struct(self, Stream_Internal, internal);
+
+	return internal->stream->codec->channels ? INT2NUM(internal->stream->codec->channels) : Qnil;
+}
+
+/*
+**
+*/
+VALUE stream_metadata(VALUE self) {
+	Stream_Internal * internal;
+	Data_Get_Struct(self, Stream_Internal, internal);
+	
+	return internal->metadata;
 }

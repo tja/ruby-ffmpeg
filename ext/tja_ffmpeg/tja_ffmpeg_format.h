@@ -16,6 +16,7 @@ VALUE format_description(VALUE self);
 VALUE format_start_time(VALUE self);
 VALUE format_duration(VALUE self);
 VALUE format_streams(VALUE self);
+VALUE format_bit_rate(VALUE self);
 VALUE format_metadata(VALUE self);
 
 // helper

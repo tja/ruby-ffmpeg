@@ -181,6 +181,25 @@ VALUE format_streams(VALUE self) {
 /*
 **
 */
+VALUE format_bit_rate(VALUE self) {
+	Format_Internal * internal;
+	Data_Get_Struct(self, Format_Internal, internal);
+
+	// We don't have a file size, and therefore not direct bit rate
+	// Instead, we iterate through all streams and add them up
+	int aggregate_bitrate = 0;
+
+	unsigned i = 0;
+	for(; i < internal->format->nb_streams; ++i) {
+		aggregate_bitrate += internal->format->streams[i]->codec->bit_rate;
+	}
+
+	return INT2NUM(aggregate_bitrate);
+}
+
+/*
+**
+*/
 VALUE format_metadata(VALUE self) {
 	Format_Internal * internal;
 	Data_Get_Struct(self, Format_Internal, internal);
