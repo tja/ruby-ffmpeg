@@ -8,7 +8,7 @@
 #include "ruby_ffmpeg_util.h"
 
 // ...
-VALUE stream_klass;
+static VALUE _klass;
 
 // Internal data
 typedef struct {
@@ -43,6 +43,32 @@ void stream_free(void * opaque) {
 /*
 **
 */
+VALUE stream_create(VALUE module) {
+	_klass = rb_define_class_under(module, "Stream", rb_cObject);
+	rb_define_alloc_func(_klass, stream_alloc);
+
+	rb_define_method(_klass, "format", 		stream_format, 0);
+	rb_define_method(_klass, "index", 		stream_index, 0);
+	rb_define_method(_klass, "type", 			stream_type, 0);
+	rb_define_method(_klass, "tag", 			stream_tag, 0);
+	rb_define_method(_klass, "start_time", 	stream_start_time, 0);
+	rb_define_method(_klass, "duration", 		stream_duration, 0);
+	rb_define_method(_klass, "frame_count", 	stream_frame_count, 0);
+	rb_define_method(_klass, "bit_rate", 		stream_bit_rate, 0);
+	rb_define_method(_klass, "frame_rate", 	stream_frame_rate, 0);
+	rb_define_method(_klass, "sample_rate",	stream_sample_rate, 0);
+	rb_define_method(_klass, "width", 		stream_width, 0);
+	rb_define_method(_klass, "height", 		stream_height, 0);
+	rb_define_method(_klass, "aspect_ratio",	stream_aspect_ratio, 0);
+	rb_define_method(_klass, "channels",		stream_channels, 0);
+	rb_define_method(_klass, "metadata", 		stream_metadata, 0);
+
+	return _klass;
+}
+
+/*
+**
+*/
 VALUE stream_alloc(VALUE klass) {
 	Stream_Internal * internal = (Stream_Internal *)av_mallocz(sizeof(Stream_Internal));
 	if (!internal) rb_raise(rb_eNoMemError, "Filed to allocate internal structure");
@@ -54,7 +80,7 @@ VALUE stream_alloc(VALUE klass) {
 **
 */
 VALUE stream_create_instance(VALUE format, AVStream * stream) {
-	VALUE self = rb_class_new_instance(0, NULL, stream_klass);
+	VALUE self = rb_class_new_instance(0, NULL, _klass);
 
 	Stream_Internal * internal;
 	Data_Get_Struct(self, Stream_Internal, internal);

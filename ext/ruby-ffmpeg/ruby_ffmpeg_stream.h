@@ -2,15 +2,16 @@
 #define	RUBY_FFMPEG_STREAM_H
 
 #include <ruby.h>
+
 #include <libavformat/avformat.h>
+#include <libavcodec/avcodec.h>
+#include <libswscale/swscale.h>
 
-// Class object
-extern VALUE stream_klass;
-
-// entry points
+// Object Lifetime
+VALUE stream_create(VALUE module);
 VALUE stream_alloc(VALUE klass);
 
-// properties
+// Properties
 VALUE stream_format(VALUE self);
 VALUE stream_index(VALUE self);
 VALUE stream_type(VALUE self);

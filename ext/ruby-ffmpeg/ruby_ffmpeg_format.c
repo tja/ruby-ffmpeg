@@ -11,7 +11,7 @@
 #define FORMAT_READ_BUFFER_SIZE		8192
 
 // ...
-VALUE format_klass;
+static VALUE _klass;
 
 // Internal data
 typedef struct {
@@ -23,6 +23,17 @@ typedef struct {
 	VALUE				streams;
 	VALUE				metadata;
 } Format_Internal;
+
+/*
+**
+*/
+char const * format_version_string() {
+	static char version[256];
+	snprintf(&version[0], sizeof(version), "%d.%d.%d", (avformat_version() >> 16) & 0xffff,
+													   (avformat_version() >>  8) & 0x00ff,
+													   (avformat_version()      ) & 0x00ff);
+	return version;
+}
 
 /*
 **
@@ -75,6 +86,30 @@ void format_free(void * opaque) {
 			av_free(internal->protocol);
 		av_free(internal);
 	}
+}
+
+/*
+**
+*/
+VALUE format_create(VALUE module) {
+	_klass = rb_define_class_under(module, "Format", rb_cObject);
+	rb_define_alloc_func(_klass, format_alloc);
+
+	rb_define_const (_klass, "VERSION",		rb_str_new2(format_version_string()));
+	rb_define_const (_klass, "CONFIGURATION",	rb_str_new2(avformat_configuration()));
+	rb_define_const (_klass, "LICENSE",		rb_str_new2(avformat_license()));
+
+	rb_define_method(_klass, "initialize",	format_initialize, 1);
+
+	rb_define_method(_klass, "name", 			format_name, 0);
+	rb_define_method(_klass, "description", 	format_description, 0);
+	rb_define_method(_klass, "start_time", 	format_start_time, 0);
+	rb_define_method(_klass, "duration", 		format_duration, 0);
+	rb_define_method(_klass, "bit_rate", 		format_bit_rate, 0);
+	rb_define_method(_klass, "streams", 		format_streams, 0);
+	rb_define_method(_klass, "metadata", 		format_metadata, 0);
+	
+	return _klass;
 }
 
 /*
@@ -205,15 +240,4 @@ VALUE format_metadata(VALUE self) {
 	Data_Get_Struct(self, Format_Internal, internal);
 	
 	return internal->metadata;
-}
-
-/*
-**
-*/
-char const * format_version_string() {
-	static char version[256];
-	snprintf(&version[0], sizeof(version), "%d.%d.%d", (avformat_version() >> 16) & 0xffff,
-													   (avformat_version() >>  8) & 0x00ff,
-													   (avformat_version()      ) & 0x00ff);
-	return version;
 }

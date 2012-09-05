@@ -7,6 +7,7 @@
 #include <libavcodec/avcodec.h>
 #include <libswscale/swscale.h>
 
+// Tool Functions
 VALUE av_dictionary_to_ruby_hash(AVDictionary * dict);
 
 #endif // RUBY_FFMPEG_UTIL_H
