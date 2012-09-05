@@ -1,6 +1,6 @@
 ruby-ffmpeg
 ===========
-Ruby bindings for the FFMPEG libraries.
+Ruby bindings for FFMPEG libraries.
 
 Summary
 -------
