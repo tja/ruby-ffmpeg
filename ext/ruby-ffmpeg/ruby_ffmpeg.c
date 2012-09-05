@@ -28,4 +28,5 @@ void Init_ruby_ffmpeg_ext(void) {
 	VALUE module = rb_define_module("FFMPEG");
 	format_register_class(module);
 	stream_register_class(module);
+	frame_register_class(module);
 }

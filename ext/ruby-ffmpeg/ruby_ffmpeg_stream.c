@@ -6,6 +6,7 @@
 
 #include "ruby_ffmpeg_stream.h"
 #include "ruby_ffmpeg_stream_private.h"
+#include "ruby_ffmpeg_frame.h"
 #include "ruby_ffmpeg_util.h"
 
 // Globals
@@ -54,8 +55,6 @@ VALUE stream_alloc(VALUE klass) {
 void stream_free(void * opaque) {
 	StreamInternal * internal = (StreamInternal *)opaque;
 	if (internal) {
-		if (internal->frame)
-			av_free(internal->frame);
 		av_free(internal);
 	}
 }
@@ -241,14 +240,18 @@ VALUE stream_decode(VALUE self, VALUE block) {
 		return Qnil;
 	}
 
-	AVCodec * codec = get_codec(self);
-	AVFrame * frame = get_frame(self);
+	prepare_codec(internal);
+	AVFrame * frame = avcodec_alloc_frame();
 
 	for (;;) {
 		// Find next packet for this stream
 		AVPacket packet;
 		int found = format_find_next_stream_packet(internal->format, &packet, internal->stream->index);
-		if (!found) break;
+		if (!found) {
+			// No more packets
+			av_free(frame);
+			return Qnil;
+		}
 
 		// Decode frame
 		int decoded = 0;
@@ -264,13 +267,10 @@ VALUE stream_decode(VALUE self, VALUE block) {
 		}
 		
 		if (decoded) {
-			printf("*** Decoded frame: %f\n", packet.pts * av_q2d(internal->stream->time_base));
-			printf("*** Width: %dx%d\n", frame->width, frame->height);
-			break;
+			// Full frame decoded
+			return frame_new(frame);
 		}
 	}
-
-	return Qnil;
 }
 
 
@@ -278,11 +278,8 @@ VALUE stream_decode(VALUE self, VALUE block) {
 **	Helper Functions.
 */
 
-// Return codec, create if needed
-AVCodec * get_codec(VALUE self) {
-	StreamInternal * internal;
-	Data_Get_Struct(self, StreamInternal, internal);
-
+// Prepare 
+void prepare_codec(StreamInternal * internal) {
 	if (!avcodec_is_open(internal->stream->codec)) {
 		AVCodec * codec = internal->stream->codec->codec;
 		if (!codec) {
@@ -290,18 +287,4 @@ AVCodec * get_codec(VALUE self) {
 		}
 		avcodec_open(internal->stream->codec, codec);
 	}
-
-	return internal->stream->codec->codec;
-}
-
-// Return frame, create if needed
-AVFrame * get_frame(VALUE self) {
-	StreamInternal * internal;
-	Data_Get_Struct(self, StreamInternal, internal);
-
-	if (!internal->frame) {
-		internal->frame = avcodec_alloc_frame();
-	}
-
-	return internal->frame;
 }

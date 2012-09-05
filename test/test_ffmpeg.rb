@@ -20,7 +20,7 @@ class FFMPEGTest < Test::Unit::TestCase
     File.open("./test/test-1.mp4") do |io|
       FFMPEG::Format.open(io) do |format|
         assert_equal nil, format.start_time
-        assert_equal "00:00:52.209", Time.at(format.duration  ).utc.strftime('%T.%L')
+        assert_equal "00:00:52.209", Time.at(format.duration).utc.strftime('%T.%L')
         assert_equal 2, format.streams.length
         assert_equal 664569, format.bit_rate
       end
@@ -28,16 +28,14 @@ class FFMPEGTest < Test::Unit::TestCase
   end
 
   def test_sandbox
-    # File.open("./test/test-2.mp4") do |io|
-    URI.parse("https://github.com/tja/ruby-ffmpeg/raw/master/test/test-1.mp4").open do |io|
+    File.open("./test/test-2.mp4") do |io|
       FFMPEG::Format.open(io) do |format|
         first_video_stream = format.streams.select { |s| s.type == :video }.first
         if first_video_stream
-          first_video_stream.decode nil
-          first_video_stream.decode nil
-          first_video_stream.decode nil
-          first_video_stream.decode nil
-          first_video_stream.decode nil
+          10.times do
+            frame = first_video_stream.decode nil
+            puts "*** Frame Dimensions: #{frame.width}x#{frame.height}"
+          end
         end
       end
     end
