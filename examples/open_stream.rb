@@ -1,4 +1,4 @@
-##!/usr/bin/env ruby -W0
+#!/usr/bin/env ruby -W0
 
 require 'tja_ffmpeg'
 
