@@ -22,4 +22,4 @@ have_library('avutil') or raise
 
 $CFLAGS << ' -Wall '
 
-create_makefile('tja_ffmpeg/tja_ffmpeg')
+create_makefile('ruby-ffmpeg/ruby_ffmpeg_ext')

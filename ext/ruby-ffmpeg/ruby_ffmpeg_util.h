@@ -1,5 +1,5 @@
-#ifndef	FFMPEG_UTIL_H
-#define	FFMPEG_UTIL_H
+#ifndef	RUBY_FFMPEG_UTIL_H
+#define	RUBY_FFMPEG_UTIL_H
 
 #include <ruby.h>
 
@@ -9,4 +9,4 @@
 
 VALUE av_dictionary_to_ruby_hash(AVDictionary * dict);
 
-#endif // FFMPEG_UTIL_H
+#endif // RUBY_FFMPEG_UTIL_H

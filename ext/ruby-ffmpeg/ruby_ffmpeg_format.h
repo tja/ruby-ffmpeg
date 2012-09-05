@@ -1,5 +1,5 @@
-#ifndef	FFMPEG_FORMAT_H
-#define	FFMPEG_FORMAT_H
+#ifndef	RUBY_FFMPEG_FORMAT_H
+#define	RUBY_FFMPEG_FORMAT_H
 
 #include <ruby.h>
 
@@ -22,4 +22,4 @@ VALUE format_metadata(VALUE self);
 // helper
 char const * format_version_string();
 
-#endif // FFMPEG_FORMAT_H
+#endif // RUBY_FFMPEG_FORMAT_H

@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby -W0
 
-require 'tja_ffmpeg'
+require 'ruby-ffmpeg'
 
 puts "Syntax: #{File.basename(__FILE__)} <file1> <file2> ..." if ARGV.empty?
 

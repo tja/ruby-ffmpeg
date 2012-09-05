@@ -4,9 +4,9 @@
 #include <libavcodec/avcodec.h>
 #include <libswscale/swscale.h>
 
-#include "tja_ffmpeg_format.h"
-#include "tja_ffmpeg_stream.h"
-#include "tja_ffmpeg_util.h"
+#include "ruby_ffmpeg_format.h"
+#include "ruby_ffmpeg_stream.h"
+#include "ruby_ffmpeg_util.h"
 
 #define FORMAT_READ_BUFFER_SIZE		8192
 

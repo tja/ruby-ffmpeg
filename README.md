@@ -1,10 +1,10 @@
 ruby-ffmpeg
 ===========
-Ruby bindings for FFMPEG libraries.
+Ruby bindings for the FFMPEG libraries.
 
 Summary
 -------
-ruby-ffmpeg is a Ruby extension for the FFMPEG set of libraries, including libavformat, libavcodec, and libavutil.
+ruby-ffmpeg is a Ruby extension for the FFMPEG set of libraries; libavformat, libavcodec, and libavutil.
 
 Installation
 ------------

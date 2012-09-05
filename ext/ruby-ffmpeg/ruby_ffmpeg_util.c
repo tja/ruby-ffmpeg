@@ -4,7 +4,7 @@
 #include <libavcodec/avcodec.h>
 #include <libswscale/swscale.h>
 
-#include "tja_ffmpeg_util.h"
+#include "ruby_ffmpeg_util.h"
 
 /*
 **

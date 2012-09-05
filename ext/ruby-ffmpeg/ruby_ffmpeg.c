@@ -4,25 +4,25 @@
 #include <libavformat/avformat.h>
 #include <libswscale/swscale.h>
 
-#include "tja_ffmpeg_format.h"
-#include "tja_ffmpeg_stream.h"
+#include "ruby_ffmpeg_format.h"
+#include "ruby_ffmpeg_stream.h"
 
 /*
 ** Deinitialize.
 */
-void DeInit_tja_ffmpeg(VALUE unused) {
+void DeInit_ruby_ffmpeg(VALUE unused) {
 	/* nothing right now */
 }
 
 /*
 ** Initialize.
 */
-void Init_tja_ffmpeg(void) {
+void Init_ruby_ffmpeg_ext(void) {
 	// Global setup
 	av_register_all();
 	av_log_set_level(AV_LOG_QUIET);
 
-	rb_set_end_proc(DeInit_tja_ffmpeg, 0);
+	rb_set_end_proc(DeInit_ruby_ffmpeg, 0);
 
 	// FFMPEG module
 	VALUE module = rb_define_module("FFMPEG");

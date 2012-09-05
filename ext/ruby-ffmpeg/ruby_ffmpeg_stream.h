@@ -1,5 +1,5 @@
-#ifndef	FFMPEG_STREAM_H
-#define	FFMPEG_STREAM_H
+#ifndef	RUBY_FFMPEG_STREAM_H
+#define	RUBY_FFMPEG_STREAM_H
 
 #include <ruby.h>
 #include <libavformat/avformat.h>
@@ -30,4 +30,4 @@ VALUE stream_metadata(VALUE self);
 // helper
 VALUE stream_create_instance(VALUE format, AVStream * stream);
 
-#endif // FFMPEG_STREAM_H
+#endif // RUBY_FFMPEG_STREAM_H

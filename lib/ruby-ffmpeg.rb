@@ -1,4 +1,4 @@
-require "tja_ffmpeg/tja_ffmpeg"
+require "ruby-ffmpeg/ruby_ffmpeg_ext"
 
 module FFMPEG
   class Format
