@@ -121,20 +121,20 @@ VALUE format_description(VALUE self) {
 	return rb_str_new2(internal->format->iformat->long_name);
 }
 
-// Start time (in seconds)
+// Start time (in seconds), nil if not available
 VALUE format_start_time(VALUE self) {
 	FormatInternal * internal;
 	Data_Get_Struct(self, FormatInternal, internal);
-	
-	return rb_float_new(internal->format->start_time / (double)AV_TIME_BASE);
+
+	return (internal->format->start_time != AV_NOPTS_VALUE) ? rb_float_new(internal->format->start_time / (double)AV_TIME_BASE) : Qnil;
 }
 
-// Duration (in seconds)
+// Duration (in seconds), nil if not available
 VALUE format_duration(VALUE self) {
 	FormatInternal * internal;
 	Data_Get_Struct(self, FormatInternal, internal);
 	
-	return rb_float_new(internal->format->duration / (double)AV_TIME_BASE);
+	return (internal->format->duration != AV_NOPTS_VALUE) ? rb_float_new(internal->format->duration / (double)AV_TIME_BASE) : Qnil;
 }
 
 // Bit rate (in bits per second)
