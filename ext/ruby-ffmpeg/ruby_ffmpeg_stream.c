@@ -37,6 +37,8 @@ VALUE stream_register_class(VALUE module) {
 	rb_define_method(_klass, "channels",		stream_channels, 0);
 	rb_define_method(_klass, "metadata", 		stream_metadata, 0);
 
+	rb_define_method(_klass, "decode",			stream_decode, 1);
+
 	return _klass;
 }
 
@@ -52,7 +54,9 @@ VALUE stream_alloc(VALUE klass) {
 void stream_free(void * opaque) {
 	StreamInternal * internal = (StreamInternal *)opaque;
 	if (internal) {
-		// nothing for now
+		if (internal->frame)
+			av_free(internal->frame);
+		av_free(internal);
 	}
 }
 
@@ -220,4 +224,84 @@ VALUE stream_metadata(VALUE self) {
 	Data_Get_Struct(self, StreamInternal, internal);
 	
 	return internal->metadata;
+}
+
+
+/*
+**	Methods.
+*/
+
+// Encode frame and pass to block
+VALUE stream_decode(VALUE self, VALUE block) {
+	StreamInternal * internal;
+	Data_Get_Struct(self, StreamInternal, internal);
+
+	// Only video and audio streams supported as of now
+	if (internal->stream->codec->codec_type != AVMEDIA_TYPE_VIDEO && internal->stream->codec->codec_type != AVMEDIA_TYPE_AUDIO) {
+		return Qnil;
+	}
+
+	AVCodec * codec = get_codec(self);
+	AVFrame * frame = get_frame(self);
+
+	for (;;) {
+		// Find next packet for this stream
+		AVPacket packet;
+		int found = format_find_next_stream_packet(internal->format, &packet, internal->stream->index);
+		if (!found) break;
+
+		// Decode frame
+		int decoded = 0;
+		if (internal->stream->codec->codec_type == AVMEDIA_TYPE_VIDEO) {
+			// Video
+		    int err = avcodec_decode_video2(internal->stream->codec, frame, &decoded, &packet);
+			if (err < 0) rb_raise(rb_eLoadError, av_error_to_ruby_string(err));
+		}
+		else {
+			// Audio
+		    int err = avcodec_decode_audio4(internal->stream->codec, frame, &decoded, &packet);
+			if (err < 0) rb_raise(rb_eLoadError, av_error_to_ruby_string(err));
+		}
+		
+		if (decoded) {
+			printf("*** Decoded frame: %f\n", packet.pts * av_q2d(internal->stream->time_base));
+			printf("*** Width: %dx%d\n", frame->width, frame->height);
+			break;
+		}
+	}
+
+	return Qnil;
+}
+
+
+/*
+**	Helper Functions.
+*/
+
+// Return codec, create if needed
+AVCodec * get_codec(VALUE self) {
+	StreamInternal * internal;
+	Data_Get_Struct(self, StreamInternal, internal);
+
+	if (!avcodec_is_open(internal->stream->codec)) {
+		AVCodec * codec = internal->stream->codec->codec;
+		if (!codec) {
+			codec = avcodec_find_decoder(internal->stream->codec->codec_id);
+		}
+		avcodec_open(internal->stream->codec, codec);
+	}
+
+	return internal->stream->codec->codec;
+}
+
+// Return frame, create if needed
+AVFrame * get_frame(VALUE self) {
+	StreamInternal * internal;
+	Data_Get_Struct(self, StreamInternal, internal);
+
+	if (!internal->frame) {
+		internal->frame = avcodec_alloc_frame();
+	}
+
+	return internal->frame;
 }

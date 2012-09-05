@@ -206,3 +206,20 @@ int read_packet(void * opaque, uint8_t * buffer, int buffer_size) {
 	memcpy(buffer, RSTRING_PTR(string), RSTRING_LEN(string));
 	return RSTRING_LEN(string);
 }
+
+// Find the next packet for the stream
+int format_find_next_stream_packet(VALUE self, AVPacket * packet, int stream_index) {
+	FormatInternal * internal;
+	Data_Get_Struct(self, FormatInternal, internal);
+
+	for (;;) {
+		int err = av_read_frame(internal->format, packet);
+		if (err < 0) {
+			return 0;
+		}
+
+		if (packet->stream_index == stream_index) {
+			return 1;
+		}
+	}
+}

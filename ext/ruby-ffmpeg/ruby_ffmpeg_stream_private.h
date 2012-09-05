@@ -10,6 +10,7 @@
 // Internal Data
 typedef struct {
 	AVStream *			stream;					// FMPEG: Actual stream
+	AVFrame *			frame;					// FMPEG: Frame used for video decoding
 
 	VALUE				format;					// Ruby: Pointer back to format
 	VALUE				metadata;				// Ruby: Array of metadata
@@ -42,5 +43,12 @@ VALUE stream_channels(VALUE self);
 VALUE stream_sample_rate(VALUE self);
 
 VALUE stream_metadata(VALUE self);
+
+// Methods
+VALUE stream_decode(VALUE self, VALUE block);
+
+// Helper Functions
+AVCodec * get_codec(VALUE self);
+AVFrame * get_frame(VALUE self);
 
 #endif // RUBY_FFMPEG_STREAM_PRIVATE_H

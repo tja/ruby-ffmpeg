@@ -21,5 +21,15 @@ class FFMPEGTest < Test::Unit::TestCase
   end
 
   def test_sandbox
+    FFMPEG::Format.open(File.open("./test/test-1.mov")) do |format|
+      first_video_stream = format.streams.select { |s| s.type == :video }.first
+      if first_video_stream
+        first_video_stream.decode nil
+        first_video_stream.decode nil
+        first_video_stream.decode nil
+        first_video_stream.decode nil
+        first_video_stream.decode nil
+      end
+    end
   end
 end
