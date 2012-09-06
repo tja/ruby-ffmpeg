@@ -201,20 +201,20 @@ VALUE stream_frame_rate(VALUE self) {
 	return internal->stream->avg_frame_rate.den ? rb_float_new(av_q2d(internal->stream->avg_frame_rate)) : Qnil;
 }
 
-// Audio sample rate (samples per second), nil if not available
-VALUE stream_sample_rate(VALUE self) {
-	StreamInternal * internal;
-	Data_Get_Struct(self, StreamInternal, internal);
-
-	return internal->stream->codec->sample_rate ? INT2NUM(internal->stream->codec->sample_rate) : Qnil;
-}
-
 // Number of audio channels, nil if not available
 VALUE stream_channels(VALUE self) {
 	StreamInternal * internal;
 	Data_Get_Struct(self, StreamInternal, internal);
 
 	return internal->stream->codec->channels ? INT2NUM(internal->stream->codec->channels) : Qnil;
+}
+
+// Audio sample rate (samples per second), nil if not available
+VALUE stream_sample_rate(VALUE self) {
+	StreamInternal * internal;
+	Data_Get_Struct(self, StreamInternal, internal);
+
+	return internal->stream->codec->sample_rate ? INT2NUM(internal->stream->codec->sample_rate) : Qnil;
 }
 
 // Metadata
@@ -268,7 +268,7 @@ VALUE stream_decode(VALUE self, VALUE block) {
 		
 		if (decoded) {
 			// Full frame decoded
-			return frame_new(frame);
+			return frame_new(frame, internal->stream->codec);
 		}
 	}
 }

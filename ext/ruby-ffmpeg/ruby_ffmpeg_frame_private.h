@@ -10,6 +10,7 @@
 // Internal Data
 typedef struct {
 	AVFrame *			frame;					// FMPEG: Frame used for video decoding
+	AVCodecContext *	codec;					// FMPEG: Codec context used to decode this frame
 } FrameInternal;
 
 
@@ -20,9 +21,17 @@ void frame_free(void * opaque);
 
 // Properties
 VALUE frame_timestamp(VALUE self);
+VALUE frame_key(VALUE self);
 
 VALUE frame_width(VALUE self);
 VALUE frame_height(VALUE self);
+VALUE frame_aspect_ratio(VALUE self);
+VALUE frame_interlaced(VALUE self);
+VALUE frame_top_field_first(VALUE self);
+
+VALUE frame_channels(VALUE self);
+VALUE frame_channel_layout(VALUE self);
+VALUE frame_sample_rate(VALUE self);
 
 // Methods
 

@@ -27,16 +27,23 @@ class FFMPEGTest < Test::Unit::TestCase
   end
 
   def test_sandbox
-    File.open("./test/test-1.avi") do |io|
+    File.open("./test/test-2.mp4") do |io|
       FFMPEG::Format.open(io) do |format|
-        first_video_stream = format.streams.select { |s| s.type == :video }.first
+        first_video_stream = format.streams.select { |s| s.type == :audio }.first
         if first_video_stream
-          puts
           10.times do
             frame = first_video_stream.decode nil
-            if frame
-              puts "*** Frame Dimensions: #{frame.width}x#{frame.height} at #{frame.timestamp}"
-            end
+            next unless frame
+
+            puts
+            puts "*** Decoded Frame"
+            puts "    Timestamp:      #{frame.timestamp}"
+            puts "    Key Frame:      #{frame.key?}"
+            puts "    Resolution:     #{frame.width}x#{frame.height}"
+            puts "    Interlaced:     #{frame.interlaced?} (TFF: #{frame.top_field_first?})"
+            puts "    Channels:       #{frame.channels}"
+            puts "    Channel Layout: #{frame.channel_layout}"
+            puts "    Sample Rate:    #{frame.sample_rate}"
           end
         end
       end

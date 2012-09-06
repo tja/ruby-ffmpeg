@@ -9,6 +9,6 @@
 
 // Object Lifetime
 VALUE frame_register_class(VALUE module);
-VALUE frame_new(AVFrame * frame);
+VALUE frame_new(AVFrame * frame, AVCodecContext * codec);
 
 #endif // RUBY_FFMPEG_FRAME_H
