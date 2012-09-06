@@ -38,11 +38,13 @@ class FFMPEGTest < Test::Unit::TestCase
             puts
             puts "*** Decoded Frame"
             puts "    Timestamp:      #{frame.timestamp}"
+            puts "    Duration:       #{frame.duration}"
             puts "    Key Frame:      #{frame.key?}"
             puts "    Resolution:     #{frame.width}x#{frame.height}"
             puts "    Interlaced:     #{frame.interlaced?} (TFF: #{frame.top_field_first?})"
             puts "    Channels:       #{frame.channels}"
             puts "    Channel Layout: #{frame.channel_layout}"
+            puts "    Samples:        #{frame.samples}"
             puts "    Sample Rate:    #{frame.sample_rate}"
           end
         end

@@ -21,6 +21,7 @@ VALUE frame_register_class(VALUE module) {
 	rb_define_alloc_func(_klass, frame_alloc);
 
 	rb_define_method(_klass, "timestamp",			frame_timestamp, 0);
+	rb_define_method(_klass, "duration",			frame_duration, 0);
 	rb_define_method(_klass, "key?",				frame_key, 0);
 
 	rb_define_method(_klass, "width",				frame_width, 0);
@@ -31,6 +32,7 @@ VALUE frame_register_class(VALUE module) {
 
 	rb_define_method(_klass, "channels",			frame_channels, 0);
 	rb_define_method(_klass, "channel_layout",		frame_channel_layout, 0);
+	rb_define_method(_klass, "samples",				frame_samples, 0);
 	rb_define_method(_klass, "sample_rate",			frame_sample_rate, 0);
 
 	return _klass;
@@ -80,13 +82,13 @@ VALUE frame_new(AVFrame * frame, AVCodecContext * codec) {
 **	Properties.
 */
 
-// Best effort timestamp
+// Best effort timestamp, nil if not available
 VALUE frame_timestamp(VALUE self) {
 	FrameInternal * internal;
 	Data_Get_Struct(self, FrameInternal, internal);
 
 	// Start of with best effort
-	int64_t timestamp = av_frame_get_best_effort_timestamp(internal->frame);
+	int64_t timestamp = internal->frame->best_effort_timestamp;
 	if (timestamp != AV_NOPTS_VALUE)
 		return rb_float_new(timestamp * av_q2d(internal->codec->time_base));
 
@@ -106,6 +108,14 @@ VALUE frame_timestamp(VALUE self) {
 		return rb_float_new(timestamp * av_q2d(internal->codec->time_base));
 
 	return Qnil;
+}
+
+// Duration (in seconds) of this frame, nil if not available
+VALUE frame_duration(VALUE self) {
+	FrameInternal * internal;
+	Data_Get_Struct(self, FrameInternal, internal);
+
+	return (internal->frame->pkt_duration != AV_NOPTS_VALUE) ? rb_float_new(internal->frame->pkt_duration * av_q2d(internal->codec->time_base)) : Qnil;
 }
 
 // Is this a key frame?
@@ -175,6 +185,14 @@ VALUE frame_channel_layout(VALUE self) {
 	char temp[64];
 	av_get_channel_layout_string(&temp[0], sizeof(temp), internal->codec->channels, internal->codec->channels);
 	return rb_str_new2(temp);
+}
+
+// Number of audio samples in this frame, nil if not available
+VALUE frame_samples(VALUE self) {
+	FrameInternal * internal;
+	Data_Get_Struct(self, FrameInternal, internal);
+
+	return internal->frame->nb_samples ? INT2NUM(internal->frame->nb_samples) : Qnil;
 }
 
 // Audio sample rate (samples per second), nil if not available

@@ -21,6 +21,7 @@ void frame_free(void * opaque);
 
 // Properties
 VALUE frame_timestamp(VALUE self);
+VALUE frame_duration(VALUE self);
 VALUE frame_key(VALUE self);
 
 VALUE frame_width(VALUE self);
@@ -31,6 +32,7 @@ VALUE frame_top_field_first(VALUE self);
 
 VALUE frame_channels(VALUE self);
 VALUE frame_channel_layout(VALUE self);
+VALUE frame_samples(VALUE self);
 VALUE frame_sample_rate(VALUE self);
 
 // Methods
