@@ -39,6 +39,7 @@ VALUE stream_aspect_ratio(VALUE self);
 VALUE stream_frame_rate(VALUE self);
 
 VALUE stream_channels(VALUE self);
+VALUE stream_channel_layout(VALUE self);
 VALUE stream_sample_rate(VALUE self);
 
 VALUE stream_metadata(VALUE self);

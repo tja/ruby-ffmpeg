@@ -28,14 +28,19 @@ VALUE stream_register_class(VALUE module) {
 	rb_define_method(_klass, "tag", 			stream_tag, 0);
 	rb_define_method(_klass, "start_time", 		stream_start_time, 0);
 	rb_define_method(_klass, "duration", 		stream_duration, 0);
+
 	rb_define_method(_klass, "frame_count", 	stream_frame_count, 0);
 	rb_define_method(_klass, "bit_rate", 		stream_bit_rate, 0);
-	rb_define_method(_klass, "frame_rate", 		stream_frame_rate, 0);
-	rb_define_method(_klass, "sample_rate",		stream_sample_rate, 0);
+
 	rb_define_method(_klass, "width", 			stream_width, 0);
 	rb_define_method(_klass, "height", 			stream_height, 0);
 	rb_define_method(_klass, "aspect_ratio",	stream_aspect_ratio, 0);
+	rb_define_method(_klass, "frame_rate", 		stream_frame_rate, 0);
+
 	rb_define_method(_klass, "channels",		stream_channels, 0);
+	rb_define_method(_klass, "channel_layout",	stream_channel_layout, 0);
+	rb_define_method(_klass, "sample_rate",		stream_sample_rate, 0);
+
 	rb_define_method(_klass, "metadata", 		stream_metadata, 0);
 
 	rb_define_method(_klass, "decode",			stream_decode, 1);
@@ -207,6 +212,19 @@ VALUE stream_channels(VALUE self) {
 	Data_Get_Struct(self, StreamInternal, internal);
 
 	return internal->stream->codec->channels ? INT2NUM(internal->stream->codec->channels) : Qnil;
+}
+
+// Layout of the audio channels, nil if not available
+VALUE stream_channel_layout(VALUE self) {
+	StreamInternal * internal;
+	Data_Get_Struct(self, StreamInternal, internal);
+
+	if (!internal->stream->codec->channels || !internal->stream->codec->channel_layout)
+		return Qnil;
+
+	char temp[64];
+	av_get_channel_layout_string(&temp[0], sizeof(temp), internal->stream->codec->channels, internal->stream->codec->channels);
+	return rb_str_new2(temp);
 }
 
 // Audio sample rate (samples per second), nil if not available
