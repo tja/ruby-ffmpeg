@@ -29,8 +29,8 @@ VALUE stream_type(VALUE self);
 VALUE stream_tag(VALUE self);
 VALUE stream_start_time(VALUE self);
 VALUE stream_duration(VALUE self);
+VALUE stream_format(VALUE self);
 VALUE stream_frame_count(VALUE self);
-
 VALUE stream_bit_rate(VALUE self);
 
 VALUE stream_width(VALUE self);

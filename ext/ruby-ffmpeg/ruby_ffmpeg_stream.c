@@ -28,7 +28,7 @@ VALUE stream_register_class(VALUE module) {
 	rb_define_method(_klass, "tag", 			stream_tag, 0);
 	rb_define_method(_klass, "start_time", 		stream_start_time, 0);
 	rb_define_method(_klass, "duration", 		stream_duration, 0);
-
+	rb_define_method(_klass, "format", 			stream_format, 0);
 	rb_define_method(_klass, "frame_count", 	stream_frame_count, 0);
 	rb_define_method(_klass, "bit_rate", 		stream_bit_rate, 0);
 
@@ -150,6 +150,25 @@ VALUE stream_duration(VALUE self) {
 	Data_Get_Struct(self, StreamInternal, internal);
 
 	return (internal->stream->duration != AV_NOPTS_VALUE) ? rb_float_new(internal->stream->duration * av_q2d(internal->stream->time_base)) : Qnil;
+}
+
+// Format of the frame, nil if not available
+VALUE stream_format(VALUE self) {
+	StreamInternal * internal;
+	Data_Get_Struct(self, StreamInternal, internal);
+
+	if (internal->stream->codec->codec_type == AVMEDIA_TYPE_VIDEO) {
+		// Video formats
+		return av_pixel_format_to_symbol(internal->stream->codec->pix_fmt);
+	}
+	else if (internal->stream->codec->codec_type == AVMEDIA_TYPE_AUDIO) {
+		// Audio formats
+		return av_sample_format_to_symbol(internal->stream->codec->sample_fmt);
+	}
+	else {
+		// Unsupported stream type
+		return Qnil;
+	}
 }
 
 // Number of frames

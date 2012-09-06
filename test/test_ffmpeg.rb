@@ -22,6 +22,8 @@ class FFMPEGTest < Test::Unit::TestCase
         assert_equal "0.000000", "%.6f" % reader.start_time
         assert_equal "00:00:52.208", Time.at(reader.duration).utc.strftime('%T.%L')
         assert_equal 2, reader.streams.length
+        assert_equal :yuv420p, reader.streams[0].format
+        assert_equal :s16, reader.streams[1].format
       end
     end
   end
@@ -34,7 +36,7 @@ class FFMPEGTest < Test::Unit::TestCase
           10.times do
             frame = first_video_stream.decode nil
             next unless frame
-
+    
             puts
             puts "*** Decoded Frame"
             puts "    Timestamp:      #{frame.timestamp}"
