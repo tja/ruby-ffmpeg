@@ -72,7 +72,10 @@ VALUE frame_new(AVFrame * frame, AVCodecContext * codec) {
 	Data_Get_Struct(self, FrameInternal, internal);
 
 	internal->frame = frame;
-	internal->codec = codec;
+
+	internal->time_base = codec->time_base;
+	internal->channels = codec->channels;
+	internal->channel_layout = codec->channel_layout;
 
 	return self;
 }
@@ -90,22 +93,22 @@ VALUE frame_timestamp(VALUE self) {
 	// Start of with best effort
 	int64_t timestamp = internal->frame->best_effort_timestamp;
 	if (timestamp != AV_NOPTS_VALUE)
-		return rb_float_new(timestamp * av_q2d(internal->codec->time_base));
+		return rb_float_new(timestamp * av_q2d(internal->time_base));
 
 	// Fall back to presentation timestamp of frame
 	timestamp = internal->frame->pts;
 	if (timestamp != AV_NOPTS_VALUE)
-		return rb_float_new(timestamp * av_q2d(internal->codec->time_base));
+		return rb_float_new(timestamp * av_q2d(internal->time_base));
 
 	// Fall back to presentation timestamp of packet
 	timestamp = internal->frame->pkt_pts;
 	if (timestamp != AV_NOPTS_VALUE)
-		return rb_float_new(timestamp * av_q2d(internal->codec->time_base));
+		return rb_float_new(timestamp * av_q2d(internal->time_base));
 
 	// Fall back to decompression timestamp of packet
 	timestamp = internal->frame->pkt_dts;
 	if (timestamp != AV_NOPTS_VALUE)
-		return rb_float_new(timestamp * av_q2d(internal->codec->time_base));
+		return rb_float_new(timestamp * av_q2d(internal->time_base));
 
 	return Qnil;
 }
@@ -115,7 +118,7 @@ VALUE frame_duration(VALUE self) {
 	FrameInternal * internal;
 	Data_Get_Struct(self, FrameInternal, internal);
 
-	return (internal->frame->pkt_duration != AV_NOPTS_VALUE) ? rb_float_new(internal->frame->pkt_duration * av_q2d(internal->codec->time_base)) : Qnil;
+	return (internal->frame->pkt_duration != AV_NOPTS_VALUE) ? rb_float_new(internal->frame->pkt_duration * av_q2d(internal->time_base)) : Qnil;
 }
 
 // Is this a key frame?
@@ -171,7 +174,7 @@ VALUE frame_channels(VALUE self) {
 	FrameInternal * internal;
 	Data_Get_Struct(self, FrameInternal, internal);
 
-	return internal->codec->channels ? INT2NUM(internal->codec->channels) : Qnil;
+	return internal->channels ? INT2NUM(internal->channels) : Qnil;
 }
 
 // Layout of the audio channels, nil if not available
@@ -179,11 +182,11 @@ VALUE frame_channel_layout(VALUE self) {
 	FrameInternal * internal;
 	Data_Get_Struct(self, FrameInternal, internal);
 
-	if (!internal->codec->channels || !internal->codec->channel_layout)
+	if (!internal->channels || !internal->channel_layout)
 		return Qnil;
 
 	char temp[64];
-	av_get_channel_layout_string(&temp[0], sizeof(temp), internal->codec->channels, internal->codec->channels);
+	av_get_channel_layout_string(&temp[0], sizeof(temp), internal->channels, internal->channels);
 	return rb_str_new2(temp);
 }
 

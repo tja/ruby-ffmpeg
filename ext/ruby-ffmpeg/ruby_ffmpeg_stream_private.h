@@ -9,7 +9,7 @@
 
 // Internal Data
 typedef struct {
-	AVStream *			stream;					// FMPEG: Actual stream
+	AVStream *			stream;					// FFMPEG: Actual stream
 
 	VALUE				format;					// Ruby: Pointer back to format
 	VALUE				metadata;				// Ruby: Array of metadata

@@ -9,8 +9,11 @@
 
 // Internal Data
 typedef struct {
-	AVFrame *			frame;					// FMPEG: Frame used for video decoding
-	AVCodecContext *	codec;					// FMPEG: Codec context used to decode this frame
+	AVFrame *			frame;					// FFMPEG: Frame used for video decoding
+
+	AVRational			time_base;				// Time base for this frame
+	int					channels;				// Audio channel count
+	uint64_t			channel_layout;			// Audio channel layout
 } FrameInternal;
 
 
