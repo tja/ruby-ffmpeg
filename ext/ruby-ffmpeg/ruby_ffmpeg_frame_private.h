@@ -25,6 +25,7 @@ void frame_free(void * opaque);
 // Properties
 VALUE frame_timestamp(VALUE self);
 VALUE frame_duration(VALUE self);
+VALUE frame_format(VALUE self);
 VALUE frame_key(VALUE self);
 
 VALUE frame_width(VALUE self);

@@ -114,18 +114,12 @@ VALUE stream_type(VALUE self) {
 	Data_Get_Struct(self, StreamInternal, internal);
 
 	switch (internal->stream->codec->codec_type) {
-		case AVMEDIA_TYPE_VIDEO:
-			return ID2SYM(rb_intern("video"));
-		case AVMEDIA_TYPE_AUDIO:
-			return ID2SYM(rb_intern("audio"));
-		case AVMEDIA_TYPE_DATA:
-			return ID2SYM(rb_intern("data"));
-		case AVMEDIA_TYPE_SUBTITLE:
-			return ID2SYM(rb_intern("subtitle"));
-		case AVMEDIA_TYPE_ATTACHMENT:
-			return ID2SYM(rb_intern("attachment"));
-		default:
-			return Qnil;
+		case AVMEDIA_TYPE_VIDEO:			return ID2SYM(rb_intern("video"));
+		case AVMEDIA_TYPE_AUDIO:			return ID2SYM(rb_intern("audio"));
+		case AVMEDIA_TYPE_DATA:				return ID2SYM(rb_intern("data"));
+		case AVMEDIA_TYPE_SUBTITLE:			return ID2SYM(rb_intern("subtitle"));
+		case AVMEDIA_TYPE_ATTACHMENT:		return ID2SYM(rb_intern("attachment"));
+		default:							return Qnil;
 	}
 }
 

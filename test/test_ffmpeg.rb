@@ -29,7 +29,7 @@ class FFMPEGTest < Test::Unit::TestCase
   def test_sandbox
     File.open("./test/test-2.mp4") do |io|
       FFMPEG::Format.open(io) do |format|
-        first_video_stream = format.streams.select { |s| s.type == :video }.first
+        first_video_stream = format.streams.select { |s| s.type == :audio }.first
         if first_video_stream
           10.times do
             frame = first_video_stream.decode nil
@@ -39,6 +39,7 @@ class FFMPEGTest < Test::Unit::TestCase
             puts "*** Decoded Frame"
             puts "    Timestamp:      #{frame.timestamp}"
             puts "    Duration:       #{frame.duration}"
+            puts "    Format:         #{frame.format}"
             puts "    Key Frame:      #{frame.key?}"
             puts "    Resolution:     #{frame.width}x#{frame.height}"
             puts "    Picture Type:   #{frame.picture_type}"
