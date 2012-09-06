@@ -167,3 +167,14 @@ VALUE av_sample_format_to_symbol(enum AVSampleFormat format) {
 	}
 }
 
+// Convert FFMPEG MediaType to symbol
+VALUE av_media_type_to_symbol(enum AVMediaType type) {
+	switch (type) {
+		case AVMEDIA_TYPE_VIDEO:			return ID2SYM(rb_intern("video"));
+		case AVMEDIA_TYPE_AUDIO:			return ID2SYM(rb_intern("audio"));
+		case AVMEDIA_TYPE_DATA:				return ID2SYM(rb_intern("data"));
+		case AVMEDIA_TYPE_SUBTITLE:			return ID2SYM(rb_intern("subtitle"));
+		case AVMEDIA_TYPE_ATTACHMENT:		return ID2SYM(rb_intern("attachment"));
+		default:							return Qnil;
+	}
+}

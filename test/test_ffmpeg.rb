@@ -31,7 +31,7 @@ class FFMPEGTest < Test::Unit::TestCase
   def test_sandbox
     File.open("./test/test-2.mp4") do |io|
       FFMPEG::Reader.open(io) do |reader|
-        first_video_stream = reader.streams.select { |s| s.type == :audio }.first
+        first_video_stream = reader.streams.select { |s| s.type == :video }.first
         if first_video_stream
           10.times do
             frame = first_video_stream.decode nil
