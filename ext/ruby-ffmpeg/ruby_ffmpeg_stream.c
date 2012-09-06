@@ -142,7 +142,7 @@ VALUE stream_start_time(VALUE self) {
 	StreamInternal * internal;
 	Data_Get_Struct(self, StreamInternal, internal);
 
-	return rb_float_new(internal->stream->start_time * av_q2d(internal->stream->time_base));
+	return (internal->stream->start_time != AV_NOPTS_VALUE) ? rb_float_new(internal->stream->start_time * av_q2d(internal->stream->time_base)) : Qnil;
 }
 
 // Duration (in seconds)
@@ -150,7 +150,7 @@ VALUE stream_duration(VALUE self) {
 	StreamInternal * internal;
 	Data_Get_Struct(self, StreamInternal, internal);
 
-	return rb_float_new(internal->stream->duration * av_q2d(internal->stream->time_base));
+	return (internal->stream->duration != AV_NOPTS_VALUE) ? rb_float_new(internal->stream->duration * av_q2d(internal->stream->time_base)) : Qnil;
 }
 
 // Number of frames
