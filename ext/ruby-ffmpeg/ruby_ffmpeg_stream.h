@@ -9,6 +9,6 @@
 
 // Object Lifetime
 VALUE stream_register_class(VALUE module);
-VALUE stream_new(VALUE format, AVStream * stream);
+VALUE stream_new(VALUE reader, AVStream * stream);
 
 #endif // RUBY_FFMPEG_STREAM_H

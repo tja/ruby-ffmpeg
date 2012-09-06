@@ -1,15 +1,15 @@
 require "ruby-ffmpeg/ruby_ffmpeg_ext"
 
 module FFMPEG
-  class Format
+  class Reader
     def self.open(io, &block)
-      format = Format.new(io)
+      reader = Reader.new(io)
       if block
-        val = block.call(format)
-        # format.close
+        val = block.call(reader)
+        # reader.close
         val
       else
-        format
+        reader
       end
     end
   end

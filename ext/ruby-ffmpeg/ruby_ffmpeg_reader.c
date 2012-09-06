@@ -4,8 +4,8 @@
 #include <libavcodec/avcodec.h>
 #include <libswscale/swscale.h>
 
-#include "ruby_ffmpeg_format.h"
-#include "ruby_ffmpeg_format_private.h"
+#include "ruby_ffmpeg_reader.h"
+#include "ruby_ffmpeg_reader_private.h"
 #include "ruby_ffmpeg_stream.h"
 #include "ruby_ffmpeg_util.h"
 
@@ -18,47 +18,47 @@ static VALUE _klass;
 */
 
 // Register class
-VALUE format_register_class(VALUE module) {
-	_klass = rb_define_class_under(module, "Format", rb_cObject);
-	rb_define_alloc_func(_klass, format_alloc);
+VALUE reader_register_class(VALUE module) {
+	_klass = rb_define_class_under(module, "Reader", rb_cObject);
+	rb_define_alloc_func(_klass, reader_alloc);
 
 	rb_define_const (_klass, "VERSION",			rb_str_new2(human_readable_version()));
 	rb_define_const (_klass, "CONFIGURATION",	rb_str_new2(avformat_configuration()));
 	rb_define_const (_klass, "LICENSE",			rb_str_new2(avformat_license()));
 
-	rb_define_method(_klass, "initialize",		format_initialize, 1);
+	rb_define_method(_klass, "initialize",		reader_initialize, 1);
 
-	rb_define_method(_klass, "name", 			format_name, 0);
-	rb_define_method(_klass, "description", 	format_description, 0);
-	rb_define_method(_klass, "start_time", 		format_start_time, 0);
-	rb_define_method(_klass, "duration", 		format_duration, 0);
-	rb_define_method(_klass, "bit_rate", 		format_bit_rate, 0);
-	rb_define_method(_klass, "streams", 		format_streams, 0);
-	rb_define_method(_klass, "metadata", 		format_metadata, 0);
+	rb_define_method(_klass, "name", 			reader_name, 0);
+	rb_define_method(_klass, "description", 	reader_description, 0);
+	rb_define_method(_klass, "start_time", 		reader_start_time, 0);
+	rb_define_method(_klass, "duration", 		reader_duration, 0);
+	rb_define_method(_klass, "bit_rate", 		reader_bit_rate, 0);
+	rb_define_method(_klass, "streams", 		reader_streams, 0);
+	rb_define_method(_klass, "metadata", 		reader_metadata, 0);
 	
 	return _klass;
 }
 
 // Allocate object
-VALUE format_alloc(VALUE klass) {
-	FormatInternal * internal = (FormatInternal *)av_mallocz(sizeof(FormatInternal));
+VALUE reader_alloc(VALUE klass) {
+	ReaderInternal * internal = (ReaderInternal *)av_mallocz(sizeof(ReaderInternal));
 	if (!internal) rb_raise(rb_eNoMemError, "Failed to allocate internal structure");
 
 	internal->format = avformat_alloc_context();
 	if (!internal->format) rb_raise(rb_eNoMemError, "Failed to allocate FFMPEG format context");
 
-	internal->protocol = avio_alloc_context(av_malloc(FORMAT_READ_BUFFER_SIZE), FORMAT_READ_BUFFER_SIZE, 0, internal, read_packet, NULL, NULL);
+	internal->protocol = avio_alloc_context(av_malloc(reader_READ_BUFFER_SIZE), reader_READ_BUFFER_SIZE, 0, internal, read_packet, NULL, NULL);
 	if (!internal->protocol) rb_raise(rb_eNoMemError, "Failed to allocate FFMPEG IO context");
 
 	internal->protocol->seekable = 0;
 	internal->format->pb = internal->protocol;
 
-	return Data_Wrap_Struct(klass, format_mark, format_free, (void *)internal);
+	return Data_Wrap_Struct(klass, reader_mark, reader_free, (void *)internal);
 }
 
 // Free object
-void format_free(void * opaque) {
-	FormatInternal * internal = (FormatInternal *)opaque;
+void reader_free(void * opaque) {
+	ReaderInternal * internal = (ReaderInternal *)opaque;
 	if (internal) {
 		if (internal->format)
 			avformat_free_context(internal->format);
@@ -69,8 +69,8 @@ void format_free(void * opaque) {
 }
 
 // Mark for garbage collection
-void format_mark(void * opaque) {
-	FormatInternal * internal = (FormatInternal *)opaque;
+void reader_mark(void * opaque) {
+	ReaderInternal * internal = (ReaderInternal *)opaque;
 	if (internal) {
 		rb_gc_mark(internal->io);
 		rb_gc_mark(internal->streams);
@@ -79,9 +79,9 @@ void format_mark(void * opaque) {
 }
 
 // Initialize object
-VALUE format_initialize(VALUE self, VALUE io) {
-	FormatInternal * internal;
-	Data_Get_Struct(self, FormatInternal, internal);
+VALUE reader_initialize(VALUE self, VALUE io) {
+	ReaderInternal * internal;
+	Data_Get_Struct(self, ReaderInternal, internal);
 
 	internal->io = io;
 
@@ -106,41 +106,41 @@ VALUE format_initialize(VALUE self, VALUE io) {
 */
 
 // Name
-VALUE format_name(VALUE self) {
-	FormatInternal * internal;
-	Data_Get_Struct(self, FormatInternal, internal);
+VALUE reader_name(VALUE self) {
+	ReaderInternal * internal;
+	Data_Get_Struct(self, ReaderInternal, internal);
 	
 	return rb_str_new2(internal->format->iformat->name);
 }
 
 // Description
-VALUE format_description(VALUE self) {
-	FormatInternal * internal;
-	Data_Get_Struct(self, FormatInternal, internal);
+VALUE reader_description(VALUE self) {
+	ReaderInternal * internal;
+	Data_Get_Struct(self, ReaderInternal, internal);
 	
 	return rb_str_new2(internal->format->iformat->long_name);
 }
 
 // Start time (in seconds), nil if not available
-VALUE format_start_time(VALUE self) {
-	FormatInternal * internal;
-	Data_Get_Struct(self, FormatInternal, internal);
+VALUE reader_start_time(VALUE self) {
+	ReaderInternal * internal;
+	Data_Get_Struct(self, ReaderInternal, internal);
 
 	return (internal->format->start_time != AV_NOPTS_VALUE) ? rb_float_new(internal->format->start_time / (double)AV_TIME_BASE) : Qnil;
 }
 
 // Duration (in seconds), nil if not available
-VALUE format_duration(VALUE self) {
-	FormatInternal * internal;
-	Data_Get_Struct(self, FormatInternal, internal);
+VALUE reader_duration(VALUE self) {
+	ReaderInternal * internal;
+	Data_Get_Struct(self, ReaderInternal, internal);
 	
 	return (internal->format->duration != AV_NOPTS_VALUE) ? rb_float_new(internal->format->duration / (double)AV_TIME_BASE) : Qnil;
 }
 
 // Bit rate (in bits per second)
-VALUE format_bit_rate(VALUE self) {
-	FormatInternal * internal;
-	Data_Get_Struct(self, FormatInternal, internal);
+VALUE reader_bit_rate(VALUE self) {
+	ReaderInternal * internal;
+	Data_Get_Struct(self, ReaderInternal, internal);
 
 	// We don't have a file size, and therefore not direct bit rate
 	// Instead, we iterate through all streams and add them up
@@ -155,17 +155,17 @@ VALUE format_bit_rate(VALUE self) {
 }
 
 // Media streams
-VALUE format_streams(VALUE self) {
-	FormatInternal * internal;
-	Data_Get_Struct(self, FormatInternal, internal);
+VALUE reader_streams(VALUE self) {
+	ReaderInternal * internal;
+	Data_Get_Struct(self, ReaderInternal, internal);
 	
 	return internal->streams;
 }
 
 // Metadata
-VALUE format_metadata(VALUE self) {
-	FormatInternal * internal;
-	Data_Get_Struct(self, FormatInternal, internal);
+VALUE reader_metadata(VALUE self) {
+	ReaderInternal * internal;
+	Data_Get_Struct(self, ReaderInternal, internal);
 	
 	return internal->metadata;
 }
@@ -198,7 +198,7 @@ VALUE streams_to_ruby_array(VALUE self, AVFormatContext * format) {
 
 // Read next block of data
 int read_packet(void * opaque, uint8_t * buffer, int buffer_size) {
-	FormatInternal * internal = (FormatInternal *)opaque;
+	ReaderInternal * internal = (ReaderInternal *)opaque;
 
 	VALUE string = rb_funcall(internal->io, rb_intern("read"), 1, INT2FIX(buffer_size));
 	Check_Type(string, T_STRING);
@@ -208,9 +208,9 @@ int read_packet(void * opaque, uint8_t * buffer, int buffer_size) {
 }
 
 // Find the next packet for the stream
-int format_find_next_stream_packet(VALUE self, AVPacket * packet, int stream_index) {
-	FormatInternal * internal;
-	Data_Get_Struct(self, FormatInternal, internal);
+int reader_find_next_stream_packet(VALUE self, AVPacket * packet, int stream_index) {
+	ReaderInternal * internal;
+	Data_Get_Struct(self, ReaderInternal, internal);
 
 	for (;;) {
 		int err = av_read_frame(internal->format, packet);

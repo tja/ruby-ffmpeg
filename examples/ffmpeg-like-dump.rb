@@ -6,26 +6,26 @@ puts "Syntax: #{File.basename(__FILE__)} <file1> <file2> ..." if ARGV.empty?
 
 ARGV.each do |path|
   File.open(path) do |io|
-    FFMPEG::Format.open(io) do |format|
+    FFMPEG::Reader.open(io) do |reader|
       # Header
-      puts "Input #0, #{format.name}, from '#{path}':"
+      puts "Input #0, #{reader.name}, from '#{path}':"
 
       # Metadata
       puts "  Metadata:"
-      format.metadata.each do |key, value|
+      reader.metadata.each do |key, value|
         puts "    %-15s : %s" % [ key, value ] unless key == :language
       end
 
       # Misc
-      puts "  Duration: %02d:%02d:%02d.%02d, start: %.6f, bitrate: %.f kb/s" % [ (format.duration / 60 / 60).floor,
-                                                                                 (format.duration / 60).floor % 60,
-                                                                                 format.duration.floor % 60,
-                                                                                 (format.duration * 100).floor % 100,
-                                                                                 format.start_time,
-                                                                                 format.bit_rate / 1000.0 ]
+      puts "  Duration: %02d:%02d:%02d.%02d, start: %.6f, bitrate: %.f kb/s" % [ (reader.duration / 60 / 60).floor,
+                                                                                 (reader.duration / 60).floor % 60,
+                                                                                 reader.duration.floor % 60,
+                                                                                 (reader.duration * 100).floor % 100,
+                                                                                 reader.start_time,
+                                                                                 reader.bit_rate / 1000.0 ]
 
       # Streams
-      format.streams.each do |stream|
+      reader.streams.each do |stream|
         # Stream Header
         print "    Stream #0:#{stream.index}"
         print "(#{stream.metadata[:language]})" if stream.metadata[:language]

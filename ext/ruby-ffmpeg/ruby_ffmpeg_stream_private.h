@@ -11,7 +11,7 @@
 typedef struct {
 	AVStream *			stream;					// FFMPEG: Actual stream
 
-	VALUE				format;					// Ruby: Pointer back to format
+	VALUE				reader;					// Ruby: Pointer back to reader
 	VALUE				metadata;				// Ruby: Array of metadata
 } StreamInternal;
 
@@ -22,7 +22,7 @@ void stream_mark(void * opaque);
 void stream_free(void * opaque);
 
 // Properties
-VALUE stream_format(VALUE self);
+VALUE stream_reader(VALUE self);
 
 VALUE stream_index(VALUE self);
 VALUE stream_type(VALUE self);

@@ -4,7 +4,7 @@
 #include <libavformat/avformat.h>
 #include <libswscale/swscale.h>
 
-#include "ruby_ffmpeg_format.h"
+#include "ruby_ffmpeg_reader.h"
 #include "ruby_ffmpeg_stream.h"
 
 /*
@@ -26,7 +26,7 @@ void Init_ruby_ffmpeg_ext(void) {
 	rb_set_end_proc(DeInit_ruby_ffmpeg, 0);
 
 	VALUE module = rb_define_module("FFMPEG");
-	format_register_class(module);
+	reader_register_class(module);
 	stream_register_class(module);
 	frame_register_class(module);
 }

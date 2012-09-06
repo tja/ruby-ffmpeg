@@ -3,7 +3,7 @@
 require 'ruby-ffmpeg'
 
 File.open("./test/test-2.mp4") do |io|
-  FFMPEG::Format.open(io) do |format|
-    puts "Format: #{format.description}"
+  FFMPEG::Reader.open(io) do |reader|
+    puts "Format: #{reader.description}"
   end
 end

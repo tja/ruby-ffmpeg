@@ -22,7 +22,7 @@ VALUE stream_register_class(VALUE module) {
 	_klass = rb_define_class_under(module, "Stream", rb_cObject);
 	rb_define_alloc_func(_klass, stream_alloc);
 
-	rb_define_method(_klass, "format", 			stream_format, 0);
+	rb_define_method(_klass, "reader", 			stream_reader, 0);
 	rb_define_method(_klass, "index", 			stream_index, 0);
 	rb_define_method(_klass, "type", 			stream_type, 0);
 	rb_define_method(_klass, "tag", 			stream_tag, 0);
@@ -68,20 +68,20 @@ void stream_free(void * opaque) {
 void stream_mark(void * opaque) {
 	StreamInternal * internal = (StreamInternal *)opaque;
 	if (internal) {
-		rb_gc_mark(internal->format);
+		rb_gc_mark(internal->reader);
 		rb_gc_mark(internal->metadata);
 	}
 }
 
 // Create new instance for given FFMPEG stream
-VALUE stream_new(VALUE format, AVStream * stream) {
+VALUE stream_new(VALUE reader, AVStream * stream) {
 	VALUE self = rb_class_new_instance(0, NULL, _klass);
 
 	StreamInternal * internal;
 	Data_Get_Struct(self, StreamInternal, internal);
 
 	internal->stream = stream;
-	internal->format = format;
+	internal->reader = reader;
 	internal->metadata = av_dictionary_to_ruby_hash(internal->stream->metadata);
 
 	return self;
@@ -92,12 +92,12 @@ VALUE stream_new(VALUE format, AVStream * stream) {
 **	Properties.
 */
 
-// Point back to format
-VALUE stream_format(VALUE self) {
+// Point back to reader
+VALUE stream_reader(VALUE self) {
 	StreamInternal * internal;
 	Data_Get_Struct(self, StreamInternal, internal);
 
-	return internal->format;
+	return internal->reader;
 }
 
 // Index in media file
@@ -258,7 +258,7 @@ VALUE stream_decode(VALUE self, VALUE block) {
 	for (;;) {
 		// Find next packet for this stream
 		AVPacket packet;
-		int found = format_find_next_stream_packet(internal->format, &packet, internal->stream->index);
+		int found = reader_find_next_stream_packet(internal->reader, &packet, internal->stream->index);
 		if (!found) {
 			// No more packets
 			av_free(frame);
