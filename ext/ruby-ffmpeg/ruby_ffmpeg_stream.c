@@ -108,7 +108,7 @@ VALUE stream_index(VALUE self) {
 	return INT2NUM(internal->stream->index);
 }
 
-// Stream type
+// Stream type, nil if unknown
 VALUE stream_type(VALUE self) {
 	StreamInternal * internal;
 	Data_Get_Struct(self, StreamInternal, internal);
@@ -125,7 +125,7 @@ VALUE stream_type(VALUE self) {
 		case AVMEDIA_TYPE_ATTACHMENT:
 			return ID2SYM(rb_intern("attachment"));
 		default:
-			return ID2SYM(rb_intern("unknown"));
+			return Qnil;
 	}
 }
 
