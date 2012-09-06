@@ -27,6 +27,7 @@ VALUE frame_register_class(VALUE module) {
 	rb_define_method(_klass, "width",				frame_width, 0);
 	rb_define_method(_klass, "height",				frame_height, 0);
 	rb_define_method(_klass, "aspect_ratio",		frame_aspect_ratio, 0);
+	rb_define_method(_klass, "picture_type",		frame_picture_type, 0);
 	rb_define_method(_klass, "interlaced?",			frame_interlaced, 0);
 	rb_define_method(_klass, "top_field_first?",	frame_top_field_first, 0);
 
@@ -151,6 +152,31 @@ VALUE frame_aspect_ratio(VALUE self) {
 	Data_Get_Struct(self, FrameInternal, internal);
 
 	return internal->frame->sample_aspect_ratio.num ? rb_float_new(av_q2d(internal->frame->sample_aspect_ratio)) : Qnil;
+}
+
+// Picture type of the frame, nil if not available
+VALUE frame_picture_type(VALUE self) {
+	FrameInternal * internal;
+	Data_Get_Struct(self, FrameInternal, internal);
+
+	switch (internal->frame->pict_type) {
+		case AV_PICTURE_TYPE_I:
+			return ID2SYM(rb_intern("i"));
+		case AV_PICTURE_TYPE_P:
+			return ID2SYM(rb_intern("p"));
+		case AV_PICTURE_TYPE_B:
+			return ID2SYM(rb_intern("b"));
+		case AV_PICTURE_TYPE_S:
+			return ID2SYM(rb_intern("s"));
+		case AV_PICTURE_TYPE_SI:
+			return ID2SYM(rb_intern("si"));
+		case AV_PICTURE_TYPE_SP:
+			return ID2SYM(rb_intern("sp"));
+		case AV_PICTURE_TYPE_BI:
+			return ID2SYM(rb_intern("bi"));
+		default:
+			return Qnil;
+	}
 }
 
 // Is frame part of interlaced video?

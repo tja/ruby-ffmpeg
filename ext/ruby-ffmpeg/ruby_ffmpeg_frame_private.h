@@ -30,6 +30,7 @@ VALUE frame_key(VALUE self);
 VALUE frame_width(VALUE self);
 VALUE frame_height(VALUE self);
 VALUE frame_aspect_ratio(VALUE self);
+VALUE frame_picture_type(VALUE self);
 VALUE frame_interlaced(VALUE self);
 VALUE frame_top_field_first(VALUE self);
 
