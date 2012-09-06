@@ -20,8 +20,10 @@ VALUE frame_register_class(VALUE module) {
 	_klass = rb_define_class_under(module, "Frame", rb_cObject);
 	rb_define_alloc_func(_klass, frame_alloc);
 
-	rb_define_method(_klass, "width",	frame_width, 0);
-	rb_define_method(_klass, "height",	frame_height, 0);
+	rb_define_method(_klass, "timestamp",	frame_timestamp, 0);
+
+	rb_define_method(_klass, "width",		frame_width, 0);
+	rb_define_method(_klass, "height",		frame_height, 0);
 
 	return _klass;
 }
@@ -68,6 +70,14 @@ VALUE frame_new(AVFrame * frame) {
 /*
 **	Properties.
 */
+
+// Best effort timestamp
+VALUE frame_timestamp(VALUE self) {
+	FrameInternal * internal;
+	Data_Get_Struct(self, FrameInternal, internal);
+
+	return rb_float_new(av_frame_get_best_effort_timestamp(internal->frame) * av_q2d(internal->frame->owner->time_base));
+}
 
 // Video frame width (in pixels), nil if not available
 VALUE frame_width(VALUE self) {

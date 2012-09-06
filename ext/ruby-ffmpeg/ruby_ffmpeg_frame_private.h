@@ -19,6 +19,8 @@ void frame_mark(void * opaque);
 void frame_free(void * opaque);
 
 // Properties
+VALUE frame_timestamp(VALUE self);
+
 VALUE frame_width(VALUE self);
 VALUE frame_height(VALUE self);
 
