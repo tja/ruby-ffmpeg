@@ -30,3 +30,20 @@ This is heavily in development, which means..
 - A lot of functionality is missing
 - The API will most certainly change
 - *Nothing* will work as expected
+
+TODO List
+---------
+These are the next items on the agenda..
+
+1. Frame class
+   - Split up Frame into VideoFrame and AudioFrame (with Frame as base class)
+   - Add resizing and format conversion to VideoFrame
+   - Add resampling and format conversion to AudioFrame
+   - Allow access to (resized/resampled) data of AudioFrame and VideoFrame
+2. SubTitle class
+   - Make also base on Frame? Should be renamed to "StreamData" or something
+3. Add decode_frame method to Reader
+   - Also add an each_frame to Stream and Reader
+   - Allow to filter for key frames in video streams
+4. Codec class
+   - Allow enumerating all existing codecs
