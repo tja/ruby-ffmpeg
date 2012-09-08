@@ -43,7 +43,7 @@ VALUE stream_register_class(VALUE module) {
 
 	rb_define_method(_klass, "metadata", 		stream_metadata, 0);
 
-	rb_define_method(_klass, "decode",			stream_decode, 1);
+	rb_define_method(_klass, "decode",			stream_decode, 0);
 
 	return _klass;
 }
@@ -255,7 +255,7 @@ VALUE stream_metadata(VALUE self) {
 */
 
 // Encode frame and pass to block
-VALUE stream_decode(VALUE self, VALUE block) {
+VALUE stream_decode(VALUE self) {
 	StreamInternal * internal;
 	Data_Get_Struct(self, StreamInternal, internal);
 

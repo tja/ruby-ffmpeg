@@ -34,11 +34,12 @@ class FFMPEGTest < Test::Unit::TestCase
         first_video_stream = reader.streams.select { |s| s.type == :video }.first
         if first_video_stream
           10.times do
-            frame = first_video_stream.decode nil
+            frame = first_video_stream.decode
             next unless frame
     
             puts
             puts "*** Decoded Frame"
+            puts "    Data:           #{(frame.data || "").length}"
             puts "    Timestamp:      #{frame.timestamp}"
             puts "    Duration:       #{frame.duration}"
             puts "    Format:         #{frame.format}"

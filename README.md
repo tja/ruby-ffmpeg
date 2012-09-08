@@ -39,8 +39,7 @@ These are the next items on the agenda..
    - Split up Frame into VideoFrame and AudioFrame (with Frame as base class)
    - Add resizing and format conversion to VideoFrame
    - Add resampling and format conversion to AudioFrame
-   - Allow access to (resized/resampled) data of AudioFrame and VideoFrame
-2. SubTitle class
+2. Subtitle class
    - Make also base on Frame? Should be renamed to "StreamData" or something
 3. Add decode_frame method to Reader
    - Also add an each_frame to Stream and Reader

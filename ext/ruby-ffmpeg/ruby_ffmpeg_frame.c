@@ -21,6 +21,8 @@ VALUE frame_register_class(VALUE module) {
 	_klass = rb_define_class_under(module, "Frame", rb_cObject);
 	rb_define_alloc_func(_klass, frame_alloc);
 
+	rb_define_method(_klass, "data",				frame_data, 0);
+
 	rb_define_method(_klass, "timestamp",			frame_timestamp, 0);
 	rb_define_method(_klass, "duration",			frame_duration, 0);
 	rb_define_method(_klass, "format",				frame_format, 0);
@@ -87,6 +89,39 @@ VALUE frame_new(AVFrame * frame, AVCodecContext * codec) {
 /*
 **	Properties.
 */
+
+// Return the raw data (as a string)
+VALUE frame_data(VALUE self) {
+	FrameInternal * internal;
+	Data_Get_Struct(self, FrameInternal, internal);
+
+	// Allocate big enough buffer
+	int size = av_image_get_buffer_size(internal->frame->format, internal->frame->width, internal->frame->height, 1);
+	if (size < 0) return Qnil;
+
+	uint8_t * buffer = (uint8_t *)av_malloc(size);
+	if (!buffer) rb_raise(rb_eNoMemError, "Failed to allocate image buffer");
+
+	// Extract image data
+	int err = av_image_copy_to_buffer(buffer,
+									  size,
+									  internal->frame->data,
+									  internal->frame->linesize,
+									  internal->frame->format,
+									  internal->frame->width,
+									  internal->frame->height,
+									  1);
+	if (err < 0) {
+		av_free(buffer);
+		rb_raise(rb_eRuntimeError, av_error_to_ruby_string(err));
+	}
+
+	// Wrap in ruby
+	VALUE data = rb_str_new(buffer, size);
+	av_free(buffer);
+
+	return data;
+}
 
 // Best effort timestamp, nil if not available
 VALUE frame_timestamp(VALUE self) {
@@ -240,4 +275,3 @@ VALUE frame_sample_rate(VALUE self) {
 
 	return av_frame_get_sample_rate(internal->frame) ? INT2NUM(av_frame_get_sample_rate(internal->frame)) : Qnil;
 }
-

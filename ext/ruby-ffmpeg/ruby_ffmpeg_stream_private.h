@@ -45,7 +45,7 @@ VALUE stream_sample_rate(VALUE self);
 VALUE stream_metadata(VALUE self);
 
 // Methods
-VALUE stream_decode(VALUE self, VALUE block);
+VALUE stream_decode(VALUE self);
 
 // Helper Functions
 void prepare_codec(StreamInternal * internal);
