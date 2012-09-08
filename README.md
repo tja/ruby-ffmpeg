@@ -36,7 +36,6 @@ TODO List
 These are the next items on the agenda..
 
 1. Frame class
-   - Split up Frame into VideoFrame and AudioFrame (with Frame as base class)
    - Add resizing and format conversion to VideoFrame
    - Add resampling and format conversion to AudioFrame
 2. Subtitle class

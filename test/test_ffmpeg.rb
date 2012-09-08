@@ -39,18 +39,24 @@ class FFMPEGTest < Test::Unit::TestCase
     
             puts
             puts "*** Decoded Frame"
-            puts "    Data:           #{(frame.data || "").length}"
-            puts "    Timestamp:      #{frame.timestamp}"
-            puts "    Duration:       #{frame.duration}"
-            puts "    Format:         #{frame.format}"
-            puts "    Key Frame:      #{frame.key?}"
-            puts "    Resolution:     #{frame.width}x#{frame.height}"
-            puts "    Picture Type:   #{frame.picture_type}"
-            puts "    Interlaced:     #{frame.interlaced?} (TFF: #{frame.top_field_first?})"
-            puts "    Channels:       #{frame.channels}"
-            puts "    Channel Layout: #{frame.channel_layout}"
-            puts "    Samples:        #{frame.samples}"
-            puts "    Sample Rate:    #{frame.sample_rate}"
+            puts "    Data:                 #{(frame.raw_data || "").length}"
+            puts "    Timestamp:            #{frame.timestamp}"
+            puts "    Duration:             #{frame.duration}"
+            puts "    Format:               #{frame.format}"
+
+            if frame.kind_of? FFMPEG::VideoFrame
+              puts "    Video Resolution:     #{frame.width}x#{frame.height}"
+              puts "    Video Picture Type:   #{frame.picture_type}"
+              puts "    Video Interlaced:     #{frame.interlaced?} (TFF: #{frame.top_field_first?})"
+              puts "    Video Key Frame:      #{frame.key?}"
+            end
+
+            if frame.kind_of? FFMPEG::AudioFrame
+              puts "    Audio Channels:       #{frame.channels}"
+              puts "    Audio Channel Layout: #{frame.channel_layout}"
+              puts "    Audio Samples:        #{frame.samples}"
+              puts "    Audio Sample Rate:    #{frame.sample_rate}"
+            end
           end
         end
       end

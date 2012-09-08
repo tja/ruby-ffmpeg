@@ -6,7 +6,8 @@
 
 #include "ruby_ffmpeg_stream.h"
 #include "ruby_ffmpeg_stream_private.h"
-#include "ruby_ffmpeg_frame.h"
+#include "ruby_ffmpeg_video_frame.h"
+#include "ruby_ffmpeg_audio_frame.h"
 #include "ruby_ffmpeg_util.h"
 
 // Globals
@@ -278,21 +279,29 @@ VALUE stream_decode(VALUE self) {
 		}
 
 		// Decode frame
-		int decoded = 0;
-		if (internal->stream->codec->codec_type == AVMEDIA_TYPE_VIDEO) {
+		switch (internal->stream->codec->codec_type) {
 			// Video
-		    int err = avcodec_decode_video2(internal->stream->codec, frame, &decoded, &packet);
-			if (err < 0) rb_raise(rb_eLoadError, av_error_to_ruby_string(err));
-		}
-		else {
+			case AVMEDIA_TYPE_VIDEO: {
+				int decoded = 0;
+			    int err = avcodec_decode_video2(internal->stream->codec, frame, &decoded, &packet);
+				if (err < 0) rb_raise(rb_eLoadError, av_error_to_ruby_string(err));
+
+				if (decoded) {
+					return video_frame_new(frame, internal->stream->codec);
+				}
+				break;
+			}
 			// Audio
-		    int err = avcodec_decode_audio4(internal->stream->codec, frame, &decoded, &packet);
-			if (err < 0) rb_raise(rb_eLoadError, av_error_to_ruby_string(err));
-		}
-		
-		if (decoded) {
-			// Full frame decoded
-			return frame_new(frame, internal->stream->codec);
+			case AVMEDIA_TYPE_AUDIO: {
+				int decoded = 0;
+			    int err = avcodec_decode_audio4(internal->stream->codec, frame, &decoded, &packet);
+				if (err < 0) rb_raise(rb_eLoadError, av_error_to_ruby_string(err));
+				
+				if (decoded) {
+					return audio_frame_new(frame, internal->stream->codec);
+				}
+				break;
+			}
 		}
 	}
 }
