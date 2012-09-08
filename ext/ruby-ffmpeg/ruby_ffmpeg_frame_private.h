@@ -36,6 +36,7 @@ VALUE frame_aspect_ratio(VALUE self);
 VALUE frame_picture_type(VALUE self);
 VALUE frame_interlaced(VALUE self);
 VALUE frame_top_field_first(VALUE self);
+VALUE frame_rescale(int argc, VALUE * argv, VALUE self);
 
 VALUE frame_channels(VALUE self);
 VALUE frame_channel_layout(VALUE self);

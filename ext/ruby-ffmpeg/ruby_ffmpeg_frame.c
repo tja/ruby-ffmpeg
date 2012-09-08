@@ -34,6 +34,7 @@ VALUE frame_register_class(VALUE module) {
 	rb_define_method(_klass, "picture_type",		frame_picture_type, 0);
 	rb_define_method(_klass, "interlaced?",			frame_interlaced, 0);
 	rb_define_method(_klass, "top_field_first?",	frame_top_field_first, 0);
+	rb_define_method(_klass, "rescale",				frame_rescale, -1);
 
 	rb_define_method(_klass, "channels",			frame_channels, 0);
 	rb_define_method(_klass, "channel_layout",		frame_channel_layout, 0);
@@ -237,6 +238,11 @@ VALUE frame_top_field_first(VALUE self) {
 	Data_Get_Struct(self, FrameInternal, internal);
 
 	return internal->frame->top_field_first ? Qtrue : Qfalse;
+}
+
+// Rescale image
+VALUE frame_rescale(int argc, VALUE * argv, VALUE self) {
+	return self;
 }
 
 // Number of audio channels, nil if not available
