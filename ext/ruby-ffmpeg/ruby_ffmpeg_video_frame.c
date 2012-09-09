@@ -88,8 +88,11 @@ VALUE video_frame_raw_data(VALUE self) {
 	VideoFrameInternal * internal;
 	Data_Get_Struct(self, VideoFrameInternal, internal);
 
-	// Allocate big enough buffer
-	int size = av_image_get_buffer_size(internal->frame->format, internal->frame->width, internal->frame->height, 1);
+	// Allocate buffer
+	int size = av_image_get_buffer_size(internal->frame->format,
+										internal->frame->width,
+										internal->frame->height,
+										1);
 	if (size < 0) return Qnil;
 
 	uint8_t * buffer = (uint8_t *)av_malloc(size);

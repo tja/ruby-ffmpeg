@@ -20,15 +20,15 @@ VALUE audio_frame_register_class(VALUE module, VALUE super) {
 	_klass = rb_define_class_under(module, "AudioFrame", super);
 	rb_define_alloc_func(_klass, audio_frame_alloc);
 
-	rb_define_method(_klass, "raw_data",			audio_frame_raw_data, 0);
-	rb_define_method(_klass, "timestamp",			audio_frame_timestamp, 0);
-	rb_define_method(_klass, "duration",			audio_frame_duration, 0);
-	rb_define_method(_klass, "format",				audio_frame_format, 0);
+	rb_define_method(_klass, "raw_data",		audio_frame_raw_data, 0);
+	rb_define_method(_klass, "timestamp",		audio_frame_timestamp, 0);
+	rb_define_method(_klass, "duration",		audio_frame_duration, 0);
+	rb_define_method(_klass, "format",			audio_frame_format, 0);
 
-	rb_define_method(_klass, "channels",			audio_frame_channels, 0);
-	rb_define_method(_klass, "channel_layout",		audio_frame_channel_layout, 0);
-	rb_define_method(_klass, "samples",				audio_frame_samples, 0);
-	rb_define_method(_klass, "sample_rate",			audio_frame_sample_rate, 0);
+	rb_define_method(_klass, "channels",		audio_frame_channels, 0);
+	rb_define_method(_klass, "channel_layout",	audio_frame_channel_layout, 0);
+	rb_define_method(_klass, "samples",			audio_frame_samples, 0);
+	rb_define_method(_klass, "sample_rate",		audio_frame_sample_rate, 0);
 
 	return _klass;
 }
@@ -81,8 +81,30 @@ VALUE audio_frame_new(AVFrame * frame, AVCodecContext * codec) {
 
 // Return the raw data (as string)
 VALUE audio_frame_raw_data(VALUE self) {
-	// Todo
-	return Qnil;
+	AudioFrameInternal * internal;
+	Data_Get_Struct(self, AudioFrameInternal, internal);
+
+	// Extract sample data
+	int bytes_per_sample = av_get_bytes_per_sample(internal->frame->format);
+
+	if (av_sample_fmt_is_planar(internal->frame->format)) {
+		// Planar
+		VALUE data = rb_str_new(NULL, 0);
+
+		int i;
+		for (i = 0; i < internal->channels; ++i) {
+			data = rb_str_cat(data,
+							  internal->frame->extended_data[i],
+							  bytes_per_sample * internal->frame->nb_samples);
+		}
+
+		return data;
+	}
+	else {
+		// Interleaved
+		return rb_str_new(internal->frame->extended_data[0],
+						  bytes_per_sample * internal->frame->nb_samples * internal->channels);
+	}
 }
 
 // Best effort timestamp (in seconds), nil if not available
