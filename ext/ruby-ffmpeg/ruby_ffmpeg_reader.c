@@ -201,8 +201,10 @@ int read_packet(void * opaque, uint8_t * buffer, int buffer_size) {
 	ReaderInternal * internal = (ReaderInternal *)opaque;
 
 	VALUE string = rb_funcall(internal->io, rb_intern("read"), 1, INT2FIX(buffer_size));
+	if (TYPE(string) == T_NIL) return 0;
+
 	Check_Type(string, T_STRING);
-	
+
 	memcpy(buffer, RSTRING_PTR(string), RSTRING_LEN(string));
 	return RSTRING_LEN(string);
 }
