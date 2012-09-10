@@ -68,22 +68,22 @@ A very simple example to extract the first frame of a video and store it as RGB 
       end
 	end
 
-More tutorials and API documentation will come soon.
+More tutorials and a full API documentation will come soon, but steer over to the [examples](https://github.com/tja/ruby-ffmpeg/tree/master/examples) folder for now.
 
 ## Status
 
-This is heavily in development, which means..
+*ruby-ffmpeg* is work-in-progress, which means:
 
-* A lot of functionality is missing
+* A lot of the functionality is still missing
 * The API will most certainly change
-* __Nothing__ will work as expected
+* I am sure there are plenty of bugs
 
-## Todo List
+### Short-Term Todo List
 
-The next items on the agenda are...
+I am currently working on these things:
 
 1. Add resampling and format conversion to AudioFrame
-2. Subtitle class
+2. Subtitle decoding
 3. Add decode_frame method to Reader
    * Also add an each_frame to Stream and Reader
    * Allow to filter for key frames in VideoStream and Reader
