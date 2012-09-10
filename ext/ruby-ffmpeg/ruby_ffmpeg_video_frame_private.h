@@ -32,7 +32,7 @@ void video_frame_mark(void * opaque);
 void video_frame_free(void * opaque);
 
 // Properties
-VALUE video_frame_raw_data(VALUE self);
+VALUE video_frame_raw_data(int argc, VALUE * argv, VALUE self);
 VALUE video_frame_timestamp(VALUE self);
 VALUE video_frame_duration(VALUE self);
 VALUE video_frame_format(VALUE self);

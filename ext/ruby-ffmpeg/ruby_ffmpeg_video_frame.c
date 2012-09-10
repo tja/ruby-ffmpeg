@@ -21,7 +21,7 @@ VALUE video_frame_register_class(VALUE module, VALUE super) {
 	_klass = rb_define_class_under(module, "VideoFrame", super);
 	rb_define_alloc_func(_klass, video_frame_alloc);
 
-	rb_define_method(_klass, "raw_data",			video_frame_raw_data, 0);
+	rb_define_method(_klass, "raw_data",			video_frame_raw_data, -1);
 	rb_define_method(_klass, "timestamp",			video_frame_timestamp, 0);
 	rb_define_method(_klass, "duration",			video_frame_duration, 0);
 	rb_define_method(_klass, "format",				video_frame_format, 0);
@@ -145,15 +145,22 @@ VALUE video_frame_new2(AVPicture * picture, int owner, int width, int height, in
 */
 
 // Return the raw data (as string)
-VALUE video_frame_raw_data(VALUE self) {
+//
+// raw_data            - Get raw data with alignment 1
+// raw_data(alignment) - Get raw data with given alignment
+VALUE video_frame_raw_data(int argc, VALUE * argv, VALUE self) {
 	VideoFrameInternal * internal;
 	Data_Get_Struct(self, VideoFrameInternal, internal);
+
+	// Extract alignment
+	if (argc > 1) rb_raise(rb_eArgError, "Too many arguments");
+	int alignment = (argc == 1) ? NUM2INT(argv[0]) : 1;
 
 	// Allocate buffer
 	int size = av_image_get_buffer_size(internal->format,
 										internal->width,
 										internal->height,
-										1);
+										alignment);
 	if (size < 0) return Qnil;
 
 	uint8_t * buffer = (uint8_t *)av_malloc(size);
@@ -167,7 +174,7 @@ VALUE video_frame_raw_data(VALUE self) {
 									  internal->format,
 									  internal->width,
 									  internal->height,
-									  1);
+									  alignment);
 	if (err < 0) {
 		av_free(buffer);
 		rb_raise(rb_eRuntimeError, av_error_to_ruby_string(err));
