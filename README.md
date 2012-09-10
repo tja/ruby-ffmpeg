@@ -58,15 +58,17 @@ Once FFMPEG is available on the system, *ruby-ffmpeg* can be installed on top:
 
 A very simple example to extract the first frame of a video and store it as RGB raw data:
 
-    require 'ruby-ffmpeg'
-    
-    File.open("/path/to/video.mp4") do |io|
-      FFMPEG::Reader.open(io) do |reader|
-        video_stream = reader.streams.select { |s| s.type == :video }.first
-        first_frame_as_rgb24 = video_stream.decode.resample(:rgb24)
-		File.open("/path/to/output.raw", "wb") { |f| f.write(frame.data) }
-      end
-	end
+```ruby
+require 'ruby-ffmpeg'
+
+File.open("/path/to/video.mp4") do |io|
+  FFMPEG::Reader.open(io) do |reader|
+    video_stream = reader.streams.select { |s| s.type == :video }.first
+    first_frame_as_rgb24 = video_stream.decode.resample(:rgb24)
+	File.open("/path/to/output.raw", "wb") { |f| f.write(frame.data) }
+  end
+end
+```
 
 More tutorials and a full API documentation will come soon, but steer over to the [examples](https://github.com/tja/ruby-ffmpeg/tree/master/examples) folder for now.
 
