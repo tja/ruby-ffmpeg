@@ -21,7 +21,7 @@ void audio_frame_mark(void * opaque);
 void audio_frame_free(void * opaque);
 
 // Properties
-VALUE audio_frame_raw_data(VALUE self);
+VALUE audio_frame_data(VALUE self);
 
 VALUE audio_frame_timestamp(VALUE self);
 VALUE audio_frame_duration(VALUE self);

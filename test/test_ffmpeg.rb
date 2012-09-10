@@ -69,7 +69,7 @@ class FFMPEGTest < Test::Unit::TestCase
       FFMPEG::Reader.open(io) do |reader|
         video_frame = reader.streams[0].decode
 
-        assert_equal 614880,              video_frame.raw_data.length
+        assert_equal 614880,              video_frame.data.length
         assert_equal "0.041667",          "%.6f" % video_frame.timestamp
         assert_equal "0.020833",          "%.6f" % video_frame.duration
         assert_equal :yuv420p,            video_frame.format
@@ -88,7 +88,7 @@ class FFMPEGTest < Test::Unit::TestCase
       FFMPEG::Reader.open(io) do |reader|
         audio_frame = reader.streams[1].decode
 
-        assert_equal 4096,                audio_frame.raw_data.length
+        assert_equal 4096,                audio_frame.data.length
         assert_equal "0.000000",          "%.6f" % audio_frame.timestamp
         assert_equal "0.000021",          "%.6f" % audio_frame.duration
         assert_equal :s16,                audio_frame.format
@@ -106,7 +106,7 @@ class FFMPEGTest < Test::Unit::TestCase
       FFMPEG::Reader.open(io) do |reader|
         video_frame = reader.streams[0].decode.resample(0.5)
 
-        assert_equal 153840,              video_frame.raw_data.length
+        assert_equal 153840,              video_frame.data.length
         assert_equal "0.041667",          "%.6f" % video_frame.timestamp
         assert_equal "0.020833",          "%.6f" % video_frame.duration
         assert_equal :yuv420p,            video_frame.format
@@ -125,7 +125,7 @@ class FFMPEGTest < Test::Unit::TestCase
       FFMPEG::Reader.open(io) do |reader|
         video_frame = reader.streams[0].decode.resample(:rgb24)
 
-        assert_equal 1229760,             video_frame.raw_data.length
+        assert_equal 1229760,             video_frame.data.length
         assert_equal "0.041667",          "%.6f" % video_frame.timestamp
         assert_equal "0.020833",          "%.6f" % video_frame.duration
         assert_equal :rgb24,              video_frame.format
@@ -144,7 +144,7 @@ class FFMPEGTest < Test::Unit::TestCase
       FFMPEG::Reader.open(io) do |reader|
         video_frame = reader.streams[0].decode.resample(100, 100)
 
-        assert_equal 15000,               video_frame.raw_data.length
+        assert_equal 15000,               video_frame.data.length
         assert_equal "0.041667",          "%.6f" % video_frame.timestamp
         assert_equal "0.020833",          "%.6f" % video_frame.duration
         assert_equal :yuv420p,            video_frame.format
@@ -163,7 +163,7 @@ class FFMPEGTest < Test::Unit::TestCase
       FFMPEG::Reader.open(io) do |reader|
         video_frame = reader.streams[0].decode.resample(150, 150, :bicubic)
 
-        assert_equal 33750,               video_frame.raw_data.length
+        assert_equal 33750,               video_frame.data.length
         assert_equal "0.041667",          "%.6f" % video_frame.timestamp
         assert_equal "0.020833",          "%.6f" % video_frame.duration
         assert_equal :yuv420p,            video_frame.format
@@ -182,7 +182,7 @@ class FFMPEGTest < Test::Unit::TestCase
       FFMPEG::Reader.open(io) do |reader|
         video_frame = reader.streams[0].decode.resample(200, 200, :bicubic, :rgba)
 
-        assert_equal 160000,              video_frame.raw_data.length
+        assert_equal 160000,              video_frame.data.length
         assert_equal "0.041667",          "%.6f" % video_frame.timestamp
         assert_equal "0.020833",          "%.6f" % video_frame.duration
         assert_equal :rgba,               video_frame.format

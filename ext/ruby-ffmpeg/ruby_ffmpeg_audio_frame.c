@@ -20,7 +20,7 @@ VALUE audio_frame_register_class(VALUE module, VALUE super) {
 	_klass = rb_define_class_under(module, "AudioFrame", super);
 	rb_define_alloc_func(_klass, audio_frame_alloc);
 
-	rb_define_method(_klass, "raw_data",		audio_frame_raw_data, 0);
+	rb_define_method(_klass, "data",			audio_frame_data, 0);
 	rb_define_method(_klass, "timestamp",		audio_frame_timestamp, 0);
 	rb_define_method(_klass, "duration",		audio_frame_duration, 0);
 	rb_define_method(_klass, "format",			audio_frame_format, 0);
@@ -80,7 +80,7 @@ VALUE audio_frame_new(AVFrame * frame, AVCodecContext * codec) {
 */
 
 // Return the raw data (as string)
-VALUE audio_frame_raw_data(VALUE self) {
+VALUE audio_frame_data(VALUE self) {
 	AudioFrameInternal * internal;
 	Data_Get_Struct(self, AudioFrameInternal, internal);
 

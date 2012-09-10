@@ -21,7 +21,7 @@ VALUE video_frame_register_class(VALUE module, VALUE super) {
 	_klass = rb_define_class_under(module, "VideoFrame", super);
 	rb_define_alloc_func(_klass, video_frame_alloc);
 
-	rb_define_method(_klass, "raw_data",			video_frame_raw_data, -1);
+	rb_define_method(_klass, "data",				video_frame_data, -1);
 	rb_define_method(_klass, "timestamp",			video_frame_timestamp, 0);
 	rb_define_method(_klass, "duration",			video_frame_duration, 0);
 	rb_define_method(_klass, "format",				video_frame_format, 0);
@@ -146,9 +146,9 @@ VALUE video_frame_new2(AVPicture * picture, int owner, int width, int height, in
 
 // Return the raw data (as string)
 //
-// raw_data            - Get raw data with alignment 1
-// raw_data(alignment) - Get raw data with given alignment
-VALUE video_frame_raw_data(int argc, VALUE * argv, VALUE self) {
+// #data            - Get raw data with alignment 1
+// #data(alignment) - Get raw data with given alignment
+VALUE video_frame_data(int argc, VALUE * argv, VALUE self) {
 	VideoFrameInternal * internal;
 	Data_Get_Struct(self, VideoFrameInternal, internal);
 
