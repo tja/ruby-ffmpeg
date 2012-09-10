@@ -19,6 +19,7 @@ dir_config('', INCLUDE_DIRS, LIB_DIRS)
 have_library('avformat') or raise
 have_library('avcodec') or raise
 have_library('avutil') or raise
+have_library('swscale') or raise
 
 $CFLAGS << ' -Wall '
 

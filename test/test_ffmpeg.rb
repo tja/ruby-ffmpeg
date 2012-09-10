@@ -101,39 +101,98 @@ class FFMPEGTest < Test::Unit::TestCase
     end
   end
 
-  # def test_sandbox
-  #   File.open("./test/test-2.mp4") do |io|
-  #     FFMPEG::Reader.open(io) do |reader|
-  #       first_video_stream = reader.streams.select { |s| s.type == :video }.first
-  #       if first_video_stream
-  #         10.times do
-  #           frame = first_video_stream.decode
-  #           next unless frame
-  #   
-  #           frame = frame.rescale(2.0)
-  #   
-  #           puts
-  #           puts "*** Decoded Frame"
-  #           puts "    Data:                 #{(frame.raw_data || "").length}"
-  #           puts "    Timestamp:            #{frame.timestamp}"
-  #           puts "    Duration:             #{frame.duration}"
-  #           puts "    Format:               #{frame.format}"
-  # 
-  #           if frame.kind_of? FFMPEG::VideoFrame
-  #             puts "    Video Resolution:     #{frame.width}x#{frame.height}"
-  #             puts "    Video Picture Type:   #{frame.picture_type}"
-  #             puts "    Video Key Frame:      #{frame.key?}"
-  #           end
-  # 
-  #           if frame.kind_of? FFMPEG::AudioFrame
-  #             puts "    Audio Channels:       #{frame.channels}"
-  #             puts "    Audio Channel Layout: #{frame.channel_layout}"
-  #             puts "    Audio Samples:        #{frame.samples}"
-  #             puts "    Audio Sample Rate:    #{frame.sample_rate}"
-  #           end
-  #         end
-  #       end
-  #     end
-  #   end
-  # end
+  def test_video_frame_resample_percentage
+    File.open("./test/test-1.avi") do |io|
+      FFMPEG::Reader.open(io) do |reader|
+        video_frame = reader.streams[0].decode.resample(0.5)
+
+        assert_equal 153840,              video_frame.raw_data.length
+        assert_equal "0.041667",          "%.6f" % video_frame.timestamp
+        assert_equal "0.020833",          "%.6f" % video_frame.duration
+        assert_equal :yuv420p,            video_frame.format
+          
+        assert_equal 427,                 video_frame.width
+        assert_equal 240,                 video_frame.height
+        assert_equal 0.0,                 video_frame.aspect_ratio
+        assert_equal :bi,                 video_frame.picture_type
+        assert_equal true,                video_frame.key?
+      end
+    end
+  end
+  
+  def test_video_frame_resample_format
+    File.open("./test/test-1.avi") do |io|
+      FFMPEG::Reader.open(io) do |reader|
+        video_frame = reader.streams[0].decode.resample(:rgb24)
+
+        assert_equal 1229760,             video_frame.raw_data.length
+        assert_equal "0.041667",          "%.6f" % video_frame.timestamp
+        assert_equal "0.020833",          "%.6f" % video_frame.duration
+        assert_equal :rgb24,              video_frame.format
+          
+        assert_equal 854,                 video_frame.width
+        assert_equal 480,                 video_frame.height
+        assert_equal 0.0,                 video_frame.aspect_ratio
+        assert_equal :bi,                 video_frame.picture_type
+        assert_equal true,                video_frame.key?
+      end
+    end
+  end
+  
+  def test_video_frame_resample_width_height
+    File.open("./test/test-1.avi") do |io|
+      FFMPEG::Reader.open(io) do |reader|
+        video_frame = reader.streams[0].decode.resample(100, 100)
+
+        assert_equal 15000,               video_frame.raw_data.length
+        assert_equal "0.041667",          "%.6f" % video_frame.timestamp
+        assert_equal "0.020833",          "%.6f" % video_frame.duration
+        assert_equal :yuv420p,            video_frame.format
+          
+        assert_equal 100,                 video_frame.width
+        assert_equal 100,                 video_frame.height
+        assert_equal 0.0,                 video_frame.aspect_ratio
+        assert_equal :bi,                 video_frame.picture_type
+        assert_equal true,                video_frame.key?
+      end
+    end
+  end
+
+  def test_video_frame_resample_width_height_filter
+    File.open("./test/test-1.avi") do |io|
+      FFMPEG::Reader.open(io) do |reader|
+        video_frame = reader.streams[0].decode.resample(150, 150, :bicubic)
+
+        assert_equal 33750,               video_frame.raw_data.length
+        assert_equal "0.041667",          "%.6f" % video_frame.timestamp
+        assert_equal "0.020833",          "%.6f" % video_frame.duration
+        assert_equal :yuv420p,            video_frame.format
+          
+        assert_equal 150,                 video_frame.width
+        assert_equal 150,                 video_frame.height
+        assert_equal 0.0,                 video_frame.aspect_ratio
+        assert_equal :bi,                 video_frame.picture_type
+        assert_equal true,                video_frame.key?
+      end
+    end
+  end
+
+  def test_video_frame_resample_width_height_filter_format
+    File.open("./test/test-1.avi") do |io|
+      FFMPEG::Reader.open(io) do |reader|
+        video_frame = reader.streams[0].decode.resample(200, 200, :bicubic, :rgba)
+
+        assert_equal 160000,              video_frame.raw_data.length
+        assert_equal "0.041667",          "%.6f" % video_frame.timestamp
+        assert_equal "0.020833",          "%.6f" % video_frame.duration
+        assert_equal :rgba,               video_frame.format
+          
+        assert_equal 200,                 video_frame.width
+        assert_equal 200,                 video_frame.height
+        assert_equal 0.0,                 video_frame.aspect_ratio
+        assert_equal :bi,                 video_frame.picture_type
+        assert_equal true,                video_frame.key?
+      end
+    end
+  end
 end

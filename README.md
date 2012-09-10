@@ -35,9 +35,7 @@ TODO List
 ---------
 These are the next items on the agenda..
 
-1. Frame class
-   - Add resizing and format conversion to VideoFrame
-   - Add resampling and format conversion to AudioFrame
+1. Add resampling and format conversion to AudioFrame
 2. Subtitle class
    - Make also base on Frame? Should be renamed to "StreamData" or something
 3. Add decode_frame method to Reader
