@@ -47,7 +47,7 @@ The [FFMPEG Trac Wiki](https://ffmpeg.org/trac/ffmpeg/wiki/CompilationGuide) pro
 
 ## Installation
 
-Once FFMPEG is available on the system, *ruby-ffmpeg* can installed on top:
+Once FFMPEG is available on the system, *ruby-ffmpeg* can be installed on top:
 
     git clone git://github.com/tja/ruby-ffmpeg.git
 	cd ruby-ffmpeg
@@ -56,7 +56,19 @@ Once FFMPEG is available on the system, *ruby-ffmpeg* can installed on top:
 
 ## Documentation
 
-Will come soon.
+A very simple example to extract the first frame of a video and store it as RGB raw data:
+
+    require 'ruby-ffmpeg'
+    
+    File.open("/path/to/video.mp4") do |io|
+      FFMPEG::Reader.open(io) do |reader|
+        video_stream = reader.streams.select { |s| s.type == :video }.first
+        first_frame_as_rgb24 = video_stream.decode.resample(:rgb24)
+		File.open("/path/to/output.raw", "wb") { |f| f.write(frame.data) }
+      end
+	end
+
+More tutorials and API documentation will come soon.
 
 ## Status
 
