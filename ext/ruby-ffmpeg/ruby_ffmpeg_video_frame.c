@@ -256,7 +256,7 @@ VALUE video_frame_key(VALUE self) {
 **	Methods.
 */
 
-// Rescale image
+// Resample image
 //
 // frame.resample(factor)                        - Resize by percentage
 // frame.resample(format)                        - Change color format

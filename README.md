@@ -84,11 +84,21 @@ More tutorials and a full API documentation will come soon, but steer over to th
 
 I am currently working on these things:
 
-1. Add resampling and format conversion to AudioFrame
-2. Subtitle decoding
-3. Add decode_frame method to Reader
+1. Stream class
+   * Split off audio-related methods into AudioStream
+   * Split off video-related methods into VideoStream
+2. Resampling
+   * Resampling moves into it's own class for efficiency
+   * VideoStream#resampler will return a VideoResampler object
+   * VideoResampler#[] and VideoFrame#resample(video_resampler) will allow to resample video images
+   * AudioStream#resampler will return an AudioResampler object
+   * AudioResampler#[] and AudioFrame#resample(audio_resampler) will allow to resample audio samples
+3. Subtitle decoding
+   * Add SubtitleStream
+   * Add SubtitleFrame
+4. Add decode_frame method to Reader
    * Also add an each_frame to Stream and Reader
    * Allow to filter for key frames in VideoStream and Reader
-4. Codec class
+5. Codec class
    * Create own codec class
    * Allow enumerating all existing codecs
