@@ -10,7 +10,7 @@
 // Internal Data
 typedef struct {
 	AVPicture *			picture;				// FFMPEG: Decoded picture from the stream
-	int 				owner;					// Set to "1" if we own this picture and have to free it
+	int 				owner;					// Set to "1" if we own this picture and have to fully free it
 
 	int					width;					// FFMPEG: Picture width (in pixel)
 	int					height;					// FFMPEG: Picture height (in pixel)

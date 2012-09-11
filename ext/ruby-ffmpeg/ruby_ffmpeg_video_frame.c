@@ -116,7 +116,7 @@ VALUE video_frame_new(AVFrame * frame, AVCodecContext * codec) {
 							(frame->pkt_duration != AV_NOPTS_VALUE) ? rb_float_new(frame->pkt_duration * av_q2d(codec->time_base)) : Qnil);
 }
 
-// Create new instance for given FFMPEG frame
+// Create new instance
 VALUE video_frame_new2(AVPicture * picture, int owner, int width, int height, int format, VALUE aspect, VALUE type, VALUE key, VALUE timestamp, VALUE duration) {
 	VALUE self = rb_class_new_instance(0, NULL, _klass);
 
