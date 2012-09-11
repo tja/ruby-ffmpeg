@@ -56,7 +56,7 @@ class FFMPEGTest < Test::Unit::TestCase
         assert_equal 126688,              reader.streams[1].bit_rate
         
         assert_equal 2,                   reader.streams[1].channels
-        assert_equal "2 channels (FR)",   reader.streams[1].channel_layout
+        assert_equal "stereo",            reader.streams[1].channel_layout
         assert_equal 48000,               reader.streams[1].sample_rate
         
         assert_equal 0,                   reader.streams[1].metadata.length
@@ -94,7 +94,7 @@ class FFMPEGTest < Test::Unit::TestCase
         assert_equal :s16,                audio_frame.format
 
         assert_equal 2,                   audio_frame.channels
-        assert_equal "2 channels (FR)",   audio_frame.channel_layout
+        assert_equal "stereo",            audio_frame.channel_layout
         assert_equal 1024,                audio_frame.samples
         assert_equal 48000,               audio_frame.sample_rate
       end

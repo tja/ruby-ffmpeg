@@ -45,8 +45,8 @@ VALUE audio_frame_alloc(VALUE klass) {
 void audio_frame_free(void * opaque) {
 	AudioFrameInternal * internal = (AudioFrameInternal *)opaque;
 	if (internal) {
-		if (internal->frame)
-			av_free(internal->frame);
+		if (internal->samples)
+			av_free(internal->samples);
 		av_free(internal);
 	}
 }
@@ -55,21 +55,74 @@ void audio_frame_free(void * opaque) {
 void audio_frame_mark(void * opaque) {
 	AudioFrameInternal * internal = (AudioFrameInternal *)opaque;
 	if (internal) {
-		// Nothing right now
+		rb_gc_mark(internal->timestamp);
+		rb_gc_mark(internal->duration);
 	}
 }
 
 // Create new instance for given FFMPEG frame
 VALUE audio_frame_new(AVFrame * frame, AVCodecContext * codec) {
+	// Time stamp: start of with best effort
+	int64_t timestamp = frame->best_effort_timestamp;
+	if (timestamp == AV_NOPTS_VALUE) {
+		// Fall back to presentation timestamp of frame
+		timestamp = frame->pts;
+		if (timestamp == AV_NOPTS_VALUE) {
+			// Fall back to presentation timestamp of packet
+			timestamp = frame->pkt_pts;
+			if (timestamp == AV_NOPTS_VALUE) {
+				// Fall back to decompression timestamp of packet
+				timestamp = frame->pkt_dts;
+			}
+		}
+	}
+
+	int64_t duration = frame->pkt_duration;
+
+	// Copy data into new sample buffer
+	int plane_size = 0;
+	int data_size = av_samples_get_buffer_size(&plane_size, codec->channels, codec->frame_size, codec->sample_fmt, 1);
+	int planes = av_sample_fmt_is_planar(codec->sample_fmt) ? codec->channels : 1;
+
+	uint8_t * buffer = av_malloc(data_size);
+	if (!buffer) rb_raise(rb_eNoMemError, "Failed to allocate sample buffer");
+
+	int i;
+	for (i = 0; i < planes; ++i) {
+		memcpy(buffer + i * plane_size, frame->extended_data[i], plane_size);
+	}
+
+	// Clean up
+	av_free(frame);
+
+	// Call main init method
+	return audio_frame_new2(buffer,
+		                  	codec->channels,
+						    codec->channel_layout,
+						  	codec->sample_fmt,
+						  	codec->frame_size,
+						  	codec->sample_rate,
+						  	(timestamp != AV_NOPTS_VALUE) ? rb_float_new(timestamp * av_q2d(codec->time_base)) : Qnil,
+						  	(duration != AV_NOPTS_VALUE) ? rb_float_new(duration * av_q2d(codec->time_base)) : Qnil);
+}
+
+// Create new instance
+VALUE audio_frame_new2(uint8_t * samples, int channels, int channel_layout, int format, int sample_count, int sample_rate, VALUE timestamp, VALUE duration) {
 	VALUE self = rb_class_new_instance(0, NULL, _klass);
 
 	AudioFrameInternal * internal;
 	Data_Get_Struct(self, AudioFrameInternal, internal);
 
-	internal->frame = frame;
-	internal->time_base = codec->time_base;
-	internal->channels = codec->channels;
-	internal->channel_layout = codec->channel_layout;
+	internal->samples = samples;
+
+	internal->channels = channels;
+	internal->channel_layout = channel_layout;
+	internal->format = format;
+	internal->sample_count = sample_count;
+	internal->sample_rate = sample_rate;
+
+	internal->timestamp = timestamp;
+	internal->duration = duration;
 
 	return self;
 }
@@ -84,27 +137,8 @@ VALUE audio_frame_data(VALUE self) {
 	AudioFrameInternal * internal;
 	Data_Get_Struct(self, AudioFrameInternal, internal);
 
-	// Extract sample data
-	int bytes_per_sample = av_get_bytes_per_sample(internal->frame->format);
-
-	if (av_sample_fmt_is_planar(internal->frame->format)) {
-		// Planar
-		VALUE data = rb_str_new(NULL, 0);
-
-		int i;
-		for (i = 0; i < internal->channels; ++i) {
-			data = rb_str_cat(data,
-							  internal->frame->extended_data[i],
-							  bytes_per_sample * internal->frame->nb_samples);
-		}
-
-		return data;
-	}
-	else {
-		// Interleaved
-		return rb_str_new(internal->frame->extended_data[0],
-						  bytes_per_sample * internal->frame->nb_samples * internal->channels);
-	}
+	int bytes_per_sample = av_get_bytes_per_sample(internal->format);
+	return rb_str_new(internal->samples, bytes_per_sample * internal->channels * internal->sample_count);
 }
 
 // Best effort timestamp (in seconds), nil if not available
@@ -112,27 +146,7 @@ VALUE audio_frame_timestamp(VALUE self) {
 	AudioFrameInternal * internal;
 	Data_Get_Struct(self, AudioFrameInternal, internal);
 
-	// Start of with best effort
-	int64_t timestamp = internal->frame->best_effort_timestamp;
-	if (timestamp != AV_NOPTS_VALUE)
-		return rb_float_new(timestamp * av_q2d(internal->time_base));
-
-	// Fall back to presentation timestamp of frame
-	timestamp = internal->frame->pts;
-	if (timestamp != AV_NOPTS_VALUE)
-		return rb_float_new(timestamp * av_q2d(internal->time_base));
-
-	// Fall back to presentation timestamp of packet
-	timestamp = internal->frame->pkt_pts;
-	if (timestamp != AV_NOPTS_VALUE)
-		return rb_float_new(timestamp * av_q2d(internal->time_base));
-
-	// Fall back to decompression timestamp of packet
-	timestamp = internal->frame->pkt_dts;
-	if (timestamp != AV_NOPTS_VALUE)
-		return rb_float_new(timestamp * av_q2d(internal->time_base));
-
-	return Qnil;
+	return internal->timestamp;
 }
 
 // Duration of this frame (in seconds), nil if not available
@@ -140,7 +154,7 @@ VALUE audio_frame_duration(VALUE self) {
 	AudioFrameInternal * internal;
 	Data_Get_Struct(self, AudioFrameInternal, internal);
 
-	return (internal->frame->pkt_duration != AV_NOPTS_VALUE) ? rb_float_new(internal->frame->pkt_duration * av_q2d(internal->time_base)) : Qnil;
+	return internal->duration;
 }
 
 // Format of the frame, nil if not available
@@ -148,7 +162,7 @@ VALUE audio_frame_format(VALUE self) {
 	AudioFrameInternal * internal;
 	Data_Get_Struct(self, AudioFrameInternal, internal);
 
-	return av_sample_format_to_symbol(internal->frame->format);
+	return av_sample_format_to_symbol(internal->format);
 }
 
 // Number of audio channels
@@ -165,7 +179,7 @@ VALUE audio_frame_channel_layout(VALUE self) {
 	Data_Get_Struct(self, AudioFrameInternal, internal);
 
 	char temp[64];
-	av_get_channel_layout_string(&temp[0], sizeof(temp), internal->channels, internal->channels);
+	av_get_channel_layout_string(&temp[0], sizeof(temp), internal->channels, internal->channel_layout);
 	return rb_str_new2(temp);
 }
 
@@ -174,7 +188,7 @@ VALUE audio_frame_samples(VALUE self) {
 	AudioFrameInternal * internal;
 	Data_Get_Struct(self, AudioFrameInternal, internal);
 
-	return INT2NUM(internal->frame->nb_samples);
+	return INT2NUM(internal->sample_count);
 }
 
 // Audio sample rate (samples per second)
@@ -182,5 +196,5 @@ VALUE audio_frame_sample_rate(VALUE self) {
 	AudioFrameInternal * internal;
 	Data_Get_Struct(self, AudioFrameInternal, internal);
 
-	return INT2NUM(av_frame_get_sample_rate(internal->frame));
+	return INT2NUM(internal->sample_rate);
 }

@@ -8,10 +8,16 @@
 
 // Internal Data
 typedef struct {
-	AVFrame *			frame;					// FFMPEG: Frame used for video decoding
-	AVRational			time_base;				// Time base for this frame
-	int					channels;				// Audio channel count
-	uint64_t			channel_layout;			// Audio channel layout
+	uint8_t * 					samples;				// Raw sample data
+
+	int							channels;				// FFMPEG: Audio channel count
+	uint64_t					channel_layout;			// FFMPEG: Audio channel layout
+	int							format;					// FFMPEG: Format of the picture data
+	int							sample_count;			// FFMPEG: Sample count
+	int							sample_rate;			// FFMPEG: Sample rate
+
+	VALUE						timestamp;				// Ruby: timestamp for this image (in seconds), or Qnil if not available
+	VALUE						duration;				// Ruby: duration of this image (in seconds), or Qnil if not available
 } AudioFrameInternal;
 
 

@@ -230,7 +230,7 @@ VALUE stream_channel_layout(VALUE self) {
 		return Qnil;
 
 	char temp[64];
-	av_get_channel_layout_string(&temp[0], sizeof(temp), internal->stream->codec->channels, internal->stream->codec->channels);
+	av_get_channel_layout_string(&temp[0], sizeof(temp), internal->stream->codec->channels, internal->stream->codec->channel_layout);
 	return rb_str_new2(temp);
 }
 
