@@ -90,15 +90,14 @@ I am currently working on these things:
 2. Resampling
    * Resampling moves into it's own class for efficiency
    * VideoStream#resampler will return a VideoResampler object
-   * VideoResampler#[] and VideoFrame#resample(video_resampler) will allow to resample video images
+   * VideoResampler#[vf] and VideoFrame#resample(vr) will allow to resample video frames
    * AudioStream#resampler will return an AudioResampler object
-   * AudioResampler#[] and AudioFrame#resample(audio_resampler) will allow to resample audio samples
+   * AudioResampler#[af] and AudioFrame#resample(ar) will allow to resample audio frames
 3. Subtitle decoding
    * Add SubtitleStream
    * Add SubtitleFrame
-4. Add decode_frame method to Reader
-   * Also add an each_frame to Stream and Reader
-   * Allow to filter for key frames in VideoStream and Reader
-5. Codec class
-   * Create own codec class
+4. Add Reader#decode
+   * Also add Stream#each\_frame and Reader#each\_frame
+   * Allow to filter for key frames in #decode and #each_frame
+5. Create own codec class
    * Allow enumerating all existing codecs
