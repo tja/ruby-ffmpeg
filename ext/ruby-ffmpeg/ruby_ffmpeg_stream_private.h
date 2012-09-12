@@ -15,7 +15,6 @@ typedef struct {
 	VALUE				metadata;				// Ruby: Array of metadata
 } StreamInternal;
 
-
 // Object Lifetime
 VALUE stream_alloc(VALUE klass);
 void stream_mark(void * opaque);
@@ -29,25 +28,9 @@ VALUE stream_type(VALUE self);
 VALUE stream_tag(VALUE self);
 VALUE stream_start_time(VALUE self);
 VALUE stream_duration(VALUE self);
-VALUE stream_format(VALUE self);
 VALUE stream_frame_count(VALUE self);
 VALUE stream_bit_rate(VALUE self);
 
-VALUE stream_width(VALUE self);
-VALUE stream_height(VALUE self);
-VALUE stream_aspect_ratio(VALUE self);
-VALUE stream_frame_rate(VALUE self);
-
-VALUE stream_channels(VALUE self);
-VALUE stream_channel_layout(VALUE self);
-VALUE stream_sample_rate(VALUE self);
-
 VALUE stream_metadata(VALUE self);
-
-// Methods
-VALUE stream_decode(VALUE self);
-
-// Helper Functions
-void prepare_codec(StreamInternal * internal);
 
 #endif // RUBY_FFMPEG_STREAM_PRIVATE_H

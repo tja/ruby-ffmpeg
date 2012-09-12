@@ -20,7 +20,6 @@ typedef struct {
 	VALUE				metadata;				// Ruby: Array of metadata
 } ReaderInternal;
 
-
 // Object Lifetime
 VALUE reader_alloc(VALUE klass);
 void reader_free(void * opaque);

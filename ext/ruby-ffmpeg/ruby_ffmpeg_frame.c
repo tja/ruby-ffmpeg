@@ -19,8 +19,8 @@ static VALUE _klass;
 */
 
 // Register class
-VALUE frame_register_class(VALUE module) {
-	_klass = rb_define_class_under(module, "Frame", rb_cObject);
+VALUE frame_register_class(VALUE module, VALUE super) {
+	_klass = rb_define_class_under(module, "Frame", super);
 
 	rb_define_method(_klass, "raw_data",	frame_raw_data, 0);
 	rb_define_method(_klass, "timestamp",	frame_timestamp, 0);

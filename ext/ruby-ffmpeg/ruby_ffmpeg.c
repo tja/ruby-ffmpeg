@@ -26,7 +26,8 @@ void Init_ruby_ffmpeg_ext(void) {
 	rb_set_end_proc(DeInit_ruby_ffmpeg, 0);
 
 	VALUE module = rb_define_module("FFMPEG");
-	reader_register_class(module);
-	stream_register_class(module);
-	frame_register_class(module);
+
+	reader_register_class(module, rb_cObject);
+	stream_register_class(module, rb_cObject);
+	frame_register_class(module, rb_cObject);
 }

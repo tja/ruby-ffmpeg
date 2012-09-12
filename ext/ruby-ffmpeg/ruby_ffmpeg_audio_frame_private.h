@@ -20,7 +20,6 @@ typedef struct {
 	VALUE						duration;				// Ruby: duration of this image (in seconds), or Qnil if not available
 } AudioFrameInternal;
 
-
 // Object Lifetime
 VALUE audio_frame_alloc(VALUE klass);
 void audio_frame_mark(void * opaque);

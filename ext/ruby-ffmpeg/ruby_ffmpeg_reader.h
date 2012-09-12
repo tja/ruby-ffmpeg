@@ -8,7 +8,7 @@
 #include <libswscale/swscale.h>
 
 // Object Lifetime
-VALUE reader_register_class(VALUE module);
+VALUE reader_register_class(VALUE module, VALUE super);
 
 // Helper Functions
 int reader_find_next_stream_packet(VALUE self, AVPacket * packet, int stream_index);

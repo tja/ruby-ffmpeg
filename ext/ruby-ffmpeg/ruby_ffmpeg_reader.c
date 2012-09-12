@@ -6,7 +6,8 @@
 
 #include "ruby_ffmpeg_reader.h"
 #include "ruby_ffmpeg_reader_private.h"
-#include "ruby_ffmpeg_stream.h"
+#include "ruby_ffmpeg_video_stream.h"
+#include "ruby_ffmpeg_audio_stream.h"
 #include "ruby_ffmpeg_util.h"
 
 // Globals
@@ -18,8 +19,8 @@ static VALUE _klass;
 */
 
 // Register class
-VALUE reader_register_class(VALUE module) {
-	_klass = rb_define_class_under(module, "Reader", rb_cObject);
+VALUE reader_register_class(VALUE module, VALUE super) {
+	_klass = rb_define_class_under(module, "Reader", super);
 	rb_define_alloc_func(_klass, reader_alloc);
 
 	rb_define_const (_klass, "VERSION",			rb_str_new2(human_readable_version()));
@@ -158,7 +159,7 @@ VALUE reader_bit_rate(VALUE self) {
 VALUE reader_streams(VALUE self) {
 	ReaderInternal * internal;
 	Data_Get_Struct(self, ReaderInternal, internal);
-	
+
 	return internal->streams;
 }
 
@@ -190,7 +191,23 @@ VALUE streams_to_ruby_array(VALUE self, AVFormatContext * format) {
 
 	unsigned i = 0;
 	for(; i < format->nb_streams; ++i) {
-		rb_ary_push(streams, stream_new(self, format->streams[i]));
+		switch (format->streams[i]->codec->codec_type) {
+			case AVMEDIA_TYPE_VIDEO: {
+				// Video stream
+				rb_ary_push(streams, video_stream_new(self, format->streams[i]));
+				break;
+			}
+			case AVMEDIA_TYPE_AUDIO: {
+				// Audio stream
+				rb_ary_push(streams, audio_stream_new(self, format->streams[i]));
+				break;
+			}
+			default: {
+				// All other streams
+				rb_ary_push(streams, stream_new(self, format->streams[i]));
+				break;
+			}
+		}
 	}
 
 	return streams;

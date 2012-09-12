@@ -25,7 +25,6 @@ typedef struct {
 	struct SwsContext *	scaler;					// FFMPEG: Resizer / rescaler
 } VideoFrameInternal;
 
-
 // Object Lifetime
 VALUE video_frame_alloc(VALUE klass);
 void video_frame_mark(void * opaque);

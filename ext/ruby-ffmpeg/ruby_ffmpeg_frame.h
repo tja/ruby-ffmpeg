@@ -7,6 +7,6 @@
 #include <libavcodec/avcodec.h>
 
 // Object Lifetime
-VALUE frame_register_class(VALUE module);
+VALUE frame_register_class(VALUE module, VALUE super);
 
 #endif // RUBY_FFMPEG_FRAME_H
