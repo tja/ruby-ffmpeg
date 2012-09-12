@@ -24,6 +24,8 @@ class FFMPEGTest < Test::Unit::TestCase
   def test_video_stream_properties
     File.open("./test/test-1.avi") do |io|
       FFMPEG::Reader.open(io) do |reader|
+        assert                            reader.streams[0].kind_of? FFMPEG::VideoStream
+
         assert_equal 0,                   reader.streams[0].index
         assert_equal :video,              reader.streams[0].type
         assert_equal "avc1",              reader.streams[0].tag
@@ -46,6 +48,8 @@ class FFMPEGTest < Test::Unit::TestCase
   def test_audio_stream_properties
     File.open("./test/test-1.avi") do |io|
       FFMPEG::Reader.open(io) do |reader|
+        assert                            reader.streams[1].kind_of? FFMPEG::AudioStream
+
         assert_equal 1,                   reader.streams[1].index
         assert_equal :audio,              reader.streams[1].type
         assert_equal "\xFF\x00\x00\x00",  reader.streams[1].tag
@@ -69,6 +73,8 @@ class FFMPEGTest < Test::Unit::TestCase
       FFMPEG::Reader.open(io) do |reader|
         video_frame = reader.streams[0].decode
 
+        assert                            video_frame.kind_of? FFMPEG::VideoFrame
+
         assert_equal 614880,              video_frame.data.length
         assert_equal "0.041667",          "%.6f" % video_frame.timestamp
         assert_equal "0.020833",          "%.6f" % video_frame.duration
@@ -87,6 +93,8 @@ class FFMPEGTest < Test::Unit::TestCase
     File.open("./test/test-1.avi") do |io|
       FFMPEG::Reader.open(io) do |reader|
         audio_frame = reader.streams[1].decode
+
+        assert                            audio_frame.kind_of? FFMPEG::AudioFrame
 
         assert_equal 4096,                audio_frame.data.length
         assert_equal "0.000000",          "%.6f" % audio_frame.timestamp
