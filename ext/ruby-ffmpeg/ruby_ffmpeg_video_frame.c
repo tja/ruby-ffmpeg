@@ -72,13 +72,13 @@ void video_frame_mark(void * opaque) {
 VALUE video_frame_new(AVFrame * frame, AVCodecContext * codec) {
 	// Time stamp: start of with best effort
 	int64_t timestamp = frame->best_effort_timestamp;
-	if (timestamp == AV_NOPTS_VALUE) {
+	if (timestamp == (int64_t)AV_NOPTS_VALUE) {
 		// Fall back to presentation timestamp of frame
 		timestamp = frame->pts;
-		if (timestamp == AV_NOPTS_VALUE) {
+		if (timestamp == (int64_t)AV_NOPTS_VALUE) {
 			// Fall back to presentation timestamp of packet
 			timestamp = frame->pkt_pts;
-			if (timestamp == AV_NOPTS_VALUE) {
+			if (timestamp == (int64_t)AV_NOPTS_VALUE) {
 				// Fall back to decompression timestamp of packet
 				timestamp = frame->pkt_dts;
 			}
@@ -107,8 +107,8 @@ VALUE video_frame_new(AVFrame * frame, AVCodecContext * codec) {
 							frame->sample_aspect_ratio.den ? rb_float_new(av_q2d(frame->sample_aspect_ratio)) : Qnil,
 							picture_type,
 							frame->key_frame ? Qtrue : Qfalse,
-							(timestamp != AV_NOPTS_VALUE) ? rb_float_new(timestamp * av_q2d(codec->time_base)) : Qnil,
-							(frame->pkt_duration != AV_NOPTS_VALUE) ? rb_float_new(frame->pkt_duration * av_q2d(codec->time_base)) : Qnil);
+							(timestamp != (int64_t)AV_NOPTS_VALUE) ? rb_float_new(timestamp * av_q2d(codec->time_base)) : Qnil,
+							(frame->pkt_duration != (int64_t)AV_NOPTS_VALUE) ? rb_float_new(frame->pkt_duration * av_q2d(codec->time_base)) : Qnil);
 }
 
 // Create new instance

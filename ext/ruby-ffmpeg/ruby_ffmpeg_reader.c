@@ -122,7 +122,7 @@ VALUE reader_start_time(VALUE self) {
 	ReaderInternal * internal;
 	Data_Get_Struct(self, ReaderInternal, internal);
 
-	return (internal->format->start_time != AV_NOPTS_VALUE) ? rb_float_new(internal->format->start_time / (double)AV_TIME_BASE) : Qnil;
+	return (internal->format->start_time != (int64_t)AV_NOPTS_VALUE) ? rb_float_new(internal->format->start_time / (double)AV_TIME_BASE) : Qnil;
 }
 
 // Duration (in seconds), nil if not available
@@ -130,7 +130,7 @@ VALUE reader_duration(VALUE self) {
 	ReaderInternal * internal;
 	Data_Get_Struct(self, ReaderInternal, internal);
 	
-	return (internal->format->duration != AV_NOPTS_VALUE) ? rb_float_new(internal->format->duration / (double)AV_TIME_BASE) : Qnil;
+	return (internal->format->duration != (int64_t)AV_NOPTS_VALUE) ? rb_float_new(internal->format->duration / (double)AV_TIME_BASE) : Qnil;
 }
 
 // Bit rate (in bits per second)
