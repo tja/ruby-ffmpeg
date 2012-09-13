@@ -1,9 +1,8 @@
 #include "ruby_ffmpeg.h"
 #include "ruby_ffmpeg_stream.h"
 #include "ruby_ffmpeg_stream_private.h"
-#include "ruby_ffmpeg_video_frame.h"
-#include "ruby_ffmpeg_audio_frame.h"
-#include "ruby_ffmpeg_frame.h"
+#include "ruby_ffmpeg_video_stream.h"
+#include "ruby_ffmpeg_audio_stream.h"
 #include "ruby_ffmpeg_util.h"
 
 // Globals

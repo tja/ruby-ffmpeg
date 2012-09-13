@@ -3,6 +3,7 @@
 #include "ruby_ffmpeg_reader_private.h"
 #include "ruby_ffmpeg_video_stream.h"
 #include "ruby_ffmpeg_audio_stream.h"
+#include "ruby_ffmpeg_stream.h"
 #include "ruby_ffmpeg_util.h"
 
 // Globals
