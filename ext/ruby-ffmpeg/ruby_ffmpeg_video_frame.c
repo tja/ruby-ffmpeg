@@ -280,8 +280,8 @@ VALUE video_frame_resample(int argc, VALUE * argv, VALUE self) {
 		case 1: {
 			if (TYPE(argv[0]) != T_SYMBOL) {
 				// Resize by percentage
-				dest_width	= source_width  * NUM2DBL(argv[0]);
-				dest_height	= source_height * NUM2DBL(argv[0]);
+				dest_width	= (int)(source_width  * NUM2DBL(argv[0]));
+				dest_height	= (int)(source_height * NUM2DBL(argv[0]));
 			}
 			else {
 				// Change color format

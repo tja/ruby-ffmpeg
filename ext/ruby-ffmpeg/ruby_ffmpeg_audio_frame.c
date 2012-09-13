@@ -103,7 +103,7 @@ VALUE audio_frame_new(AVFrame * frame, AVCodecContext * codec) {
 }
 
 // Create new instance
-VALUE audio_frame_new2(uint8_t * samples, int channels, int channel_layout, int format, int sample_count, int sample_rate, VALUE timestamp, VALUE duration) {
+VALUE audio_frame_new2(uint8_t * samples, int channels, uint64_t channel_layout, enum AVSampleFormat format, int sample_count, int sample_rate, VALUE timestamp, VALUE duration) {
 	VALUE self = rb_class_new_instance(0, NULL, _klass);
 
 	AudioFrameInternal * internal;

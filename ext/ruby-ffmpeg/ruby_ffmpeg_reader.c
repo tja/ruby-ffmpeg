@@ -219,7 +219,7 @@ int read_packet(void * opaque, uint8_t * buffer, int buffer_size) {
 	Check_Type(string, T_STRING);
 
 	memcpy(buffer, RSTRING_PTR(string), RSTRING_LEN(string));
-	return RSTRING_LEN(string);
+	return (int)RSTRING_LEN(string);
 }
 
 // Find the next packet for the stream
