@@ -176,7 +176,7 @@ VALUE video_frame_data(int argc, VALUE * argv, VALUE self) {
 	}
 
 	// Wrap in ruby
-	VALUE data = rb_str_new(buffer, size);
+	VALUE data = rb_str_new((char const *)buffer, size);
 	av_free(buffer);
 
 	return data;

@@ -134,7 +134,7 @@ VALUE audio_frame_data(VALUE self) {
 	Data_Get_Struct(self, AudioFrameInternal, internal);
 
 	int bytes_per_sample = av_get_bytes_per_sample(internal->format);
-	return rb_str_new(internal->samples, bytes_per_sample * internal->channels * internal->sample_count);
+	return rb_str_new((char const *)internal->samples, bytes_per_sample * internal->channels * internal->sample_count);
 }
 
 // Best effort timestamp (in seconds), nil if not available
