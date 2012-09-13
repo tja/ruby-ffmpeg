@@ -89,13 +89,14 @@ VALUE video_frame_new(AVFrame * frame, AVCodecContext * codec) {
 	VALUE picture_type = Qnil;
 
 	switch (frame->pict_type) {
-		case AV_PICTURE_TYPE_I:		picture_type = ID2SYM(rb_intern("i"));
-		case AV_PICTURE_TYPE_P:		picture_type = ID2SYM(rb_intern("p"));
-		case AV_PICTURE_TYPE_B:		picture_type = ID2SYM(rb_intern("b"));
-		case AV_PICTURE_TYPE_S:		picture_type = ID2SYM(rb_intern("s"));
-		case AV_PICTURE_TYPE_SI:	picture_type = ID2SYM(rb_intern("si"));
-		case AV_PICTURE_TYPE_SP:	picture_type = ID2SYM(rb_intern("sp"));
-		case AV_PICTURE_TYPE_BI:	picture_type = ID2SYM(rb_intern("bi"));
+		case AV_PICTURE_TYPE_I:		picture_type = ID2SYM(rb_intern("i"));		break;
+		case AV_PICTURE_TYPE_P:		picture_type = ID2SYM(rb_intern("p"));		break;
+		case AV_PICTURE_TYPE_B:		picture_type = ID2SYM(rb_intern("b"));		break;
+		case AV_PICTURE_TYPE_S:		picture_type = ID2SYM(rb_intern("s"));		break;
+		case AV_PICTURE_TYPE_SI:	picture_type = ID2SYM(rb_intern("si"));		break;
+		case AV_PICTURE_TYPE_SP:	picture_type = ID2SYM(rb_intern("sp"));		break;
+		case AV_PICTURE_TYPE_BI:	picture_type = ID2SYM(rb_intern("bi"));		break;
+		default:																break;
 	}
 
 	// Call main init method

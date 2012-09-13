@@ -83,7 +83,7 @@ class FFMPEGTest < Test::Unit::TestCase
         assert_equal 854,                 video_frame.width
         assert_equal 480,                 video_frame.height
         assert_equal 0.0,                 video_frame.aspect_ratio
-        assert_equal :bi,                 video_frame.picture_type
+        assert_equal :i,                  video_frame.picture_type
         assert_equal true,                video_frame.key?
       end
     end
@@ -122,7 +122,7 @@ class FFMPEGTest < Test::Unit::TestCase
         assert_equal 427,                 video_frame.width
         assert_equal 240,                 video_frame.height
         assert_equal 0.0,                 video_frame.aspect_ratio
-        assert_equal :bi,                 video_frame.picture_type
+        assert_equal :i,                  video_frame.picture_type
         assert_equal true,                video_frame.key?
       end
     end
@@ -141,7 +141,7 @@ class FFMPEGTest < Test::Unit::TestCase
         assert_equal 854,                 video_frame.width
         assert_equal 480,                 video_frame.height
         assert_equal 0.0,                 video_frame.aspect_ratio
-        assert_equal :bi,                 video_frame.picture_type
+        assert_equal :i,                  video_frame.picture_type
         assert_equal true,                video_frame.key?
       end
     end
@@ -160,7 +160,7 @@ class FFMPEGTest < Test::Unit::TestCase
         assert_equal 100,                 video_frame.width
         assert_equal 100,                 video_frame.height
         assert_equal 0.0,                 video_frame.aspect_ratio
-        assert_equal :bi,                 video_frame.picture_type
+        assert_equal :i,                  video_frame.picture_type
         assert_equal true,                video_frame.key?
       end
     end
@@ -179,7 +179,7 @@ class FFMPEGTest < Test::Unit::TestCase
         assert_equal 150,                 video_frame.width
         assert_equal 150,                 video_frame.height
         assert_equal 0.0,                 video_frame.aspect_ratio
-        assert_equal :bi,                 video_frame.picture_type
+        assert_equal :i,                  video_frame.picture_type
         assert_equal true,                video_frame.key?
       end
     end
@@ -198,7 +198,7 @@ class FFMPEGTest < Test::Unit::TestCase
         assert_equal 200,                 video_frame.width
         assert_equal 200,                 video_frame.height
         assert_equal 0.0,                 video_frame.aspect_ratio
-        assert_equal :bi,                 video_frame.picture_type
+        assert_equal :i,                  video_frame.picture_type
         assert_equal true,                video_frame.key?
       end
     end
