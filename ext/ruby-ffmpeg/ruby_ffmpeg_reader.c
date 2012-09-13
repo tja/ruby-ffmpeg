@@ -86,7 +86,7 @@ VALUE reader_initialize(VALUE self, VALUE io) {
 	if (err) rb_raise_av_error(rb_eLoadError, err);
 
 	// Read in stream information
-	err = av_find_stream_info(internal->format);
+	err = avformat_find_stream_info(internal->format, NULL);
 	if (err < 0) rb_raise_av_error(rb_eLoadError, err);
 
 	// Extract properties
