@@ -136,7 +136,7 @@ VALUE video_stream_decode(VALUE self) {
 		if (!codec) {
 			codec = avcodec_find_decoder(internal->base.stream->codec->codec_id);
 		}
-		avcodec_open(internal->base.stream->codec, codec);
+		avcodec_open2(internal->base.stream->codec, codec, NULL);
 	}
 	
 	// Find and decode next video frame
