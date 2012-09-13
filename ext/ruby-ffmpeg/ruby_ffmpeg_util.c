@@ -11,7 +11,7 @@ VALUE av_dictionary_to_ruby_hash(AVDictionary * dict) {
 	VALUE metadata = rb_hash_new();
 
 	AVDictionaryEntry * temp = NULL;
-	while (temp = av_dict_get(dict, "", temp, AV_DICT_IGNORE_SUFFIX)) {
+	while ((temp = av_dict_get(dict, "", temp, AV_DICT_IGNORE_SUFFIX)) != NULL) {
 		rb_hash_aset(metadata, ID2SYM(rb_intern(temp->key)), rb_str_new2(temp->value));
 	}
 
@@ -69,6 +69,5 @@ void rb_raise_av_error(VALUE exception, int error) {
 	static char temp[1024];
 	av_strerror(error, &temp[0], sizeof(temp));
 
-	rb_raise(exception, temp);
+	rb_raise(exception, "%s", temp);
 }
-
