@@ -6,9 +6,8 @@
 /*
 **	Deinitialize.
 */
-void DeInit_ruby_ffmpeg(VALUE unused) {
-	// Silence warning
-	(void)(unused);
+void DeInit_ruby_ffmpeg(VALUE data) {
+	(void)data;
 }
 
 /*
@@ -20,7 +19,7 @@ void Init_ruby_ffmpeg_ext(void) {
 	av_log_set_level(AV_LOG_QUIET);
 
 	// Ruby
-	rb_set_end_proc(DeInit_ruby_ffmpeg, 0);
+	rb_set_end_proc(DeInit_ruby_ffmpeg, Qnil);
 
 	VALUE module = rb_define_module("FFMPEG");
 

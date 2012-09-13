@@ -76,6 +76,7 @@ VALUE audio_stream_new(VALUE reader, AVStream * stream) {
 
 // Stream type; always returns :audio
 VALUE audio_stream_type(VALUE self) {
+	(void)self;
 	return ID2SYM(rb_intern("audio"));
 }
 

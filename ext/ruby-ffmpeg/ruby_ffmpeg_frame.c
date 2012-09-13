@@ -36,20 +36,24 @@ VALUE frame_register_class(VALUE module, VALUE super) {
 
 // Return the raw data (as string), base class always returns nil
 VALUE frame_raw_data(VALUE self) {
+	(void)self;
 	return Qnil;
 }
 
 // Best effort timestamp (in seconds), base class always returns nil
 VALUE frame_timestamp(VALUE self) {
+	(void)self;
 	return Qnil;
 }
 
 // Duration of this frame (in seconds), base class always returns nil
 VALUE frame_duration(VALUE self) {
+	(void)self;
 	return Qnil;
 }
 
 // Format of the frame, base class always returns nil
 VALUE frame_format(VALUE self) {
+	(void)self;
 	return Qnil;
 }

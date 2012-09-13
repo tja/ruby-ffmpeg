@@ -77,6 +77,7 @@ VALUE video_stream_new(VALUE reader, AVStream * stream) {
 
 // Stream type; always returns :video
 VALUE video_stream_type(VALUE self) {
+	(void)self;
 	return ID2SYM(rb_intern("video"));
 }
 
