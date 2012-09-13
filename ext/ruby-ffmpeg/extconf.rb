@@ -21,6 +21,7 @@ have_library('avcodec') or raise
 have_library('avutil') or raise
 have_library('swscale') or raise
 
-$CFLAGS << ' -Wall '
+$CFLAGS << " -Wall "                    # Show all warnings
+$CFLAGS << " -Wno-shorten-64-to-32 "    # Except 64-to-32 shortenings, as they are mostly caused by FFMPEG
 
 create_makefile('ruby-ffmpeg/ruby_ffmpeg_ext')
