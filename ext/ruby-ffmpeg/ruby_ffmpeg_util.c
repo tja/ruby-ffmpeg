@@ -25,7 +25,7 @@ VALUE av_pixel_format_to_symbol(enum PixelFormat format) {
 }
 
 // Convert symbol to FFMPEG PixelFormat
-VALUE symbol_to_av_pixel_format(VALUE symbol) {
+enum PixelFormat symbol_to_av_pixel_format(VALUE symbol) {
 	char const * name = rb_id2name(SYM2ID(symbol));
 	return av_get_pix_fmt(name);
 }
