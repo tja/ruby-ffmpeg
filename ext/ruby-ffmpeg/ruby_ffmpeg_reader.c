@@ -1,9 +1,4 @@
-#include <ruby.h>
-
-#include <libavformat/avformat.h>
-#include <libavcodec/avcodec.h>
-#include <libswscale/swscale.h>
-
+#include "ruby_ffmpeg.h"
 #include "ruby_ffmpeg_reader.h"
 #include "ruby_ffmpeg_reader_private.h"
 #include "ruby_ffmpeg_video_stream.h"

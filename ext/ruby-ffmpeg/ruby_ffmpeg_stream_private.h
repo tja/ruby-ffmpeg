@@ -1,11 +1,7 @@
 #ifndef	RUBY_FFMPEG_STREAM_PRIVATE_H
 #define	RUBY_FFMPEG_STREAM_PRIVATE_H
 
-#include <ruby.h>
-
-#include <libavformat/avformat.h>
-#include <libavcodec/avcodec.h>
-#include <libswscale/swscale.h>
+#include "ruby_ffmpeg.h"
 
 // Internal Data
 typedef struct {

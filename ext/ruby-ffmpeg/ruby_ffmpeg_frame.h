@@ -1,10 +1,7 @@
 #ifndef	RUBY_FFMPEG_FRAME_H
 #define	RUBY_FFMPEG_FRAME_H
 
-#include <ruby.h>
-
-#include <libavformat/avformat.h>
-#include <libavcodec/avcodec.h>
+#include "ruby_ffmpeg.h"
 
 // Object Lifetime
 VALUE frame_register_class(VALUE module, VALUE super);

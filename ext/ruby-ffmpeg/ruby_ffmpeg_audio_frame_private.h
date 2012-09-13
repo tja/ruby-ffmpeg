@@ -1,10 +1,7 @@
 #ifndef	RUBY_FFMPEG_AUDIO_FRAME_PRIVATE_H
 #define	RUBY_FFMPEG_AUDIO_FRAME_PRIVATE_H
 
-#include <ruby.h>
-
-#include <libavformat/avformat.h>
-#include <libavcodec/avcodec.h>
+#include "ruby_ffmpeg.h"
 
 // Internal Data
 typedef struct {

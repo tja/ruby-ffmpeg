@@ -1,11 +1,7 @@
 #ifndef	RUBY_FFMPEG_AUDIO_FRAME_H
 #define	RUBY_FFMPEG_AUDIO_FRAME_H
 
-#include <ruby.h>
-
-#include <libavformat/avformat.h>
-#include <libavcodec/avcodec.h>
-#include <libswscale/swscale.h>
+#include "ruby_ffmpeg.h"
 
 // Object Lifetime
 VALUE audio_frame_register_class(VALUE module, VALUE super);

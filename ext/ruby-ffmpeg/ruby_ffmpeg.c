@@ -1,17 +1,14 @@
-#include <ruby.h>
-
-#include <libavcodec/avcodec.h>
-#include <libavformat/avformat.h>
-#include <libswscale/swscale.h>
-
+#include "ruby_ffmpeg.h"
 #include "ruby_ffmpeg_reader.h"
 #include "ruby_ffmpeg_stream.h"
+#include "ruby_ffmpeg_frame.h"
 
 /*
 **	Deinitialize.
 */
 void DeInit_ruby_ffmpeg(VALUE unused) {
-	/* nothing for now */
+	// Silence warning
+	(void)(unused);
 }
 
 /*

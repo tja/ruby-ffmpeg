@@ -1,11 +1,7 @@
 #ifndef	RUBY_FFMPEG_READER_PRIVATE_H
 #define	RUBY_FFMPEG_READER_PRIVATE_H
 
-#include <ruby.h>
-
-#include <libavformat/avformat.h>
-#include <libavcodec/avcodec.h>
-#include <libswscale/swscale.h>
+#include "ruby_ffmpeg.h"
 
 // Definitions
 #define reader_READ_BUFFER_SIZE		8192		// Buffer size for reading

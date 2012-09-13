@@ -1,11 +1,7 @@
 #ifndef	RUBY_FFMPEG_AUDIO_STREAM_PRIVATE_H
 #define	RUBY_FFMPEG_AUDIO_STREAM_PRIVATE_H
 
-#include <ruby.h>
-
-#include <libavformat/avformat.h>
-#include <libavcodec/avcodec.h>
-
+#include "ruby_ffmpeg.h"
 #include "ruby_ffmpeg_stream_private.h"
 
 // Internal Data

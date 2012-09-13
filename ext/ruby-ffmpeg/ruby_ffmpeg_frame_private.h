@@ -1,10 +1,7 @@
 #ifndef	RUBY_FFMPEG_FRAME_PRIVATE_H
 #define	RUBY_FFMPEG_FRAME_PRIVATE_H
 
-#include <ruby.h>
-
-#include <libavformat/avformat.h>
-#include <libavcodec/avcodec.h>
+#include "ruby_ffmpeg.h"
 
 // Properties
 VALUE frame_raw_data(VALUE self);

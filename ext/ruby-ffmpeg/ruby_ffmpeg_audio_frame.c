@@ -1,8 +1,4 @@
-#include <ruby.h>
-
-#include <libavformat/avformat.h>
-#include <libavcodec/avcodec.h>
-
+#include "ruby_ffmpeg.h"
 #include "ruby_ffmpeg_audio_frame.h"
 #include "ruby_ffmpeg_audio_frame_private.h"
 #include "ruby_ffmpeg_util.h"
