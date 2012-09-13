@@ -164,8 +164,8 @@ VALUE video_frame_data(int argc, VALUE * argv, VALUE self) {
 	// Extract image data
 	int err = av_image_copy_to_buffer(buffer,
 									  size,
-									  internal->picture->data,
-									  internal->picture->linesize,
+									  (uint8_t const * const *)internal->picture->data,
+									  (int const *)internal->picture->linesize,
 									  internal->format,
 									  internal->width,
 									  internal->height,
@@ -346,8 +346,8 @@ VALUE video_frame_resample(int argc, VALUE * argv, VALUE self) {
 
 	// Resample
 	int height = sws_scale(internal->scaler,
-						   internal->picture->data,
-						   internal->picture->linesize,
+						   (uint8_t const * const *)internal->picture->data,
+						   (int const *)internal->picture->linesize,
 						   0,
 						   source_height,
 						   dest_picture->data,
