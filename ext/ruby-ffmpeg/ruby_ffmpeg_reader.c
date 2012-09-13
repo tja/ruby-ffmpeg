@@ -88,11 +88,11 @@ VALUE reader_initialize(VALUE self, VALUE io) {
 
 	// Open file via Ruby stream
 	int err = avformat_open_input(&internal->format, "unnamed", NULL, NULL);
-	if (err) rb_raise(rb_eLoadError, av_error_to_ruby_string(err));
+	if (err) rb_raise_av_error(rb_eLoadError, err);
 
 	// Read in stream information
 	err = av_find_stream_info(internal->format);
-	if (err < 0) rb_raise(rb_eLoadError, av_error_to_ruby_string(err));
+	if (err < 0) rb_raise_av_error(rb_eLoadError, err);
 
 	// Extract properties
 	internal->streams = streams_to_ruby_array(self, internal->format);

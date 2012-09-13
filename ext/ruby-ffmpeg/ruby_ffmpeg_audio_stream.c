@@ -151,7 +151,7 @@ VALUE audio_stream_decode(VALUE self) {
 		// Decode audio frame
 		int decoded = 0;
 	    int err = avcodec_decode_audio4(internal->base.stream->codec, frame, &decoded, &packet);
-		if (err < 0) rb_raise(rb_eLoadError, av_error_to_ruby_string(err));
+		if (err < 0) rb_raise_av_error(rb_eLoadError, err);
 				
 		if (decoded) {
 			return audio_frame_new(frame, internal->base.stream->codec);

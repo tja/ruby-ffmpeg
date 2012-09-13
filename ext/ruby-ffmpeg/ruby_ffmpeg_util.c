@@ -23,13 +23,6 @@ VALUE av_dictionary_to_ruby_hash(AVDictionary * dict) {
 	return metadata;
 }
 
-// Convert FFMPEG error to Ruby string description
-VALUE av_error_to_ruby_string(int error) {
-	char temp[1024];
-	av_strerror(error, &temp[0], sizeof(temp));
-	return rb_str_new2(temp);
-}
-
 // Convert FFMPEG PixelFormat to symbol
 VALUE av_pixel_format_to_symbol(enum PixelFormat format) {
 	char const * name = av_get_pix_fmt_name(format);
@@ -70,3 +63,17 @@ int symbol_to_interpolation_filter(VALUE symbol) {
 	if (strcmp(name, "spline") == 0)		return SWS_SPLINE;
 	return 0;
 }
+
+
+/*
+**	Misc.
+*/
+
+// Raise Ruby exception with FFMPEG error
+void rb_raise_av_error(VALUE exception, int error) {
+	static char temp[1024];
+	av_strerror(error, &temp[0], sizeof(temp));
+
+	rb_raise(exception, temp);
+}
+

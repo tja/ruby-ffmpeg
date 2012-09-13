@@ -159,7 +159,7 @@ VALUE video_stream_decode(VALUE self) {
 		// Decode frame
 		int decoded = 0;
 	    int err = avcodec_decode_video2(internal->base.stream->codec, frame, &decoded, &packet);
-		if (err < 0) rb_raise(rb_eLoadError, av_error_to_ruby_string(err));
+		if (err < 0) rb_raise_av_error(rb_eLoadError, err);
 	
 		if (decoded) {
 			return video_frame_new(frame, internal->base.stream->codec);

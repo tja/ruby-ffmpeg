@@ -18,4 +18,8 @@ VALUE av_media_type_to_symbol(enum AVMediaType type);
 
 int symbol_to_interpolation_filter(VALUE filter);
 
+// Misc
+void rb_raise_av_error(VALUE exception, int error);
+
+
 #endif // RUBY_FFMPEG_UTIL_H

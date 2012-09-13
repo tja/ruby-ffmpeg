@@ -177,7 +177,7 @@ VALUE video_frame_data(int argc, VALUE * argv, VALUE self) {
 									  alignment);
 	if (err < 0) {
 		av_free(buffer);
-		rb_raise(rb_eRuntimeError, av_error_to_ruby_string(err));
+		rb_raise_av_error(rb_eRuntimeError, err);
 	}
 
 	// Wrap in ruby
@@ -347,7 +347,7 @@ VALUE video_frame_resample(int argc, VALUE * argv, VALUE self) {
 	if (!dest_picture) rb_raise(rb_eNoMemError, "Failed to allocate new picture");
 
 	int err = avpicture_alloc(dest_picture, dest_format, dest_width, dest_height);
-	if (err < 0) rb_raise(rb_eNoMemError, av_error_to_ruby_string(err));
+	if (err < 0) rb_raise_av_error(rb_eNoMemError, err);
 
 	// Resample
 	int height = sws_scale(internal->scaler,
