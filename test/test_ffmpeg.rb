@@ -4,14 +4,14 @@ require 'open-uri'
 
 class FFMPEGTest < Test::Unit::TestCase
   def test_versions
-    assert_equal FFMPEG::Reader::VERSION, "54.17.100"
+    assert_equal FFMPEG::Reader::VERSION, "54.26.101"
   end
 
   def test_reader_properties
     File.open("./test/test-1.avi") do |io|
       FFMPEG::Reader.open(io) do |reader|
         assert_equal "avi",               reader.name
-        assert_equal "AVI format",        reader.description
+        assert_equal "AVI",               reader.description[0..2]
         assert_equal "0.000000",          "%.6f" % reader.start_time
         assert_equal "00:00:52.208",      Time.at(reader.duration).utc.strftime('%T.%L')
         assert_equal 126688,              reader.bit_rate

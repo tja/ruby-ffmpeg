@@ -125,7 +125,7 @@ VALUE audio_stream_decode(VALUE self) {
 
 	// Prepare codec
 	if (!avcodec_is_open(internal->base.stream->codec)) {
-		AVCodec * codec = internal->base.stream->codec->codec;
+		AVCodec const * codec = internal->base.stream->codec->codec;
 		if (!codec) {
 			codec = avcodec_find_decoder(internal->base.stream->codec->codec_id);
 		}
