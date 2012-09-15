@@ -90,11 +90,17 @@ I am currently working on these things:
    * VideoResampler#[vf] and VideoFrame#resample(vr) will allow to resample video frames
    * AudioStream#resampler will return an AudioResampler object
    * AudioResampler#[af] and AudioFrame#resample(ar) will allow to resample audio frames
-2. Subtitle decoding
+2. Import and Export to other libraries
+  * Add support for GD format for gd2 support
+  * Add raw support for RMagick
+  * Example: Export frames and store as JPG in gd2
+  * Example: Export frames and store as JPG in RMagick
+  * Anything with sound?
+3. Subtitle decoding
    * Add SubtitleStream
    * Add SubtitleFrame
-3. Add Reader#decode
+4. Add Reader#decode
    * Also add Stream#each\_frame and Reader#each\_frame
    * Allow to filter for key frames in #decode and #each_frame
-4. Create own codec class
+5. Create own codec class
    * Allow enumerating all existing codecs
