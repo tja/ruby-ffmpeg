@@ -113,7 +113,7 @@ class FFMPEGTest < Test::Unit::TestCase
     File.open("./test/test-1.avi") do |io|
       FFMPEG::Reader.open(io) do |reader|
         resampler = FFMPEG::VideoResampler.new(reader.streams[0].width, reader.streams[0].height, reader.streams[0].format, 0.5)
-        video_frame = reader.streams[0].decode.resample(resampler)
+        video_frame = resampler | reader.streams[0].decode
 
         assert_equal 153840,              video_frame.data.length
         assert_equal "0.041667",          "%.6f" % video_frame.timestamp
@@ -133,7 +133,7 @@ class FFMPEGTest < Test::Unit::TestCase
     File.open("./test/test-1.avi") do |io|
       FFMPEG::Reader.open(io) do |reader|
         resampler = FFMPEG::VideoResampler.new(reader.streams[0].width, reader.streams[0].height, reader.streams[0].format, :rgb24)
-        video_frame = reader.streams[0].decode.resample(resampler)
+        video_frame = resampler | reader.streams[0].decode
 
         assert_equal 1229760,             video_frame.data.length
         assert_equal "0.041667",          "%.6f" % video_frame.timestamp
@@ -153,7 +153,7 @@ class FFMPEGTest < Test::Unit::TestCase
     File.open("./test/test-1.avi") do |io|
       FFMPEG::Reader.open(io) do |reader|
         resampler = FFMPEG::VideoResampler.new(reader.streams[0].width, reader.streams[0].height, reader.streams[0].format, 100, 100)
-        video_frame = reader.streams[0].decode.resample(resampler)
+        video_frame = resampler | reader.streams[0].decode
 
         assert_equal 15000,               video_frame.data.length
         assert_equal "0.041667",          "%.6f" % video_frame.timestamp
@@ -173,7 +173,7 @@ class FFMPEGTest < Test::Unit::TestCase
     File.open("./test/test-1.avi") do |io|
       FFMPEG::Reader.open(io) do |reader|
         resampler = FFMPEG::VideoResampler.new(reader.streams[0].width, reader.streams[0].height, reader.streams[0].format, 150, 150, :bicubic)
-        video_frame = reader.streams[0].decode.resample(resampler)
+        video_frame = resampler | reader.streams[0].decode
 
         assert_equal 33750,               video_frame.data.length
         assert_equal "0.041667",          "%.6f" % video_frame.timestamp
@@ -193,7 +193,7 @@ class FFMPEGTest < Test::Unit::TestCase
     File.open("./test/test-1.avi") do |io|
       FFMPEG::Reader.open(io) do |reader|
         resampler = FFMPEG::VideoResampler.new(reader.streams[0].width, reader.streams[0].height, reader.streams[0].format, 200, 200, :rgba, :bicubic)
-        video_frame = reader.streams[0].decode.resample(resampler)
+        video_frame = resampler | reader.streams[0].decode
 
         assert_equal 160000,              video_frame.data.length
         assert_equal "0.041667",          "%.6f" % video_frame.timestamp

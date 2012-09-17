@@ -28,6 +28,7 @@ VALUE video_resampler_register_class(VALUE module, VALUE super) {
 
 	rb_define_method(_klass, "initialize",	video_resampler_initialize, -1);
 	rb_define_method(_klass, "resample",	video_resampler_resample, 1);
+	rb_define_method(_klass, "|",			video_resampler_resample, 1);
 
 	return _klass;
 }
