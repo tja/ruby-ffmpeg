@@ -132,68 +132,95 @@ VALUE video_resampler_filter(VALUE self) {
 
 // Initialize resampler
 //
-// ::new(src_width, src_height, src_format, dst_factor)                                - Resize by percentage
-// ::new(src_width, src_height, src_format, dst_format)                                - Change color format
-// ::new(src_width, src_height, src_format, dst_width, dst_height)                     - Resize to width and height
-// ::new(src_width, src_height, src_format, dst_width, dst_height, filter)             - Resize with interpolation filter
-// ::new(src_width, src_height, src_format, dst_width, dst_height, dst_format, filter) - Resize with filter and change color format
+// Generic
+//     ::new(src_width, src_height, src_format, dst_factor)                                - Resize by percentage
+//     ::new(src_width, src_height, src_format, dst_format)                                - Change color format
+//     ::new(src_width, src_height, src_format, dst_width, dst_height)                     - Resize to width and height
+//     ::new(src_width, src_height, src_format, dst_width, dst_height, filter)             - Resize with interpolation filter
+//     ::new(src_width, src_height, src_format, dst_width, dst_height, dst_format, filter) - Resize with filter and change color format
+//
+// From Object
+//     ::new(source, dst_factor)                                                           - Resize by percentage
+//     ::new(source, dst_format)                                                           - Change color format
+//     ::new(source, dst_width, dst_height)                                                - Resize to width and height
+//     ::new(source, dst_width, dst_height, filter)                                        - Resize with interpolation filter
+//     ::new(source, dst_width, dst_height, dst_format, filter)                            - Resize with filter and change color format
 VALUE video_resampler_initialize(int argc, VALUE * argv, VALUE self) {
 	VideoResamplerInternal * internal;
 	Data_Get_Struct(self, VideoResamplerInternal, internal);
 
-	// Check parameter count
-	if (argc < 4)
-		rb_raise(rb_eArgError, "Missing argument(s)");
-	else if (argc > 7)
-		rb_raise(rb_eArgError, "Too many arguments");
+	if (argc && TYPE(argv[0]) != T_OBJECT) {
+		// Called generic form
+		if (argc < 4)
+			rb_raise(rb_eArgError, "Missing argument(s)");
+		else if (argc > 7)
+			rb_raise(rb_eArgError, "Too many arguments");
 
-	// Extract options
-	internal->src_width 	= NUM2INT(argv[0]);
-	internal->src_height	= NUM2INT(argv[1]);
-	internal->src_format	= symbol_to_av_pixel_format(argv[2]);
+		internal->src_width 	= NUM2INT(argv[0]);
+		internal->src_height	= NUM2INT(argv[1]);
+		internal->src_format	= symbol_to_av_pixel_format(argv[2]);
+		
+		argc -= 3;
+		argv += 3;
+	}
+	else {
+		// Called with object
+		if (argc < 2)
+			rb_raise(rb_eArgError, "Missing argument(s)");
+		else if (argc > 5)
+			rb_raise(rb_eArgError, "Too many arguments");
+
+		internal->src_width 	= NUM2INT(rb_funcall(argv[0], rb_intern("width"), 0));
+		internal->src_height	= NUM2INT(rb_funcall(argv[0], rb_intern("height"), 0));
+		internal->src_format	= symbol_to_av_pixel_format(rb_funcall(argv[0], rb_intern("format"), 0));
+		
+		argc -= 1;
+		argv += 1;
+	}
+
 	internal->dst_width		= internal->src_width;
 	internal->dst_height	= internal->src_height;
 	internal->dst_format	= internal->src_format;
 	internal->filter		= SWS_FAST_BILINEAR;
 
 	switch (argc) {
-		case 4: {
-			if (TYPE(argv[3]) != T_SYMBOL) {
+		case 1: {
+			if (TYPE(argv[0]) != T_SYMBOL) {
 				// Resize by percentage
-				internal->dst_width	= (int)(internal->src_width  * NUM2DBL(argv[3]));
-				internal->dst_height = (int)(internal->src_height * NUM2DBL(argv[3]));
+				internal->dst_width	= (int)(internal->src_width  * NUM2DBL(argv[0]));
+				internal->dst_height = (int)(internal->src_height * NUM2DBL(argv[0]));
 			}
 			else {
 				// Change color format
-				internal->dst_format = symbol_to_av_pixel_format(argv[3]);
+				internal->dst_format = symbol_to_av_pixel_format(argv[0]);
 				if (internal->dst_format == PIX_FMT_NONE) rb_raise(rb_eArgError, "Unknown color format");
 			}
 			break;
 		}
-		case 5: {
+		case 2: {
 			// Resize to width and height
-			internal->dst_width = NUM2INT(argv[3]);
-			internal->dst_height = NUM2INT(argv[4]);
+			internal->dst_width = NUM2INT(argv[0]);
+			internal->dst_height = NUM2INT(argv[1]);
 			break;
 		}
-		case 6: {
+		case 3: {
 			// Resize to width and height using interpolation filter
-			internal->dst_width = NUM2INT(argv[3]);
-			internal->dst_height = NUM2INT(argv[4]);
+			internal->dst_width = NUM2INT(argv[0]);
+			internal->dst_height = NUM2INT(argv[1]);
 
-			internal->filter = symbol_to_interpolation_filter(argv[5]);
+			internal->filter = symbol_to_interpolation_filter(argv[2]);
 			if (internal->filter == 0) rb_raise(rb_eArgError, "Unknown interpolation method");
 			break;
 		}
-		case 7: {
+		case 4: {
 			// Resize to width and height using interpolation filter and change color format
-			internal->dst_width = NUM2INT(argv[3]);
-			internal->dst_height = NUM2INT(argv[4]);
+			internal->dst_width = NUM2INT(argv[0]);
+			internal->dst_height = NUM2INT(argv[1]);
 
-			internal->dst_format = symbol_to_av_pixel_format(argv[5]);
+			internal->dst_format = symbol_to_av_pixel_format(argv[2]);
 			if (internal->dst_format == PIX_FMT_NONE) rb_raise(rb_eArgError, "Unknown color format");
 
-			internal->filter = symbol_to_interpolation_filter(argv[6]);
+			internal->filter = symbol_to_interpolation_filter(argv[3]);
 			if (internal->filter == 0) rb_raise(rb_eArgError, "Unknown interpolation method");
 			break;
 		}
