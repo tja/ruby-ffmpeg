@@ -3,6 +3,7 @@
 #include "ruby_ffmpeg_video_stream_private.h"
 #include "ruby_ffmpeg_stream_private.h"
 #include "ruby_ffmpeg_video_frame.h"
+#include "ruby_ffmpeg_video_resampler.h"
 #include "ruby_ffmpeg_reader.h"
 #include "ruby_ffmpeg_util.h"
 
@@ -26,6 +27,8 @@ VALUE video_stream_register_class(VALUE module, VALUE super) {
 	rb_define_method(_klass, "height", 			video_stream_height, 0);
 	rb_define_method(_klass, "aspect_ratio",	video_stream_aspect_ratio, 0);
 	rb_define_method(_klass, "frame_rate", 		video_stream_frame_rate, 0);
+
+	rb_define_method(_klass, "resampler", 		video_stream_resampler, -1);
 
 	rb_define_method(_klass, "decode",			video_stream_decode, 0);
 
@@ -119,6 +122,11 @@ VALUE video_stream_frame_rate(VALUE self) {
 	Data_Get_Struct(self, VideoStreamInternal, internal);
 	
 	return rb_float_new(av_q2d(internal->base.stream->avg_frame_rate));
+}
+
+// Return resampler for object
+VALUE video_stream_resampler(int argc, VALUE * argv, VALUE self) {
+	return video_resampler_new(self, argc, argv);
 }
 
 

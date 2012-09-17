@@ -1,6 +1,7 @@
 #include "ruby_ffmpeg.h"
 #include "ruby_ffmpeg_video_frame.h"
 #include "ruby_ffmpeg_video_frame_private.h"
+#include "ruby_ffmpeg_video_resampler.h"
 #include "ruby_ffmpeg_util.h"
 
 // Globals
@@ -16,18 +17,20 @@ VALUE video_frame_register_class(VALUE module, VALUE super) {
 	_klass = rb_define_class_under(module, "VideoFrame", super);
 	rb_define_alloc_func(_klass, video_frame_alloc);
 
-	rb_define_method(_klass, "data",				video_frame_data, -1);
-	rb_define_method(_klass, "timestamp",			video_frame_timestamp, 0);
-	rb_define_method(_klass, "duration",			video_frame_duration, 0);
-	rb_define_method(_klass, "format",				video_frame_format, 0);
+	rb_define_method(_klass, "data",			video_frame_data, -1);
+	rb_define_method(_klass, "timestamp",		video_frame_timestamp, 0);
+	rb_define_method(_klass, "duration",		video_frame_duration, 0);
+	rb_define_method(_klass, "format",			video_frame_format, 0);
 
-	rb_define_method(_klass, "width",				video_frame_width, 0);
-	rb_define_method(_klass, "height",				video_frame_height, 0);
-	rb_define_method(_klass, "aspect_ratio",		video_frame_aspect_ratio, 0);
-	rb_define_method(_klass, "picture_type",		video_frame_picture_type, 0);
-	rb_define_method(_klass, "key?",				video_frame_key, 0);
+	rb_define_method(_klass, "width",			video_frame_width, 0);
+	rb_define_method(_klass, "height",			video_frame_height, 0);
+	rb_define_method(_klass, "aspect_ratio",	video_frame_aspect_ratio, 0);
+	rb_define_method(_klass, "picture_type",	video_frame_picture_type, 0);
+	rb_define_method(_klass, "key?",			video_frame_key, 0);
 
-	rb_define_method(_klass, "resample",			video_frame_resample, 1);
+	rb_define_method(_klass, "resampler", 		video_frame_resampler, -1);
+
+	rb_define_method(_klass, "resample",		video_frame_resample, 1);
 
 	return _klass;
 }
@@ -245,6 +248,11 @@ VALUE video_frame_key(VALUE self) {
 	Data_Get_Struct(self, VideoFrameInternal, internal);
 
 	return internal->key;
+}
+
+// Return resampler for object
+VALUE video_frame_resampler(int argc, VALUE * argv, VALUE self) {
+	return video_resampler_new(self, argc, argv);
 }
 
 

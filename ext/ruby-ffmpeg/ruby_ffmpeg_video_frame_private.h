@@ -38,6 +38,8 @@ VALUE video_frame_aspect_ratio(VALUE self);
 VALUE video_frame_picture_type(VALUE self);
 VALUE video_frame_key(VALUE self);
 
+VALUE video_frame_resampler(int argc, VALUE * argv, VALUE self);
+
 // Methods
 VALUE video_frame_resample(VALUE self, VALUE resampler);
 
