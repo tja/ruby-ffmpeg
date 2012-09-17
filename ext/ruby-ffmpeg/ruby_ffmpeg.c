@@ -2,6 +2,7 @@
 #include "ruby_ffmpeg_reader.h"
 #include "ruby_ffmpeg_stream.h"
 #include "ruby_ffmpeg_frame.h"
+#include "ruby_ffmpeg_video_resampler.h"
 
 /*
 **	Deinitialize.
@@ -26,4 +27,5 @@ void Init_ruby_ffmpeg_ext(void) {
 	reader_register_class(module, rb_cObject);
 	stream_register_class(module, rb_cObject);
 	frame_register_class(module, rb_cObject);
+	video_resampler_register_class(module, rb_cObject);
 }

@@ -39,6 +39,6 @@ VALUE video_frame_picture_type(VALUE self);
 VALUE video_frame_key(VALUE self);
 
 // Methods
-VALUE video_frame_resample(int argc, VALUE * argv, VALUE self);
+VALUE video_frame_resample(VALUE self, VALUE resampler);
 
-#endif // VIDEO_
+#endif // RUBY_FFMPEG_VIDEO_FRAME_PRIVATE_H

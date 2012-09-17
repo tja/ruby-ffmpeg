@@ -27,7 +27,7 @@ VALUE video_frame_register_class(VALUE module, VALUE super) {
 	rb_define_method(_klass, "picture_type",		video_frame_picture_type, 0);
 	rb_define_method(_klass, "key?",				video_frame_key, 0);
 
-	rb_define_method(_klass, "resample",			video_frame_resample, -1);
+	rb_define_method(_klass, "resample",			video_frame_resample, 1);
 
 	return _klass;
 }
@@ -252,119 +252,7 @@ VALUE video_frame_key(VALUE self) {
 **	Methods.
 */
 
-// Resample image
-//
-// frame.resample(factor)                        - Resize by percentage
-// frame.resample(format)                        - Change color format
-// frame.resample(width, height)                 - Resize to width and height
-// frame.resample(width, height, filter)         - Resize to width and height using interpolation filter
-// frame.resample(width, height, filter, format) - Resize to width and height using interpolation filter and change color format
-VALUE video_frame_resample(int argc, VALUE * argv, VALUE self) {
-	VideoFrameInternal * internal;
-	Data_Get_Struct(self, VideoFrameInternal, internal);
-
-	// Extract options
-	int source_width 	= internal->width;
-	int source_height	= internal->height;
-	int source_format	= internal->format;
-	int dest_width		= source_width;
-	int dest_height		= source_height;
-	int dest_format		= source_format;
-	int flags			= SWS_FAST_BILINEAR;
-
-	switch (argc) {
-		case 0: {
-			// Missing arguments
-			rb_raise(rb_eArgError, "Missing argument(s)");
-			break;
-		}
-		case 1: {
-			if (TYPE(argv[0]) != T_SYMBOL) {
-				// Resize by percentage
-				dest_width	= (int)(source_width  * NUM2DBL(argv[0]));
-				dest_height	= (int)(source_height * NUM2DBL(argv[0]));
-			}
-			else {
-				// Change color format
-				dest_format = symbol_to_av_pixel_format(argv[0]);
-				if (dest_format == PIX_FMT_NONE) rb_raise(rb_eArgError, "Unknown color format");
-			}
-			break;
-		}
-		case 2: {
-			// Resize to width and height
-			dest_width = NUM2INT(argv[0]);
-			dest_height = NUM2INT(argv[1]);
-			break;
-		}
-		case 3: {
-			// Resize to width and height using interpolation filter
-			dest_width = NUM2INT(argv[0]);
-			dest_height = NUM2INT(argv[1]);
-
-			flags = symbol_to_interpolation_filter(argv[2]);
-			if (flags == 0) rb_raise(rb_eArgError, "Unknown interpolation method");
-			break;
-		}
-		case 4: {
-			// Resize to width and height using interpolation filter and change color format
-			dest_width = NUM2INT(argv[0]);
-			dest_height = NUM2INT(argv[1]);
-
-			flags = symbol_to_interpolation_filter(argv[2]);
-			if (flags == 0) rb_raise(rb_eArgError, "Unknown interpolation method");
-
-			dest_format = symbol_to_av_pixel_format(argv[3]);
-			if (dest_format == PIX_FMT_NONE) rb_raise(rb_eArgError, "Unknown color format");
-			break;
-		}
-		default: {
-			// Too many arguments
-			rb_raise(rb_eArgError, "Too many arguments");
-			break;
-		}
-	}
-
-	// Create or reuse scaler context
-	internal->scaler = sws_getCachedContext(internal->scaler,
-											source_width,
-											source_height,
-											source_format,
-											dest_width,
-											dest_height,
-											dest_format,
-											flags,
-											NULL,
-											NULL,
-											NULL);
-
-	// Create new picture structure
-	AVPicture * dest_picture = (AVPicture *)av_mallocz(sizeof(AVPicture));
-	if (!dest_picture) rb_raise(rb_eNoMemError, "Failed to allocate new picture");
-
-	int err = avpicture_alloc(dest_picture, dest_format, dest_width, dest_height);
-	if (err < 0) rb_raise_av_error(rb_eNoMemError, err);
-
-	// Resample
-	int height = sws_scale(internal->scaler,
-						   (uint8_t const * const *)internal->picture->data,
-						   (int const *)internal->picture->linesize,
-						   0,
-						   source_height,
-						   dest_picture->data,
-						   dest_picture->linesize);
-
-	if (height != dest_height) rb_raise(rb_eRuntimeError, "Rescaling failed");
-
-	// Wrap into Ruby object
-	return video_frame_new2(dest_picture,
-							1,
-							dest_width,
-							dest_height,
-							dest_format,
-							internal->aspect_ratio,
-							internal->picture_type,
-							internal->key,
-							internal->timestamp,
-							internal->duration);
+// Resample image with given resampler
+VALUE video_frame_resample(VALUE self, VALUE resampler) {
+	return rb_funcall(resampler, rb_intern("resample"), 1, self);
 }

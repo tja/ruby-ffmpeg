@@ -42,23 +42,6 @@ VALUE av_media_type_to_symbol(enum AVMediaType type) {
 	return name ? ID2SYM(rb_intern(name)) : Qnil;
 }
 
-// Convert symbol to interpolation method
-int symbol_to_interpolation_filter(VALUE symbol) {
-	char const * name = rb_id2name(SYM2ID(symbol));
-	if (strcmp(name, "fast_bilinear") == 0) return SWS_FAST_BILINEAR;
-	if (strcmp(name, "bilinear") == 0)		return SWS_BILINEAR;
-	if (strcmp(name, "bicubic") == 0)		return SWS_BICUBIC;
-	if (strcmp(name, "x") == 0)				return SWS_X;
-	if (strcmp(name, "point") == 0)			return SWS_POINT;
-	if (strcmp(name, "area") == 0)			return SWS_AREA;
-	if (strcmp(name, "bicublin") == 0)		return SWS_BICUBLIN;
-	if (strcmp(name, "gauss") == 0)			return SWS_GAUSS;
-	if (strcmp(name, "sinc") == 0)			return SWS_SINC;
-	if (strcmp(name, "lanczos") == 0)		return SWS_LANCZOS;
-	if (strcmp(name, "spline") == 0)		return SWS_SPLINE;
-	return 0;
-}
-
 
 /*
 **	Misc.
