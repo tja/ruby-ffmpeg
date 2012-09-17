@@ -64,8 +64,9 @@ require 'ruby-ffmpeg'
 File.open("/path/to/video.mp4") do |io|
   FFMPEG::Reader.open(io) do |reader|
     video_stream = reader.streams.select { |s| s.type == :video }.first
-    first_frame_as_rgb24 = video_stream.decode.resample(:rgb24)
-	File.open("/path/to/output.raw", "wb") { |f| f.write(frame.data) }
+    resampler = video_stream.resampler(:rgb24)
+    first_frame_as_rgb24 = resampler | video_stream.decode
+    File.open("/path/to/output.raw", "wb") { |f| f.write(frame.data) }
   end
 end
 ```
