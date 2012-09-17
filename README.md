@@ -84,10 +84,7 @@ More tutorials and a full API documentation will come soon, but steer over to th
 
 I am currently working on these things:
 
-1. Resampling
-   * Resampling moves into it's own class for efficiency
-   * VideoStream#resampler will return a VideoResampler object
-   * VideoResampler#[vf] and VideoFrame#resample(vr) will allow to resample video frames
+1. Audio Resampling
    * AudioStream#resampler will return an AudioResampler object
    * AudioResampler#[af] and AudioFrame#resample(ar) will allow to resample audio frames
 2. Import and Export to other libraries
