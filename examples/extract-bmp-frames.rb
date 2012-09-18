@@ -14,7 +14,7 @@ File.open("./test/test-1.avi") do |input|
     # Decode all frames
     while frame = first_video_stream.decode do
       # Extract raw data of resampled frame, aligned to 4-byte boundaries
-      raw_data = (resampler | frame).data(4)
+      raw_data = (resampler ^ frame).data(4)
 
       # Write BMP
       File.open("./output-%03.3f.bmp" % frame.timestamp, "wb") do |output|

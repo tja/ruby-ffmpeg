@@ -112,8 +112,7 @@ class FFMPEGTest < Test::Unit::TestCase
   def test_video_resampler_percentage
     File.open("./test/test-1.avi") do |io|
       FFMPEG::Reader.open(io) do |reader|
-        resampler = FFMPEG::VideoResampler.new(reader.streams[0].width, reader.streams[0].height, reader.streams[0].format, 0.5)
-        video_frame = resampler | reader.streams[0].decode
+        video_frame = reader.streams[0].decode ^ reader.streams[0].resampler(0.5)
 
         assert_equal 153840,              video_frame.data.length
         assert_equal "0.041667",          "%.6f" % video_frame.timestamp
@@ -132,7 +131,7 @@ class FFMPEGTest < Test::Unit::TestCase
   def test_video_resampler_format
     File.open("./test/test-1.avi") do |io|
       FFMPEG::Reader.open(io) do |reader|
-        video_frame = reader.streams[0].resampler(:rgb24) | reader.streams[0].decode
+        video_frame = reader.streams[0].decode ^ reader.streams[0].resampler(:rgb24)
 
         assert_equal 1229760,             video_frame.data.length
         assert_equal "0.041667",          "%.6f" % video_frame.timestamp
@@ -151,7 +150,7 @@ class FFMPEGTest < Test::Unit::TestCase
   def test_video_frame_resample_width_height
     File.open("./test/test-1.avi") do |io|
       FFMPEG::Reader.open(io) do |reader|
-        video_frame = reader.streams[0].resampler(100, 100) | reader.streams[0].decode
+        video_frame = reader.streams[0].decode ^ reader.streams[0].resampler(100, 100)
 
         assert_equal 15000,               video_frame.data.length
         assert_equal "0.041667",          "%.6f" % video_frame.timestamp
@@ -170,7 +169,7 @@ class FFMPEGTest < Test::Unit::TestCase
   def test_video_resampler_width_height_filter
     File.open("./test/test-1.avi") do |io|
       FFMPEG::Reader.open(io) do |reader|
-        video_frame = reader.streams[0].resampler(150, 150, :bicubic) | reader.streams[0].decode
+        video_frame = reader.streams[0].decode ^ reader.streams[0].resampler(150, 150, :bicubic)
 
         assert_equal 33750,               video_frame.data.length
         assert_equal "0.041667",          "%.6f" % video_frame.timestamp
@@ -189,7 +188,7 @@ class FFMPEGTest < Test::Unit::TestCase
   def test_video_resampler_width_height_filter_format
     File.open("./test/test-1.avi") do |io|
       FFMPEG::Reader.open(io) do |reader|
-        video_frame = reader.streams[0].resampler(200, 200, :rgba, :bicubic) | reader.streams[0].decode
+        video_frame = reader.streams[0].decode ^ reader.streams[0].resampler(200, 200, :rgba, :bicubic)
 
         assert_equal 160000,              video_frame.data.length
         assert_equal "0.041667",          "%.6f" % video_frame.timestamp

@@ -31,6 +31,7 @@ VALUE video_frame_register_class(VALUE module, VALUE super) {
 	rb_define_method(_klass, "resampler", 		video_frame_resampler, -1);
 
 	rb_define_method(_klass, "resample",		video_frame_resample, 1);
+	rb_define_method(_klass, "^",				video_frame_resample, 1);
 
 	return _klass;
 }
