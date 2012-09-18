@@ -64,8 +64,7 @@ require 'ruby-ffmpeg'
 File.open("/path/to/video.mp4") do |io|
   FFMPEG::Reader.open(io) do |reader|
     video_stream = reader.streams.select { |s| s.type == :video }.first
-    resampler = video_stream.resampler(:rgb24)
-    first_frame_as_rgb24 = resampler | video_stream.decode
+    first_frame_as_rgb24 = video_stream.decode ^ video_stream.resampler(:rgb24)
     File.open("/path/to/output.raw", "wb") { |f| f.write(frame.data) }
   end
 end
@@ -87,7 +86,7 @@ I am currently working on these things:
 
 1. Audio Resampling
    * AudioStream#resampler will return an AudioResampler object
-   * AudioResampler#[af] and AudioFrame#resample(ar) will allow to resample audio frames
+   * AudioResampler#^ and AudioFrame#resample(ar) will allow to resample audio frames
 2. Import and Export to other libraries
   * Add support for GD format for gd2 support
   * Add raw support for RMagick
