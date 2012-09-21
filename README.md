@@ -84,20 +84,17 @@ More tutorials and a full API documentation will come soon, but steer over to th
 
 I am currently working on these things:
 
-1. Audio Resampling
-   * AudioStream#resampler will return an AudioResampler object
-   * AudioResampler#^ and AudioFrame#resample(ar) will allow to resample audio frames
-2. Import and Export to other libraries
+1. Import and Export to other libraries
   * Add support for GD format for gd2 support
   * Add raw support for RMagick
   * Example: Export frames and store as JPG in gd2
   * Example: Export frames and store as JPG in RMagick
   * Anything with sound?
-3. Subtitle decoding
+2. Subtitle decoding
    * Add SubtitleStream
    * Add SubtitleFrame
-4. Add Reader#decode
+3. Add Reader#decode
    * Also add Stream#each\_frame and Reader#each\_frame
    * Allow to filter for key frames in #decode and #each_frame
-5. Create own codec class
+4. Create own codec class
    * Allow enumerating all existing codecs
