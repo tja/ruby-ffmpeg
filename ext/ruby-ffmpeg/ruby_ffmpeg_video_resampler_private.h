@@ -7,13 +7,13 @@
 typedef struct {
 	struct SwsContext *		context;				// FFMPEG: Video resampler context
 
-	int 					src_width;				// Width of source image
-	int 					src_height;				// Height of source image
-	int 					src_format;				// Color format of source image
+	int 					src_width;				// Width of input image
+	int 					src_height;				// Height of input image
+	int 					src_format;				// Color format of input image
 
-	int 					dst_width;				// Width of destination image
-	int 					dst_height;				// Height of destination image
-	int 					dst_format;				// Color format of destination image
+	int 					dst_width;				// Width of output image
+	int 					dst_height;				// Height of output image
+	int 					dst_format;				// Color format of output image
 
 	int 					filter;					// Interpolation filter
 } VideoResamplerInternal;

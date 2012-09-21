@@ -146,28 +146,26 @@ VALUE video_resampler_filter(VALUE self) {
 // Initialize resampler
 //
 // Generic
-//     ::new(src_width, src_height, src_format, dst_factor)                                - Resize by percentage
-//     ::new(src_width, src_height, src_format, dst_format)                                - Change color format
-//     ::new(src_width, src_height, src_format, dst_width, dst_height)                     - Resize to width and height
-//     ::new(src_width, src_height, src_format, dst_width, dst_height, filter)             - Resize with interpolation filter
-//     ::new(src_width, src_height, src_format, dst_width, dst_height, dst_format, filter) - Resize with filter and change color format
+//     ::new(src_width, src_height, src_format, dst_factor)									- Resize by percentage
+//     ::new(src_width, src_height, src_format, dst_format)									- Change color format
+//     ::new(src_width, src_height, src_format, dst_width, dst_height)						- Resize to width and height
+//     ::new(src_width, src_height, src_format, dst_width, dst_height, filter)				- Resize with interpolation filter
+//     ::new(src_width, src_height, src_format, dst_width, dst_height, dst_format, filter)	- Resize with filter and change color format
 //
 // From Object
-//     ::new(source, dst_factor)                                                           - Resize by percentage
-//     ::new(source, dst_format)                                                           - Change color format
-//     ::new(source, dst_width, dst_height)                                                - Resize to width and height
-//     ::new(source, dst_width, dst_height, filter)                                        - Resize with interpolation filter
-//     ::new(source, dst_width, dst_height, dst_format, filter)                            - Resize with filter and change color format
+//     ::new(source, dst_factor)															- Resize by percentage
+//     ::new(source, dst_format)															- Change color format
+//     ::new(source, dst_width, dst_height)													- Resize to width and height
+//     ::new(source, dst_width, dst_height, filter)											- Resize with interpolation filter
+//     ::new(source, dst_width, dst_height, dst_format, filter)								- Resize with filter and change color format
 VALUE video_resampler_initialize(int argc, VALUE * argv, VALUE self) {
 	VideoResamplerInternal * internal;
 	Data_Get_Struct(self, VideoResamplerInternal, internal);
 
 	if (argc && TYPE(argv[0]) == T_FIXNUM) {
 		// Called generic form
-		if (argc < 4)
-			rb_raise(rb_eArgError, "Missing argument(s)");
-		else if (argc > 7)
-			rb_raise(rb_eArgError, "Too many arguments");
+		if 		(argc < 4)	rb_raise(rb_eArgError, "Missing argument(s)");
+		else if (argc > 7)	rb_raise(rb_eArgError, "Too many arguments");
 
 		internal->src_width 	= NUM2INT(argv[0]);
 		internal->src_height	= NUM2INT(argv[1]);
@@ -178,10 +176,8 @@ VALUE video_resampler_initialize(int argc, VALUE * argv, VALUE self) {
 	}
 	else {
 		// Called with object
-		if (argc < 2)
-			rb_raise(rb_eArgError, "Missing argument(s)");
-		else if (argc > 5)
-			rb_raise(rb_eArgError, "Too many arguments");
+		if 		(argc < 2)	rb_raise(rb_eArgError, "Missing argument(s)");
+		else if (argc > 5)	rb_raise(rb_eArgError, "Too many arguments");
 
 		internal->src_width 	= NUM2INT(rb_funcall(argv[0], rb_intern("width"), 0));
 		internal->src_height	= NUM2INT(rb_funcall(argv[0], rb_intern("height"), 0));
