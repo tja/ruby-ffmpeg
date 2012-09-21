@@ -45,8 +45,8 @@ VALUE video_resampler_alloc(VALUE klass) {
 void video_resampler_free(void * opaque) {
 	VideoResamplerInternal * internal = (VideoResamplerInternal *)opaque;
 	if (internal) {
-		if (internal->scaler)
-			sws_freeContext(internal->scaler);
+		if (internal->context)
+			sws_freeContext(internal->context);
 		av_free(internal);
 	}
 }
@@ -240,17 +240,17 @@ VALUE video_resampler_initialize(int argc, VALUE * argv, VALUE self) {
 	}
 
 	// Create scaler context
-	internal->scaler = sws_getContext(internal->src_width,
-									  internal->src_height,
-									  internal->src_format,
-									  internal->dst_width,
-									  internal->dst_height,
-									  internal->dst_format,
-									  internal->filter,
-									  NULL,
-									  NULL,
-									  NULL);
-	if (!internal->scaler)
+	internal->context = sws_getContext(internal->src_width,
+									   internal->src_height,
+									   internal->src_format,
+									   internal->dst_width,
+									   internal->dst_height,
+									   internal->dst_format,
+									   internal->filter,
+									   NULL,
+									   NULL,
+									   NULL);
+	if (!internal->context)
 		rb_raise(rb_eRuntimeError, "Failed to create rescaling context");
 
 	return self;
@@ -272,7 +272,7 @@ VALUE video_resampler_resample(VALUE self, VALUE frame) {
 	if (err < 0) rb_raise_av_error(rb_eNoMemError, err);
 
 	// Resample
-	int height = sws_scale(internal->scaler,
+	int height = sws_scale(internal->context,
 						   (uint8_t const * const *)internal_frame->picture->data,
 						   (int const *)internal_frame->picture->linesize,
 						   0,

@@ -5,17 +5,17 @@
 
 // Internal Data
 typedef struct {
-	struct SwsContext *	scaler;					// FFMPEG: Resizer / rescaler
+	struct SwsContext *		context;				// FFMPEG: Video resampler context
 
-	int src_width;								// Width of source image
-	int src_height;								// Height of source image
-	int src_format;								// Color format of source image
+	int 					src_width;				// Width of source image
+	int 					src_height;				// Height of source image
+	int 					src_format;				// Color format of source image
 
-	int dst_width;								// Width of destination image
-	int dst_height;								// Height of destination image
-	int dst_format;								// Color format of destination image
+	int 					dst_width;				// Width of destination image
+	int 					dst_height;				// Height of destination image
+	int 					dst_format;				// Color format of destination image
 
-	int filter;									// Interpolation filter
+	int 					filter;					// Interpolation filter
 } VideoResamplerInternal;
 
 // Object Lifetime
