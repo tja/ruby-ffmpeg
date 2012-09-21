@@ -3,6 +3,7 @@
 #include "ruby_ffmpeg_audio_stream_private.h"
 #include "ruby_ffmpeg_stream_private.h"
 #include "ruby_ffmpeg_audio_frame.h"
+#include "ruby_ffmpeg_audio_resampler.h"
 #include "ruby_ffmpeg_reader.h"
 #include "ruby_ffmpeg_util.h"
 
@@ -26,6 +27,7 @@ VALUE audio_stream_register_class(VALUE module, VALUE super) {
 	rb_define_method(_klass, "channel_layout",	audio_stream_channel_layout, 0);
 	rb_define_method(_klass, "rate",			audio_stream_rate, 0);
 
+	rb_define_method(_klass, "resampler", 		audio_stream_resampler, -1);
 	rb_define_method(_klass, "decode",			audio_stream_decode, 0);
 
 	return _klass;
@@ -118,6 +120,11 @@ VALUE audio_stream_rate(VALUE self) {
 /*
 **	Methods.
 */
+
+// Return resampler for object
+VALUE audio_stream_resampler(int argc, VALUE * argv, VALUE self) {
+	return audio_resampler_new(self, argc, argv);
+}
 
 // Encode frame and pass to block
 VALUE audio_stream_decode(VALUE self) {

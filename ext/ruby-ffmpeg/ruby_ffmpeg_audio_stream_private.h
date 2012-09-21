@@ -23,6 +23,7 @@ VALUE audio_stream_channel_layout(VALUE self);
 VALUE audio_stream_rate(VALUE self);
 
 // Methods
+VALUE audio_stream_resampler(int argc, VALUE * argv, VALUE self);
 VALUE audio_stream_decode(VALUE self);
 
 #endif // RUBY_FFMPEG_AUDIO_STREAM_PRIVATE_H

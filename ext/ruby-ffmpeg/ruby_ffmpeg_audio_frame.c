@@ -1,6 +1,7 @@
 #include "ruby_ffmpeg.h"
 #include "ruby_ffmpeg_audio_frame.h"
 #include "ruby_ffmpeg_audio_frame_private.h"
+#include "ruby_ffmpeg_audio_resampler.h"
 #include "ruby_ffmpeg_util.h"
 
 // Globals
@@ -26,6 +27,10 @@ VALUE audio_frame_register_class(VALUE module, VALUE super) {
 	rb_define_method(_klass, "samples",			audio_frame_samples, 0);
 	rb_define_method(_klass, "rate",			audio_frame_rate, 0);
 
+	rb_define_method(_klass, "resampler", 		audio_frame_resampler, -1);
+	rb_define_method(_klass, "resample",		audio_frame_resample, 1);
+	rb_define_method(_klass, "^",				audio_frame_resample, 1);
+
 	return _klass;
 }
 
@@ -41,8 +46,8 @@ VALUE audio_frame_alloc(VALUE klass) {
 void audio_frame_free(void * opaque) {
 	AudioFrameInternal * internal = (AudioFrameInternal *)opaque;
 	if (internal) {
-		if (internal->samples)
-			av_free(internal->samples);
+		if (internal->data)
+			av_free(internal->data);
 		av_free(internal);
 	}
 }
@@ -103,13 +108,13 @@ VALUE audio_frame_new(AVFrame * frame, AVCodecContext * codec) {
 }
 
 // Create new instance
-VALUE audio_frame_new2(uint8_t * samples, int channels, uint64_t channel_layout, enum AVSampleFormat format, int samples, int rate, VALUE timestamp, VALUE duration) {
+VALUE audio_frame_new2(uint8_t * data, int channels, uint64_t channel_layout, enum AVSampleFormat format, int samples, int rate, VALUE timestamp, VALUE duration) {
 	VALUE self = rb_class_new_instance(0, NULL, _klass);
 
 	AudioFrameInternal * internal;
 	Data_Get_Struct(self, AudioFrameInternal, internal);
 
-	internal->samples = samples;
+	internal->data = data;
 
 	internal->channels = channels;
 	internal->channel_layout = channel_layout;
@@ -134,7 +139,7 @@ VALUE audio_frame_data(VALUE self) {
 	Data_Get_Struct(self, AudioFrameInternal, internal);
 
 	int bytes_per_sample = av_get_bytes_per_sample(internal->format);
-	return rb_str_new((char const *)internal->samples, bytes_per_sample * internal->channels * internal->sample_count);
+	return rb_str_new((char const *)internal->data, bytes_per_sample * internal->channels * internal->samples);
 }
 
 // Best effort timestamp (in seconds), nil if not available
@@ -193,4 +198,19 @@ VALUE audio_frame_rate(VALUE self) {
 	Data_Get_Struct(self, AudioFrameInternal, internal);
 
 	return INT2NUM(internal->rate);
+}
+
+
+/*
+**	Methods.
+*/
+
+// Create resampler for object
+VALUE audio_frame_resampler(int argc, VALUE * argv, VALUE self) {
+	return audio_resampler_new(self, argc, argv);
+}
+
+// Resample audio frame with given resampler
+VALUE audio_frame_resample(VALUE self, VALUE resampler) {
+	return rb_funcall(resampler, rb_intern("resample"), 1, self);
 }

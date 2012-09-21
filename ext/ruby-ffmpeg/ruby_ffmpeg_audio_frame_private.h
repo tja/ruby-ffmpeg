@@ -5,11 +5,11 @@
 
 // Internal Data
 typedef struct {
-	uint8_t * 					samples;				// Raw sample data
+	uint8_t * 					data;					// Raw sample data
 
 	int							channels;				// FFMPEG: Audio channel count
 	uint64_t					channel_layout;			// FFMPEG: Audio channel layout
-	int							format;					// FFMPEG: Format of the picture data
+	enum AVSampleFormat			format;					// FFMPEG: Format of the picture data
 	int							samples;				// FFMPEG: Sample count
 	int							rate;					// FFMPEG: Sample rate
 
@@ -35,5 +35,7 @@ VALUE audio_frame_samples(VALUE self);
 VALUE audio_frame_rate(VALUE self);
 
 // Methods
+VALUE audio_frame_resampler(int argc, VALUE * argv, VALUE self);
+VALUE audio_frame_resample(VALUE self, VALUE resampler);
 
 #endif // RUBY_FFMPEG_AUDIO_FRAME_PRIVATE_H

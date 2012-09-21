@@ -61,7 +61,7 @@ class FFMPEGTest < Test::Unit::TestCase
         
         assert_equal 2,                   reader.streams[1].channels
         assert_equal "stereo",            reader.streams[1].channel_layout
-        assert_equal 48000,               reader.streams[1].sample_rate
+        assert_equal 48000,               reader.streams[1].rate
         
         assert_equal 0,                   reader.streams[1].metadata.length
       end
@@ -96,7 +96,7 @@ class FFMPEGTest < Test::Unit::TestCase
 
         assert                            audio_frame.kind_of? FFMPEG::AudioFrame
 
-        assert_equal 4096,                audio_frame.data.length
+        assert_equal 1024 * 2 * 2,        audio_frame.data.length
         assert_equal "0.000000",          "%.6f" % audio_frame.timestamp
         assert_equal "0.000021",          "%.6f" % audio_frame.duration
         assert_equal :s16,                audio_frame.format
@@ -104,7 +104,7 @@ class FFMPEGTest < Test::Unit::TestCase
         assert_equal 2,                   audio_frame.channels
         assert_equal "stereo",            audio_frame.channel_layout
         assert_equal 1024,                audio_frame.samples
-        assert_equal 48000,               audio_frame.sample_rate
+        assert_equal 48000,               audio_frame.rate
       end
     end
   end
@@ -200,6 +200,66 @@ class FFMPEGTest < Test::Unit::TestCase
         assert_equal 0.0,                 video_frame.aspect_ratio
         assert_equal :i,                  video_frame.picture_type
         assert_equal true,                video_frame.key?
+      end
+    end
+  end
+
+  def test_audio_resampler_format
+    File.open("./test/test-1.avi") do |io|
+      FFMPEG::Reader.open(io) do |reader|
+        audio_frame = reader.streams[1].decode ^ reader.streams[1].resampler(:flt)
+
+        assert                            audio_frame.kind_of? FFMPEG::AudioFrame
+
+        assert_equal 1023 * 2 * 4,        audio_frame.data.length
+        assert_equal "0.000000",          "%.6f" % audio_frame.timestamp
+        assert_equal "0.000021",          "%.6f" % audio_frame.duration
+        assert_equal :flt,                audio_frame.format
+
+        assert_equal 2,                   audio_frame.channels
+        assert_equal "stereo",            audio_frame.channel_layout
+        assert_equal 1023,                audio_frame.samples           # Keeps one for itself, due to linear filtering
+        assert_equal 48000,               audio_frame.rate
+      end
+    end
+  end
+
+  def test_audio_resampler_rate_format
+    File.open("./test/test-1.avi") do |io|
+      FFMPEG::Reader.open(io) do |reader|
+        audio_frame = reader.streams[1].decode ^ reader.streams[1].resampler(44100, :flt)
+
+        assert                            audio_frame.kind_of? FFMPEG::AudioFrame
+
+        assert_equal 939 * 2 * 4,         audio_frame.data.length
+        assert_equal "0.000000",          "%.6f" % audio_frame.timestamp
+        assert_equal "0.000021",          "%.6f" % audio_frame.duration
+        assert_equal :flt,                audio_frame.format
+
+        assert_equal 2,                   audio_frame.channels
+        assert_equal "stereo",            audio_frame.channel_layout
+        assert_equal 939,                 audio_frame.samples           # Keeps one for itself, due to linear filtering
+        assert_equal 44100,               audio_frame.rate
+      end
+    end
+  end
+
+  def test_audio_resampler_channels_rate_format
+    File.open("./test/test-1.avi") do |io|
+      FFMPEG::Reader.open(io) do |reader|
+        audio_frame = reader.streams[1].decode ^ reader.streams[1].resampler(1, 44100, :flt)
+
+        assert                            audio_frame.kind_of? FFMPEG::AudioFrame
+
+        assert_equal 939 * 4,             audio_frame.data.length
+        assert_equal "0.000000",          "%.6f" % audio_frame.timestamp
+        assert_equal "0.000021",          "%.6f" % audio_frame.duration
+        assert_equal :flt,                audio_frame.format
+
+        assert_equal 1,                   audio_frame.channels
+        assert_equal "mono",              audio_frame.channel_layout
+        assert_equal 939,                 audio_frame.samples           # Keeps one for itself, due to linear filtering
+        assert_equal 44100,               audio_frame.rate
       end
     end
   end
