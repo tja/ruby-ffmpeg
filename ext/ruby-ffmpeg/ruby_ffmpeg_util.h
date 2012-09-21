@@ -17,5 +17,6 @@ VALUE av_media_type_to_symbol(enum AVMediaType type);
 // Misc
 void rb_raise_av_error(VALUE exception, int error);
 
+VALUE rb_class_new_instance2(VALUE first, int argc, VALUE * argv, VALUE klass);
 
 #endif // RUBY_FFMPEG_UTIL_H

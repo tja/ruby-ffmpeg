@@ -61,20 +61,7 @@ void video_resampler_mark(void * opaque) {
 
 // Create new instance (from object)
 VALUE video_resampler_new(VALUE object, int argc, VALUE * argv) {
-	// New argv with object at first position
-	int new_argc = argc + 1;
-	VALUE * new_argv = (VALUE *)av_mallocz(new_argc * sizeof(VALUE));
-	if (!new_argv) rb_raise(rb_eNoMemError, "Failed to allocate memory");
-
-	new_argv[0] = object;
-	memcpy(&new_argv[1], argv, argc * sizeof(VALUE));
-
-	// Create instance
-	VALUE val = rb_class_new_instance(new_argc, new_argv, _klass);
-
-	// Clean up
-	av_free(new_argv);
-	return val;
+	return rb_class_new_instance2(object, argc, argv, _klass);
 }
 	
 

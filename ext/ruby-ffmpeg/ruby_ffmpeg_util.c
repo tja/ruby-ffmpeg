@@ -60,3 +60,21 @@ void rb_raise_av_error(VALUE exception, int error) {
 
 	rb_raise(exception, "%s", temp);
 }
+
+// Create new instance with the given arguments (using "first" in first place)
+VALUE rb_class_new_instance2(VALUE first, int argc, VALUE * argv, VALUE klass) {
+	// Create new argument array
+	VALUE * new_argv = (VALUE *)av_mallocz((argc + 1) * sizeof(VALUE));
+	if (!new_argv) rb_raise(rb_eNoMemError, "Failed to allocate memory");
+
+	new_argv[0] = first;
+	memcpy(&new_argv[1], argv, argc * sizeof(VALUE));
+
+	// Create instance
+	VALUE val = rb_class_new_instance(argc + 1, new_argv, klass);
+
+	// Clean up
+	av_free(new_argv);
+
+	return val;
+}
