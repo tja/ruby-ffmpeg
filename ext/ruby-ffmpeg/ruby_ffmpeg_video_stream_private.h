@@ -23,9 +23,8 @@ VALUE video_stream_height(VALUE self);
 VALUE video_stream_aspect_ratio(VALUE self);
 VALUE video_stream_frame_rate(VALUE self);
 
-VALUE video_stream_resampler(int argc, VALUE * argv, VALUE self);
-
 // Methods
+VALUE video_stream_resampler(int argc, VALUE * argv, VALUE self);
 VALUE video_stream_decode(VALUE self);
 
 #endif // RUBY_FFMPEG_VIDEO_STREAM_PRIVATE_H

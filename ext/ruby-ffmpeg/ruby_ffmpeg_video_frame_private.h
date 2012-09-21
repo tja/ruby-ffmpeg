@@ -10,15 +10,13 @@ typedef struct {
 
 	int					width;					// FFMPEG: Picture width (in pixel)
 	int					height;					// FFMPEG: Picture height (in pixel)
-	int					format;					// FFMPEG: Format of the picture data
+	enum PixelFormat	format;					// FFMPEG: Format of the picture data
 	VALUE				aspect_ratio;			// Ruby: aspect ratio of a pixel, or Qnil if not available
 	VALUE				picture_type;			// Ruby: picture type of the frame, or Qnil of not available
 	VALUE				key;					// Ruby: Qtrue if this is a key frame, Qfalse otherwise
 
 	VALUE				timestamp;				// Ruby: timestamp for this image (in seconds), or Qnil if not available
 	VALUE				duration;				// Ruby: duration of this image (in seconds), or Qnil if not available
-
-	struct SwsContext *	scaler;					// FFMPEG: Resizer / rescaler
 } VideoFrameInternal;
 
 // Object Lifetime
@@ -38,9 +36,8 @@ VALUE video_frame_aspect_ratio(VALUE self);
 VALUE video_frame_picture_type(VALUE self);
 VALUE video_frame_key(VALUE self);
 
-VALUE video_frame_resampler(int argc, VALUE * argv, VALUE self);
-
 // Methods
+VALUE video_frame_resampler(int argc, VALUE * argv, VALUE self);
 VALUE video_frame_resample(VALUE self, VALUE resampler);
 
 #endif // RUBY_FFMPEG_VIDEO_FRAME_PRIVATE_H

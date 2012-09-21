@@ -29,7 +29,6 @@ VALUE video_stream_register_class(VALUE module, VALUE super) {
 	rb_define_method(_klass, "frame_rate", 		video_stream_frame_rate, 0);
 
 	rb_define_method(_klass, "resampler", 		video_stream_resampler, -1);
-
 	rb_define_method(_klass, "decode",			video_stream_decode, 0);
 
 	return _klass;
@@ -124,15 +123,15 @@ VALUE video_stream_frame_rate(VALUE self) {
 	return rb_float_new(av_q2d(internal->base.stream->avg_frame_rate));
 }
 
-// Return resampler for object
-VALUE video_stream_resampler(int argc, VALUE * argv, VALUE self) {
-	return video_resampler_new(self, argc, argv);
-}
-
 
 /*
 **	Methods.
 */
+
+// Return resampler for object
+VALUE video_stream_resampler(int argc, VALUE * argv, VALUE self) {
+	return video_resampler_new(self, argc, argv);
+}
 
 // Encode video frame and pass to block
 VALUE video_stream_decode(VALUE self) {

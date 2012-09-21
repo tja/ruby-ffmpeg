@@ -9,11 +9,11 @@ typedef struct {
 
 	int 					src_width;				// Width of input image
 	int 					src_height;				// Height of input image
-	int 					src_format;				// Color format of input image
+	enum PixelFormat		src_format;				// Color format of input image
 
 	int 					dst_width;				// Width of output image
 	int 					dst_height;				// Height of output image
-	int 					dst_format;				// Color format of output image
+	enum PixelFormat		dst_format;				// Color format of output image
 
 	int 					filter;					// Interpolation filter
 } VideoResamplerInternal;

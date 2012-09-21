@@ -189,7 +189,6 @@ VALUE video_resampler_initialize(int argc, VALUE * argv, VALUE self) {
 			else {
 				// Change color format
 				internal->dst_format = symbol_to_av_pixel_format(argv[0]);
-				if (internal->dst_format == PIX_FMT_NONE) rb_raise(rb_eArgError, "Unknown color format");
 			}
 			break;
 		}
@@ -203,24 +202,22 @@ VALUE video_resampler_initialize(int argc, VALUE * argv, VALUE self) {
 			// Resize to width and height using interpolation filter
 			internal->dst_width = NUM2INT(argv[0]);
 			internal->dst_height = NUM2INT(argv[1]);
-
 			internal->filter = symbol_to_interpolation_filter(argv[2]);
-			if (internal->filter == 0) rb_raise(rb_eArgError, "Unknown interpolation method");
 			break;
 		}
 		case 4: {
 			// Resize to width and height using interpolation filter and change color format
 			internal->dst_width = NUM2INT(argv[0]);
 			internal->dst_height = NUM2INT(argv[1]);
-
 			internal->dst_format = symbol_to_av_pixel_format(argv[2]);
-			if (internal->dst_format == PIX_FMT_NONE) rb_raise(rb_eArgError, "Unknown color format");
-
 			internal->filter = symbol_to_interpolation_filter(argv[3]);
-			if (internal->filter == 0) rb_raise(rb_eArgError, "Unknown interpolation method");
 			break;
 		}
 	}
+
+	if (internal->src_format == PIX_FMT_NONE) rb_raise(rb_eArgError, "Unknown input color format");
+	if (internal->dst_format == PIX_FMT_NONE) rb_raise(rb_eArgError, "Unknown output color format");
+	if (internal->filter == 0) rb_raise(rb_eArgError, "Unknown interpolation method");
 
 	// Create scaler context
 	internal->context = sws_getContext(internal->src_width,

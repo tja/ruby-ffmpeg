@@ -29,7 +29,6 @@ VALUE video_frame_register_class(VALUE module, VALUE super) {
 	rb_define_method(_klass, "key?",			video_frame_key, 0);
 
 	rb_define_method(_klass, "resampler", 		video_frame_resampler, -1);
-
 	rb_define_method(_klass, "resample",		video_frame_resample, 1);
 	rb_define_method(_klass, "^",				video_frame_resample, 1);
 
@@ -53,8 +52,6 @@ void video_frame_free(void * opaque) {
 				avpicture_free(internal->picture);
 			av_free(internal->picture);
 		}
-		if (internal->scaler)
-			sws_freeContext(internal->scaler);
 		av_free(internal);
 	}
 }
@@ -251,17 +248,17 @@ VALUE video_frame_key(VALUE self) {
 	return internal->key;
 }
 
-// Return resampler for object
-VALUE video_frame_resampler(int argc, VALUE * argv, VALUE self) {
-	return video_resampler_new(self, argc, argv);
-}
-
 
 /*
 **	Methods.
 */
 
-// Resample image with given resampler
+// Create resampler for object
+VALUE video_frame_resampler(int argc, VALUE * argv, VALUE self) {
+	return video_resampler_new(self, argc, argv);
+}
+
+// Resample video frame with given resampler
 VALUE video_frame_resample(VALUE self, VALUE resampler) {
 	return rb_funcall(resampler, rb_intern("resample"), 1, self);
 }
