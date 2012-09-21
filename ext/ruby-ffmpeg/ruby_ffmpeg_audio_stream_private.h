@@ -20,7 +20,7 @@ VALUE audio_stream_format(VALUE self);
 
 VALUE audio_stream_channels(VALUE self);
 VALUE audio_stream_channel_layout(VALUE self);
-VALUE audio_stream_sample_rate(VALUE self);
+VALUE audio_stream_rate(VALUE self);
 
 // Methods
 VALUE audio_stream_decode(VALUE self);

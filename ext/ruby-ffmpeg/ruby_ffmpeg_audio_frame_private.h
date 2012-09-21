@@ -10,8 +10,8 @@ typedef struct {
 	int							channels;				// FFMPEG: Audio channel count
 	uint64_t					channel_layout;			// FFMPEG: Audio channel layout
 	int							format;					// FFMPEG: Format of the picture data
-	int							sample_count;			// FFMPEG: Sample count
-	int							sample_rate;			// FFMPEG: Sample rate
+	int							samples;				// FFMPEG: Sample count
+	int							rate;					// FFMPEG: Sample rate
 
 	VALUE						timestamp;				// Ruby: timestamp for this image (in seconds), or Qnil if not available
 	VALUE						duration;				// Ruby: duration of this image (in seconds), or Qnil if not available
@@ -32,7 +32,7 @@ VALUE audio_frame_format(VALUE self);
 VALUE audio_frame_channels(VALUE self);
 VALUE audio_frame_channel_layout(VALUE self);
 VALUE audio_frame_samples(VALUE self);
-VALUE audio_frame_sample_rate(VALUE self);
+VALUE audio_frame_rate(VALUE self);
 
 // Methods
 

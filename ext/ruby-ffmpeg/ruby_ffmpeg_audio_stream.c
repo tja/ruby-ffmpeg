@@ -24,7 +24,7 @@ VALUE audio_stream_register_class(VALUE module, VALUE super) {
 
 	rb_define_method(_klass, "channels",		audio_stream_channels, 0);
 	rb_define_method(_klass, "channel_layout",	audio_stream_channel_layout, 0);
-	rb_define_method(_klass, "sample_rate",		audio_stream_sample_rate, 0);
+	rb_define_method(_klass, "rate",			audio_stream_rate, 0);
 
 	rb_define_method(_klass, "decode",			audio_stream_decode, 0);
 
@@ -107,12 +107,13 @@ VALUE audio_stream_channel_layout(VALUE self) {
 }
 
 // Audio sample rate (samples per second)
-VALUE audio_stream_sample_rate(VALUE self) {
+VALUE audio_stream_rate(VALUE self) {
 	AudioStreamInternal * internal;
 	Data_Get_Struct(self, AudioStreamInternal, internal);
 
 	return INT2NUM(internal->base.stream->codec->sample_rate);
 }
+
 
 /*
 **	Methods.
