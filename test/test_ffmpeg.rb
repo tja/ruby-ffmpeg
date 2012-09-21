@@ -4,7 +4,7 @@ require 'open-uri'
 
 class FFMPEGTest < Test::Unit::TestCase
   def test_versions
-    assert_equal FFMPEG::Reader::VERSION, "54.26.101"
+    assert_equal FFMPEG::Reader::VERSION.split('.').length, 3
   end
 
   def test_reader_properties
