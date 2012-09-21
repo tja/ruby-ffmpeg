@@ -36,6 +36,12 @@ VALUE av_sample_format_to_symbol(enum AVSampleFormat format) {
 	return name ? ID2SYM(rb_intern(name)) : Qnil;
 }
 
+// Convert symbol to FFMPEG SampleFormat
+enum AVSampleFormat symbol_to_av_sample_format(VALUE symbol) {
+	char const * name = rb_id2name(SYM2ID(symbol));
+	return av_get_sample_fmt(name);
+}
+
 // Convert FFMPEG MediaType to symbol
 VALUE av_media_type_to_symbol(enum AVMediaType type) {
 	char const * name = av_get_media_type_string(type);

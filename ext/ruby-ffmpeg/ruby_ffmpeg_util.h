@@ -8,7 +8,10 @@ VALUE av_dictionary_to_ruby_hash(AVDictionary * dict);
 
 VALUE av_pixel_format_to_symbol(enum PixelFormat format);
 enum PixelFormat symbol_to_av_pixel_format(VALUE symbol);
+
 VALUE av_sample_format_to_symbol(enum AVSampleFormat format);
+enum AVSampleFormat symbol_to_av_sample_format(VALUE symbol);
+
 VALUE av_media_type_to_symbol(enum AVMediaType type);
 
 // Misc
