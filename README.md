@@ -82,19 +82,4 @@ More tutorials and a full API documentation will come soon, but steer over to th
 
 ### Short-Term Todo List
 
-I am currently working on these things:
-
-1. Import and Export to other libraries
-  * Add support for GD format for gd2 support
-  * Add raw support for RMagick
-  * Example: Export frames and store as JPG in gd2
-  * Example: Export frames and store as JPG in RMagick
-  * Anything with sound?
-2. Subtitle decoding
-   * Add SubtitleStream
-   * Add SubtitleFrame
-3. Add Reader#decode
-   * Also add Stream#each\_frame and Reader#each\_frame
-   * Allow to filter for key frames in #decode and #each_frame
-4. Create own codec class
-   * Allow enumerating all existing codecs
+The short-term Todo list has been moved over to the [Issue tracker on GitHub](https://github.com/tja/ruby-ffmpeg/issues).
