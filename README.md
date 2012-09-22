@@ -13,7 +13,8 @@ Some of *ruby-ffmpeg*'s main features are:
 * Data can be read from every Ruby IO object, e.g. files, string buffers, and HTTP streams
 * Access to all important properties of streams, video frames, and audio frames
 * Supports decoding of video and audio stream (subtitles will come soon)
-* Supports resizing of video frames and converting to different color spaces
+* Allows resizing of video frames (NN, Linear, Cubic, etc.) and converting to different color spaces
+* Allows resampling of audio data to different channels, sampling rate, and sample formats
 
 ## Prerequisites
 
