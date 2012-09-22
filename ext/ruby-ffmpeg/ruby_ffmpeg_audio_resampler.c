@@ -219,13 +219,13 @@ VALUE audio_resampler_resample(VALUE self, VALUE frame) {
 	int max_channels = (internal->src_channels > internal->dst_channels) ? internal->src_channels : internal->dst_channels;
 	int bytes_per_sample = av_get_bytes_per_sample(internal->dst_format) * max_channels;
 
-	uint8_t * dst_data = (uint8_t *)av_mallocz((internal_frame->samples * internal->dst_rate / internal->src_rate + 32) * bytes_per_sample);
+	uint8_t * dst_data = (uint8_t *)av_malloc((internal_frame->samples * internal->dst_rate / internal->src_rate + 32) * bytes_per_sample);
 	if (!dst_data) rb_raise(rb_eNoMemError, "Failed to allocate new sample buffer");
 
 	// Resample
 	int dst_samples = audio_resample(internal->context,
-									 (short *)internal_frame->data,
 									 (short *)dst_data,
+									 (short *)internal_frame->data,
 									 internal_frame->samples);
 
 	// Wrap into Ruby object
