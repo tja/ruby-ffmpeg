@@ -6,7 +6,7 @@ File.open("./test/test-1.avi") do |input|
   FFMPEG::Reader.open(input) do |reader|
     # Find first video stream
     first_video_stream = reader.streams.select { |s| s.type == :video }.first
-    raise "File does not contain a video stream" if first_video_stream.nil?
+    raise "File does not contain a video stream" unless first_video_stream
 
     # Create resampler to change color format to BGR24
     resampler = first_video_stream.resampler(:bgr24)
@@ -18,6 +18,7 @@ File.open("./test/test-1.avi") do |input|
 
       # Write BMP
       File.open("./output-%03.3f.bmp" % frame.timestamp, "wb") do |output|
+        # Header
         header = [ "BM",                    # Magic Number
                    54 + raw_data.length,    # Size of BMP file
                    0,                       # Unused
@@ -36,6 +37,8 @@ File.open("./test/test-1.avi") do |input|
                    0 ]                      # Number of important colors
 
         output.write(header.pack("A2L<S<S<L<L<L<L<S<S<L<L<L<L<L<L<"))
+
+        # Image Data
         output.write(raw_data)
       end
     end
