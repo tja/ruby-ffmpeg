@@ -15,6 +15,7 @@ Some of *ruby-ffmpeg*'s main features are:
 * Supports decoding of video and audio stream (subtitles will come soon)
 * Allows resizing of video frames (NN, Linear, Cubic, etc.) and converting to different color spaces
 * Allows resampling of audio data to different channels, sampling rate, and sample formats
+* Integrates well with Ruby/GD2 (via `VideoFrame#to_gd2`)
 
 ## Prerequisites
 
