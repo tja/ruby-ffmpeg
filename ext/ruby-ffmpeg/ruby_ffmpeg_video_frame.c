@@ -5,6 +5,7 @@
 #include "ruby_ffmpeg_util.h"
 
 #include "util-bmp-format.h"
+#include "util-gd2-format.h"
 
 // Globals
 static VALUE _klass;
@@ -34,6 +35,8 @@ VALUE video_frame_register_class(VALUE module, VALUE super) {
 	rb_define_method(_klass, "resample",		video_frame_resample, 1);
 	rb_define_method(_klass, "^",				video_frame_resample, 1);
 
+	rb_define_method(_klass, "to_rgba",			video_frame_to_rgba, 0);
+	rb_define_method(_klass, "to_gd2",			video_frame_to_gd2, 0);
 	rb_define_method(_klass, "to_bmp",			video_frame_to_bmp, 0);
 
 	return _klass;
@@ -55,9 +58,6 @@ void video_frame_free(void * opaque) {
 			if (internal->owner)
 				avpicture_free(internal->picture);
 			av_free(internal->picture);
-		}
-		if (internal->rgba_conversion_context) {
-			sws_freeContext(internal->rgba_conversion_context);
 		}
 		av_free(internal);
 	}
@@ -270,7 +270,44 @@ VALUE video_frame_resample(VALUE self, VALUE resampler) {
 	return rb_funcall(resampler, rb_intern("resample"), 1, self);
 }
 
-// Export the image to Windows Bitmap format
+// Export image as raw RGBA
+VALUE video_frame_to_rgba(VALUE self) {
+	VideoFrameInternal * internal;
+	Data_Get_Struct(self, VideoFrameInternal, internal);
+
+	// Allocate buffer and fill in RGBA
+	VALUE bmp_string = rb_str_new(NULL, internal->width * internal->height * 4);
+	copy_buffer_with_format(internal, (uint8_t *)RSTRING_PTR(bmp_string), PIX_FMT_RGBA);
+
+	// Return create string
+	return bmp_string;
+}
+
+// Export image in GD2 format
+VALUE video_frame_to_gd2(VALUE self) {
+	VideoFrameInternal * internal;
+	Data_Get_Struct(self, VideoFrameInternal, internal);
+
+	// Can't be bigger than 4096 pixel in both directions
+	if ((internal->width > 4096) || (internal->height > 4096))
+		rb_raise(rb_eRuntimeError, "Can't export images bigger than 4096 pixels to GD2");
+
+	// Allocate buffer for header and raw image data
+	VALUE bmp_string = rb_str_new(NULL, util_gd2_format_get_header_size() + internal->width * internal->height * 4);
+
+	// Write header
+	uint8_t * raw_data = util_gd2_format_write_header((uint8_t *)RSTRING_PTR(bmp_string),
+													  internal->width,
+													  internal->height);
+
+	// Copy image as ARGB
+	copy_buffer_with_format(internal, raw_data, PIX_FMT_ARGB);
+
+	// Return create string
+	return bmp_string;
+}
+
+// Export image in Windows Bitmap format
 VALUE video_frame_to_bmp(VALUE self) {
 	VideoFrameInternal * internal;
 	Data_Get_Struct(self, VideoFrameInternal, internal);
@@ -278,32 +315,45 @@ VALUE video_frame_to_bmp(VALUE self) {
 	// Allocate buffer for header and raw image data
 	VALUE bmp_string = rb_str_new(NULL, util_bmp_format_get_header_size() + internal->width * internal->height * 4);
 
-	// Fill in header
-	uint8_t * bmp_data = util_bmp_format_write_header((uint8_t *)RSTRING_PTR(bmp_string),
+	// Write header
+	uint8_t * raw_data = util_bmp_format_write_header((uint8_t *)RSTRING_PTR(bmp_string),
 													  internal->width,
 													  internal->height);
 
-	// Reuse resample context for color conversion to RGBA
-	internal->rgba_conversion_context = sws_getCachedContext(internal->rgba_conversion_context,
-															 internal->width,
-													   		 internal->height,
-															 internal->format,
-															 internal->width,
-															 internal->height,
-															 PIX_FMT_RGBA,
-															 SWS_POINT,
-															 NULL,
-															 NULL,
-															 NULL);
+	// Copy image as BGRA
+	copy_buffer_with_format(internal, raw_data, PIX_FMT_BGRA);
 
-	if (!internal->rgba_conversion_context)
+	// Return create string
+	return bmp_string;
+}
+
+
+/*
+**	Helper Methods.
+*/
+
+// Copy raw into buffer (with given format)
+void copy_buffer_with_format(VideoFrameInternal * internal, uint8_t * buffer, int format) {
+	// Create resample context for color conversion to RGBA
+	struct SwsContext * rgba_context = sws_getContext(internal->width,
+													  internal->height,
+													  internal->format,
+													  internal->width,
+													  internal->height,
+													  format,
+													  SWS_POINT,
+													  NULL,
+													  NULL,
+													  NULL);
+
+	if (!rgba_context)
 		rb_raise(rb_eRuntimeError, "Failed to create RGBA rescaling context");
 
-	// Resample directly into string buffer
-	uint8_t * dst_data[1] = { bmp_data };
+	// And convert
+	uint8_t * dst_data[1] = { buffer };
 	int const dst_linesize[1] = { internal->width * 4 };
 	
-	int resampled_height = sws_scale(internal->rgba_conversion_context,
+	int resampled_height = sws_scale(rgba_context,
 									 (uint8_t const * const *)internal->picture->data,
 									 (int const *)internal->picture->linesize,
 									 0,
@@ -314,6 +364,6 @@ VALUE video_frame_to_bmp(VALUE self) {
 	if (resampled_height != internal->height)
 		rb_raise(rb_eRuntimeError, "Color conversion failed");
 
-	// Return create string
-	return bmp_string;
+	// Clean up
+	sws_freeContext(rgba_context);
 }

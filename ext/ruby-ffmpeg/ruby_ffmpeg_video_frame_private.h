@@ -17,8 +17,6 @@ typedef struct {
 
 	VALUE					timestamp;					// Ruby: timestamp for this image (in seconds), or Qnil if not available
 	VALUE					duration;					// Ruby: duration of this image (in seconds), or Qnil if not available
-
-	struct SwsContext *		rgba_conversion_context;	// FFMPEG: Scaling context for RGBA conversion
 } VideoFrameInternal;
 
 // Object Lifetime
@@ -42,7 +40,12 @@ VALUE video_frame_key(VALUE self);
 VALUE video_frame_resampler(int argc, VALUE * argv, VALUE self);
 VALUE video_frame_resample(VALUE self, VALUE resampler);
 
+// Export Methods
+VALUE video_frame_to_rgba(VALUE self);
+VALUE video_frame_to_gd2(VALUE self);
 VALUE video_frame_to_bmp(VALUE self);
 
+// Helper Functions
+void copy_buffer_with_format(VideoFrameInternal * internal, uint8_t * buffer, int format);
 
 #endif // RUBY_FFMPEG_VIDEO_FRAME_PRIVATE_H
