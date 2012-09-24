@@ -5,18 +5,20 @@
 
 // Internal Data
 typedef struct {
-	AVPicture *			picture;				// FFMPEG: Decoded picture from the stream
-	int 				owner;					// Set to "1" if we own this picture and have to fully free it
+	AVPicture *				picture;					// FFMPEG: Decoded picture from the stream
+	int 					owner;						// Set to "1" if we own this picture and have to fully free it
 
-	int					width;					// FFMPEG: Picture width (in pixel)
-	int					height;					// FFMPEG: Picture height (in pixel)
-	enum PixelFormat	format;					// FFMPEG: Format of the picture data
-	VALUE				aspect_ratio;			// Ruby: aspect ratio of a pixel, or Qnil if not available
-	VALUE				picture_type;			// Ruby: picture type of the frame, or Qnil of not available
-	VALUE				key;					// Ruby: Qtrue if this is a key frame, Qfalse otherwise
+	int						width;						// FFMPEG: Picture width (in pixel)
+	int						height;						// FFMPEG: Picture height (in pixel)
+	enum PixelFormat		format;						// FFMPEG: Format of the picture data
+	VALUE					aspect_ratio;				// Ruby: aspect ratio of a pixel, or Qnil if not available
+	VALUE					picture_type;				// Ruby: picture type of the frame, or Qnil of not available
+	VALUE					key;						// Ruby: Qtrue if this is a key frame, Qfalse otherwise
 
-	VALUE				timestamp;				// Ruby: timestamp for this image (in seconds), or Qnil if not available
-	VALUE				duration;				// Ruby: duration of this image (in seconds), or Qnil if not available
+	VALUE					timestamp;					// Ruby: timestamp for this image (in seconds), or Qnil if not available
+	VALUE					duration;					// Ruby: duration of this image (in seconds), or Qnil if not available
+
+	struct SwsContext *		rgba_conversion_context;	// FFMPEG: Scaling context for RGBA conversion
 } VideoFrameInternal;
 
 // Object Lifetime
@@ -39,5 +41,8 @@ VALUE video_frame_key(VALUE self);
 // Methods
 VALUE video_frame_resampler(int argc, VALUE * argv, VALUE self);
 VALUE video_frame_resample(VALUE self, VALUE resampler);
+
+VALUE video_frame_to_bmp(VALUE self);
+
 
 #endif // RUBY_FFMPEG_VIDEO_FRAME_PRIVATE_H

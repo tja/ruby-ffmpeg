@@ -4,6 +4,8 @@
 #include "ruby_ffmpeg_video_resampler.h"
 #include "ruby_ffmpeg_util.h"
 
+#include "util-bmp-format.h"
+
 // Globals
 static VALUE _klass;
 
@@ -32,6 +34,8 @@ VALUE video_frame_register_class(VALUE module, VALUE super) {
 	rb_define_method(_klass, "resample",		video_frame_resample, 1);
 	rb_define_method(_klass, "^",				video_frame_resample, 1);
 
+	rb_define_method(_klass, "to_bmp",			video_frame_to_bmp, 0);
+
 	return _klass;
 }
 
@@ -51,6 +55,9 @@ void video_frame_free(void * opaque) {
 			if (internal->owner)
 				avpicture_free(internal->picture);
 			av_free(internal->picture);
+		}
+		if (internal->rgba_conversion_context) {
+			sws_freeContext(internal->rgba_conversion_context);
 		}
 		av_free(internal);
 	}
@@ -261,4 +268,52 @@ VALUE video_frame_resampler(int argc, VALUE * argv, VALUE self) {
 // Resample video frame with given resampler
 VALUE video_frame_resample(VALUE self, VALUE resampler) {
 	return rb_funcall(resampler, rb_intern("resample"), 1, self);
+}
+
+// Export the image to Windows Bitmap format
+VALUE video_frame_to_bmp(VALUE self) {
+	VideoFrameInternal * internal;
+	Data_Get_Struct(self, VideoFrameInternal, internal);
+
+	// Allocate buffer for header and raw image data
+	VALUE bmp_string = rb_str_new(NULL, util_bmp_format_get_header_size() + internal->width * internal->height * 4);
+
+	// Fill in header
+	uint8_t * bmp_data = util_bmp_format_write_header((uint8_t *)RSTRING_PTR(bmp_string),
+													  internal->width,
+													  internal->height);
+
+	// Reuse resample context for color conversion to RGBA
+	internal->rgba_conversion_context = sws_getCachedContext(internal->rgba_conversion_context,
+															 internal->width,
+													   		 internal->height,
+															 internal->format,
+															 internal->width,
+															 internal->height,
+															 PIX_FMT_RGBA,
+															 SWS_POINT,
+															 NULL,
+															 NULL,
+															 NULL);
+
+	if (!internal->rgba_conversion_context)
+		rb_raise(rb_eRuntimeError, "Failed to create RGBA rescaling context");
+
+	// Resample directly into string buffer
+	uint8_t * dst_data[1] = { bmp_data };
+	int const dst_linesize[1] = { internal->width * 4 };
+	
+	int resampled_height = sws_scale(internal->rgba_conversion_context,
+									 (uint8_t const * const *)internal->picture->data,
+									 (int const *)internal->picture->linesize,
+									 0,
+									 internal->height,
+									 dst_data,
+									 dst_linesize);
+
+	if (resampled_height != internal->height)
+		rb_raise(rb_eRuntimeError, "Color conversion failed");
+
+	// Return create string
+	return bmp_string;
 }
