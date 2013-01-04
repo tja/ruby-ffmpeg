@@ -133,7 +133,7 @@ VALUE audio_stream_decode(VALUE self) {
 
 	// Prepare codec
 	if (!avcodec_is_open(internal->base.stream->codec)) {
-		AVCodec const * codec = internal->base.stream->codec->codec;
+		AVCodec * codec = internal->base.stream->codec->codec;
 		if (!codec) {
 			codec = avcodec_find_decoder(internal->base.stream->codec->codec_id);
 		}
@@ -157,7 +157,7 @@ VALUE audio_stream_decode(VALUE self) {
 		int decoded = 0;
 	    int err = avcodec_decode_audio4(internal->base.stream->codec, frame, &decoded, &packet);
 		if (err < 0) rb_raise_av_error(rb_eLoadError, err);
-				
+
 		if (decoded) {
 			return audio_frame_new(frame, internal->base.stream->codec);
 		}
