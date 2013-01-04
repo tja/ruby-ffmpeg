@@ -113,7 +113,7 @@ VALUE video_frame_new(AVFrame * frame, AVCodecContext * codec) {
 							picture_type,
 							frame->key_frame ? Qtrue : Qfalse,
 							(timestamp != (int64_t)AV_NOPTS_VALUE) ? rb_float_new(timestamp * av_q2d(codec->time_base)) : Qnil,
-							(frame->pkt_duration != (int64_t)AV_NOPTS_VALUE) ? rb_float_new(frame->pkt_duration * av_q2d(codec->time_base)) : Qnil);
+							(codec->pkt && codec->pkt->duration) ? rb_float_new(codec->pkt->duration * av_q2d(codec->time_base)) : Qnil);
 }
 
 // Create new instance

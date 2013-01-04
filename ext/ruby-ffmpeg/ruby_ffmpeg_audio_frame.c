@@ -74,8 +74,6 @@ VALUE audio_frame_new(AVFrame * frame, AVCodecContext * codec) {
 		}
 	}
 
-	int64_t duration = frame->pkt_duration;
-
 	// Copy data into new sample buffer
 	int plane_size = 0;
 	int data_size = av_samples_get_buffer_size(&plane_size, codec->channels, codec->frame_size, codec->sample_fmt, 1);
@@ -94,13 +92,13 @@ VALUE audio_frame_new(AVFrame * frame, AVCodecContext * codec) {
 
 	// Call main init method
 	return audio_frame_new2(buffer,
-		                  	codec->channels,
-						    codec->channel_layout,
-						  	codec->sample_fmt,
-						  	codec->frame_size,
-						  	codec->sample_rate,
-						  	(timestamp != (int64_t)AV_NOPTS_VALUE) ? rb_float_new(timestamp * av_q2d(codec->time_base)) : Qnil,
-						  	(duration != (int64_t)AV_NOPTS_VALUE) ? rb_float_new(duration * av_q2d(codec->time_base)) : Qnil);
+							codec->channels,
+							codec->channel_layout,
+							codec->sample_fmt,
+							codec->frame_size,
+							codec->sample_rate,
+							(timestamp != (int64_t)AV_NOPTS_VALUE) ? rb_float_new(timestamp * av_q2d(codec->time_base)) : Qnil,
+							(codec->pkt && codec->pkt->duration) ? rb_float_new(codec->pkt->duration * av_q2d(codec->time_base)) : Qnil);
 }
 
 // Create new instance
