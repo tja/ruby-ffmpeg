@@ -87,7 +87,7 @@ VALUE video_stream_type(VALUE self) {
 VALUE video_stream_format(VALUE self) {
 	VideoStreamInternal * internal;
 	Data_Get_Struct(self, VideoStreamInternal, internal);
-	
+
 	return av_pixel_format_to_symbol(internal->base.stream->codec->pix_fmt);
 }
 
@@ -95,7 +95,7 @@ VALUE video_stream_format(VALUE self) {
 VALUE video_stream_width(VALUE self) {
 	VideoStreamInternal * internal;
 	Data_Get_Struct(self, VideoStreamInternal, internal);
-	
+
 	return INT2NUM(internal->base.stream->codec->width);
 }
 
@@ -103,7 +103,7 @@ VALUE video_stream_width(VALUE self) {
 VALUE video_stream_height(VALUE self) {
 	VideoStreamInternal * internal;
 	Data_Get_Struct(self, VideoStreamInternal, internal);
-	
+
 	return INT2NUM(internal->base.stream->codec->height);
 }
 
@@ -111,7 +111,7 @@ VALUE video_stream_height(VALUE self) {
 VALUE video_stream_aspect_ratio(VALUE self) {
 	VideoStreamInternal * internal;
 	Data_Get_Struct(self, VideoStreamInternal, internal);
-	
+
 	return internal->base.stream->codec->sample_aspect_ratio.num ? rb_float_new(av_q2d(internal->base.stream->codec->sample_aspect_ratio)) : Qnil;
 }
 
@@ -119,7 +119,7 @@ VALUE video_stream_aspect_ratio(VALUE self) {
 VALUE video_stream_frame_rate(VALUE self) {
 	VideoStreamInternal * internal;
 	Data_Get_Struct(self, VideoStreamInternal, internal);
-	
+
 	return rb_float_new(av_q2d(internal->base.stream->avg_frame_rate));
 }
 
@@ -137,19 +137,19 @@ VALUE video_stream_resampler(int argc, VALUE * argv, VALUE self) {
 VALUE video_stream_decode(VALUE self) {
 	VideoStreamInternal * internal;
 	Data_Get_Struct(self, VideoStreamInternal, internal);
-	
+
 	// Prepare codec
 	if (!avcodec_is_open(internal->base.stream->codec)) {
-		AVCodec const * codec = internal->base.stream->codec->codec;
+		AVCodec * codec = internal->base.stream->codec->codec;
 		if (!codec) {
 			codec = avcodec_find_decoder(internal->base.stream->codec->codec_id);
 		}
 		avcodec_open2(internal->base.stream->codec, codec, NULL);
 	}
-	
+
 	// Find and decode next video frame
 	AVFrame * frame = avcodec_alloc_frame();
-	
+
 	for (;;) {
 		// Find next packet for this stream
 		AVPacket packet;
@@ -159,12 +159,12 @@ VALUE video_stream_decode(VALUE self) {
 			av_free(frame);
 			return Qnil;
 		}
-	
+
 		// Decode frame
 		int decoded = 0;
 	    int err = avcodec_decode_video2(internal->base.stream->codec, frame, &decoded, &packet);
 		if (err < 0) rb_raise_av_error(rb_eLoadError, err);
-	
+
 		if (decoded) {
 			return video_frame_new(frame, internal->base.stream->codec);
 		}
