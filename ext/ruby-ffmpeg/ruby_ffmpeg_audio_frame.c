@@ -96,7 +96,7 @@ VALUE audio_frame_new(AVFrame * frame, AVCodecContext * codec) {
 							codec->frame_size,
 							codec->sample_rate,
 							(timestamp != (int64_t)AV_NOPTS_VALUE) ? rb_float_new(timestamp * av_q2d(codec->time_base)) : Qnil,
-							(codec->pkt && codec->pkt->duration) ? rb_float_new(codec->pkt->duration * av_q2d(codec->time_base)) : Qnil);
+							rb_float_new(codec->frame_size / (codec->sample_rate * 1000.0)));
 }
 
 // Create new instance
