@@ -157,32 +157,30 @@ VALUE video_frame_data(int argc, VALUE * argv, VALUE self) {
 	int alignment = (argc == 1) ? NUM2INT(argv[0]) : 1;
 
 	// Allocate buffer
-	int size = av_image_get_buffer_size(internal->format,
-										internal->width,
-										internal->height,
-										alignment);
-	if (size < 0) return Qnil;
+	uint8_t * dst_data[4];
+	int dst_linesizes[4];
 
-	uint8_t * buffer = (uint8_t *)av_malloc(size);
-	if (!buffer) rb_raise(rb_eNoMemError, "Failed to allocate image buffer");
+	int size = av_image_alloc(dst_data,
+							  dst_linesizes,
+							  internal->width,
+							  internal->height,
+							  internal->format,
+							  alignment);
 
-	// Extract image data
-	int err = av_image_copy_to_buffer(buffer,
-									  size,
-									  (uint8_t const * const *)internal->picture->data,
-									  (int const *)internal->picture->linesize,
-									  internal->format,
-									  internal->width,
-									  internal->height,
-									  alignment);
-	if (err < 0) {
-		av_free(buffer);
-		rb_raise_av_error(rb_eRuntimeError, err);
-	}
+	if (size < 0) rb_raise(rb_eNoMemError, "Failed to allocate image buffer");
+
+	// Copy image data
+	av_image_copy(dst_data,
+				  dst_linesizes,
+				  (uint8_t const * *)internal->picture->data,
+				  (int const *)internal->picture->linesize,
+				  internal->format,
+				  internal->width,
+				  internal->height);
 
 	// Wrap in ruby
-	VALUE data = rb_str_new((char const *)buffer, size);
-	av_free(buffer);
+	VALUE data = rb_str_new((char const *)&dst_data[0], size);
+	av_free(&dst_data[0]);
 
 	return data;
 }
