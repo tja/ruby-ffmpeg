@@ -63,18 +63,14 @@ void audio_frame_mark(void * opaque) {
 
 // Create new instance for given FFMPEG frame
 VALUE audio_frame_new(AVFrame * frame, AVCodecContext * codec) {
-	// Time stamp: start of with best effort
-	int64_t timestamp = frame->best_effort_timestamp;
+	// Time stamp: start of with presentation timestamp of frame
+	int64_t timestamp = frame->pts;
 	if (timestamp == (int64_t)AV_NOPTS_VALUE) {
-		// Fall back to presentation timestamp of frame
-		timestamp = frame->pts;
+		// Fall back to presentation timestamp of packet
+		timestamp = frame->pkt_pts;
 		if (timestamp == (int64_t)AV_NOPTS_VALUE) {
-			// Fall back to presentation timestamp of packet
-			timestamp = frame->pkt_pts;
-			if (timestamp == (int64_t)AV_NOPTS_VALUE) {
-				// Fall back to decompression timestamp of packet
-				timestamp = frame->pkt_dts;
-			}
+			// Fall back to decompression timestamp of packet
+			timestamp = frame->pkt_dts;
 		}
 	}
 
