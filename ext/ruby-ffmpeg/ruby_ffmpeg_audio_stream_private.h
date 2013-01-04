@@ -19,7 +19,6 @@ VALUE audio_stream_type(VALUE self);
 VALUE audio_stream_format(VALUE self);
 
 VALUE audio_stream_channels(VALUE self);
-VALUE audio_stream_channel_layout(VALUE self);
 VALUE audio_stream_rate(VALUE self);
 
 // Methods

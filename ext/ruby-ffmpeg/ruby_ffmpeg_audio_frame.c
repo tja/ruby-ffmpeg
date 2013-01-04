@@ -23,7 +23,6 @@ VALUE audio_frame_register_class(VALUE module, VALUE super) {
 	rb_define_method(_klass, "format",			audio_frame_format, 0);
 
 	rb_define_method(_klass, "channels",		audio_frame_channels, 0);
-	rb_define_method(_klass, "channel_layout",	audio_frame_channel_layout, 0);
 	rb_define_method(_klass, "samples",			audio_frame_samples, 0);
 	rb_define_method(_klass, "rate",			audio_frame_rate, 0);
 
@@ -93,7 +92,6 @@ VALUE audio_frame_new(AVFrame * frame, AVCodecContext * codec) {
 	// Call main init method
 	return audio_frame_new2(buffer,
 							codec->channels,
-							codec->channel_layout,
 							codec->sample_fmt,
 							codec->frame_size,
 							codec->sample_rate,
@@ -102,7 +100,7 @@ VALUE audio_frame_new(AVFrame * frame, AVCodecContext * codec) {
 }
 
 // Create new instance
-VALUE audio_frame_new2(uint8_t * data, int channels, uint64_t channel_layout, enum AVSampleFormat format, int samples, int rate, VALUE timestamp, VALUE duration) {
+VALUE audio_frame_new2(uint8_t * data, int channels, enum AVSampleFormat format, int samples, int rate, VALUE timestamp, VALUE duration) {
 	VALUE self = rb_class_new_instance(0, NULL, _klass);
 
 	AudioFrameInternal * internal;
@@ -111,7 +109,6 @@ VALUE audio_frame_new2(uint8_t * data, int channels, uint64_t channel_layout, en
 	internal->data = data;
 
 	internal->channels = channels;
-	internal->channel_layout = channel_layout;
 	internal->format = format;
 	internal->samples = samples;
 	internal->rate = rate;
@@ -166,16 +163,6 @@ VALUE audio_frame_channels(VALUE self) {
 	Data_Get_Struct(self, AudioFrameInternal, internal);
 
 	return INT2NUM(internal->channels);
-}
-
-// Layout of the audio channels
-VALUE audio_frame_channel_layout(VALUE self) {
-	AudioFrameInternal * internal;
-	Data_Get_Struct(self, AudioFrameInternal, internal);
-
-	char temp[64];
-	av_get_channel_layout_string(&temp[0], sizeof(temp), internal->channels, internal->channel_layout);
-	return rb_str_new2(temp);
 }
 
 // Number of audio samples in this frame

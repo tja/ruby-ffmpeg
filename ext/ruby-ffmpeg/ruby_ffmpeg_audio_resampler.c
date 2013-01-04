@@ -62,7 +62,7 @@ void audio_resampler_mark(void * opaque) {
 VALUE audio_resampler_new(VALUE object, int argc, VALUE * argv) {
 	return rb_class_new_instance2(object, argc, argv, _klass);
 }
-	
+
 
 /*
 **	Properties.
@@ -144,7 +144,7 @@ VALUE audio_resampler_initialize(int argc, VALUE * argv, VALUE self) {
 		internal->src_channels 	= NUM2INT(argv[0]);
 		internal->src_rate		= NUM2INT(argv[1]);
 		internal->src_format	= symbol_to_av_sample_format(argv[2]);
-		
+
 		argc -= 3;
 		argv += 3;
 	}
@@ -156,7 +156,7 @@ VALUE audio_resampler_initialize(int argc, VALUE * argv, VALUE self) {
 		internal->src_channels 	= NUM2INT(rb_funcall(argv[0], rb_intern("channels"), 0));
 		internal->src_rate		= NUM2INT(rb_funcall(argv[0], rb_intern("rate"), 0));
 		internal->src_format	= symbol_to_av_sample_format(rb_funcall(argv[0], rb_intern("format"), 0));
-		
+
 		argc -= 1;
 		argv += 1;
 	}
@@ -231,7 +231,6 @@ VALUE audio_resampler_resample(VALUE self, VALUE frame) {
 	// Wrap into Ruby object
 	return audio_frame_new2(dst_data,
 							internal->dst_channels,
-							av_get_default_channel_layout(internal->dst_channels),
 							internal->dst_format,
 							dst_samples,
 							internal->dst_rate,

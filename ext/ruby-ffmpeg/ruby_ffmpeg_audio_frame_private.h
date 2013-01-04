@@ -8,7 +8,6 @@ typedef struct {
 	uint8_t * 					data;					// Raw sample data
 
 	int							channels;				// FFMPEG: Audio channel count
-	uint64_t					channel_layout;			// FFMPEG: Audio channel layout
 	enum AVSampleFormat			format;					// FFMPEG: Format of the picture data
 	int							samples;				// FFMPEG: Sample count
 	int							rate;					// FFMPEG: Sample rate
@@ -30,7 +29,6 @@ VALUE audio_frame_duration(VALUE self);
 VALUE audio_frame_format(VALUE self);
 
 VALUE audio_frame_channels(VALUE self);
-VALUE audio_frame_channel_layout(VALUE self);
 VALUE audio_frame_samples(VALUE self);
 VALUE audio_frame_rate(VALUE self);
 
