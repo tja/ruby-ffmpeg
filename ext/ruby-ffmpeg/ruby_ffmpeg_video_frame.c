@@ -179,8 +179,8 @@ VALUE video_frame_data(int argc, VALUE * argv, VALUE self) {
 				  internal->height);
 
 	// Wrap in ruby
-	VALUE data = rb_str_new((char const *)&dst_data[0], size);
-	av_free(&dst_data[0]);
+	VALUE data = rb_str_new((char const *)dst_data[0], size);
+	av_free(dst_data[0]);
 
 	return data;
 }
