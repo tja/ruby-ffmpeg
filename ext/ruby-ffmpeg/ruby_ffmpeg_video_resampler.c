@@ -63,7 +63,7 @@ void video_resampler_mark(void * opaque) {
 VALUE video_resampler_new(VALUE object, int argc, VALUE * argv) {
 	return rb_class_new_instance2(object, argc, argv, _klass);
 }
-	
+
 
 /*
 **	Properties.
@@ -157,7 +157,7 @@ VALUE video_resampler_initialize(int argc, VALUE * argv, VALUE self) {
 		internal->src_width 	= NUM2INT(argv[0]);
 		internal->src_height	= NUM2INT(argv[1]);
 		internal->src_format	= symbol_to_av_pixel_format(argv[2]);
-		
+
 		argc -= 3;
 		argv += 3;
 	}
@@ -169,7 +169,7 @@ VALUE video_resampler_initialize(int argc, VALUE * argv, VALUE self) {
 		internal->src_width 	= NUM2INT(rb_funcall(argv[0], rb_intern("width"), 0));
 		internal->src_height	= NUM2INT(rb_funcall(argv[0], rb_intern("height"), 0));
 		internal->src_format	= symbol_to_av_pixel_format(rb_funcall(argv[0], rb_intern("format"), 0));
-		
+
 		argc -= 1;
 		argv += 1;
 	}

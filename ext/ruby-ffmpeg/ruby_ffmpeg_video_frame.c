@@ -346,7 +346,7 @@ void copy_buffer_with_format(VideoFrameInternal * internal, uint8_t * buffer, in
 	// And convert
 	uint8_t * dst_data[1] = { buffer };
 	int const dst_linesize[1] = { internal->width * 4 };
-	
+
 	int resampled_height = sws_scale(rgba_context,
 									 (uint8_t const * const *)internal->picture->data,
 									 (int const *)internal->picture->linesize,
