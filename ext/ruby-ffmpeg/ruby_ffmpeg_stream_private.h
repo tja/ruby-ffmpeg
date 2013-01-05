@@ -21,7 +21,9 @@ VALUE stream_reader(VALUE self);
 
 VALUE stream_index(VALUE self);
 VALUE stream_type(VALUE self);
-VALUE stream_tag(VALUE self);
+VALUE stream_codec_tag(VALUE self);
+VALUE stream_codec_name(VALUE self);
+VALUE stream_codec_long_name(VALUE self);
 VALUE stream_start_time(VALUE self);
 VALUE stream_duration(VALUE self);
 VALUE stream_frame_count(VALUE self);

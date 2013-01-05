@@ -21,7 +21,9 @@ VALUE stream_register_class(VALUE module, VALUE super) {
 	rb_define_method(_klass, "reader", 			stream_reader, 0);
 	rb_define_method(_klass, "index", 			stream_index, 0);
 	rb_define_method(_klass, "type", 			stream_type, 0);
-	rb_define_method(_klass, "tag", 			stream_tag, 0);
+	rb_define_method(_klass, "codec_tag", 		stream_codec_tag, 0);
+	rb_define_method(_klass, "codec_name",		stream_codec_name, 0);
+	rb_define_method(_klass, "codec_long_name",	stream_codec_long_name, 0);
 	rb_define_method(_klass, "start_time", 		stream_start_time, 0);
 	rb_define_method(_klass, "duration", 		stream_duration, 0);
 	rb_define_method(_klass, "frame_count", 	stream_frame_count, 0);
@@ -105,7 +107,7 @@ VALUE stream_type(VALUE self) {
 }
 
 // Codec tag
-VALUE stream_tag(VALUE self) {
+VALUE stream_codec_tag(VALUE self) {
 	StreamInternal * internal;
 	Data_Get_Struct(self, StreamInternal, internal);
 
@@ -115,6 +117,38 @@ VALUE stream_tag(VALUE self) {
 					internal->stream->codec->codec_tag >> 24 & 0xff };
 
 	return rb_str_new(tag, 4);
+}
+
+// Codec name
+VALUE stream_codec_name(VALUE self) {
+	StreamInternal * internal;
+	Data_Get_Struct(self, StreamInternal, internal);
+
+	AVCodec const * codec = internal->stream->codec->codec;
+	if (!codec) {
+		codec = avcodec_find_decoder(internal->stream->codec->codec_id);
+		if (!codec) {
+			codec = avcodec_find_encoder(internal->stream->codec->codec_id);
+		}
+	}
+
+	return codec ? rb_str_new2(codec->name) : Qnil;
+}
+
+// Codec long name
+VALUE stream_codec_long_name(VALUE self) {
+	StreamInternal * internal;
+	Data_Get_Struct(self, StreamInternal, internal);
+
+	AVCodec const * codec = internal->stream->codec->codec;
+	if (!codec) {
+		codec = avcodec_find_decoder(internal->stream->codec->codec_id);
+		if (!codec) {
+			codec = avcodec_find_encoder(internal->stream->codec->codec_id);
+		}
+	}
+
+	return codec ? rb_str_new2(codec->long_name) : Qnil;
 }
 
 // Start time (in seconds)
@@ -149,7 +183,7 @@ VALUE stream_bit_rate(VALUE self) {
 	return INT2NUM(internal->stream->codec->bit_rate);
 }
 
-// Metadata                                            
+// Metadata
 VALUE stream_metadata(VALUE self) {
 	StreamInternal * internal;
 	Data_Get_Struct(self, StreamInternal, internal);

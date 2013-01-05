@@ -29,7 +29,8 @@ class FFMPEGTest < Test::Unit::TestCase
 
         assert_equal 0,                   reader.streams[0].index
         assert_equal :video,              reader.streams[0].type
-        assert_equal "avc1",              reader.streams[0].tag
+        assert_equal "h264",              reader.streams[0].codec_name
+        assert_equal "avc1",              reader.streams[0].codec_tag
         assert_equal "0.000000",          "%.6f" % reader.streams[0].start_time
         assert_equal "00:00:52.208",      Time.at(reader.streams[0].duration).utc.strftime('%T.%L')
         assert_equal :yuv420p,            reader.streams[0].format
@@ -53,7 +54,8 @@ class FFMPEGTest < Test::Unit::TestCase
 
         assert_equal 1,                   reader.streams[1].index
         assert_equal :audio,              reader.streams[1].type
-        assert_equal "\xFF\x00\x00\x00",  reader.streams[1].tag
+        assert_equal "aac",               reader.streams[1].codec_name
+        assert_equal "\xFF\x00\x00\x00",  reader.streams[1].codec_tag
         assert_equal "0.000000",          "%.6f" % reader.streams[1].start_time
         assert_equal "00:00:51.946",      Time.at(reader.streams[1].duration).utc.strftime('%T.%L')
         assert_equal :s16,                reader.streams[1].format
