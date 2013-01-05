@@ -3,6 +3,7 @@ require 'ruby-ffmpeg'
 require 'open-uri'
 
 class FFMPEGTest < Test::Unit::TestCase
+
   def test_versions
     assert_equal FFMPEG::Reader::VERSION.split('.').length, 3
   end
@@ -60,7 +61,6 @@ class FFMPEGTest < Test::Unit::TestCase
         assert_equal 126688,              reader.streams[1].bit_rate
         
         assert_equal 2,                   reader.streams[1].channels
-        assert_equal "stereo",            reader.streams[1].channel_layout
         assert_equal 48000,               reader.streams[1].rate
         
         assert_equal 0,                   reader.streams[1].metadata.length
@@ -102,7 +102,6 @@ class FFMPEGTest < Test::Unit::TestCase
         assert_equal :s16,                audio_frame.format
 
         assert_equal 2,                   audio_frame.channels
-        assert_equal "stereo",            audio_frame.channel_layout
         assert_equal 1024,                audio_frame.samples
         assert_equal 48000,               audio_frame.rate
       end
@@ -217,7 +216,6 @@ class FFMPEGTest < Test::Unit::TestCase
         assert_equal :flt,                audio_frame.format
 
         assert_equal 2,                   audio_frame.channels
-        assert_equal "stereo",            audio_frame.channel_layout
         assert_equal 1023,                audio_frame.samples           # Keeps one for itself, due to linear filtering
         assert_equal 48000,               audio_frame.rate
       end
@@ -237,7 +235,6 @@ class FFMPEGTest < Test::Unit::TestCase
         assert_equal :flt,                audio_frame.format
 
         assert_equal 2,                   audio_frame.channels
-        assert_equal "stereo",            audio_frame.channel_layout
         assert_equal 939,                 audio_frame.samples           # Keeps one for itself, due to linear filtering
         assert_equal 44100,               audio_frame.rate
       end
@@ -257,7 +254,6 @@ class FFMPEGTest < Test::Unit::TestCase
         assert_equal :flt,                audio_frame.format
 
         assert_equal 1,                   audio_frame.channels
-        assert_equal "mono",              audio_frame.channel_layout
         assert_equal 939,                 audio_frame.samples           # Keeps one for itself, due to linear filtering
         assert_equal 44100,               audio_frame.rate
       end
