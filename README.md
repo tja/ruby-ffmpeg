@@ -1,12 +1,12 @@
 # ruby-ffmpeg
 
-Ruby bindings for [FFMPEG](http://ffmpeg.org) libraries.
+Ruby bindings for [Libav](http://libav.org)/[FFMPEG](http://ffmpeg.org) libraries.
 
 ## Summary
 
-*ruby-ffmpeg* is a Ruby extension for the FFMPEG set of libraries; libavformat, libavcodec, libavutil, and libswscale.
+*ruby-ffmpeg* is a Ruby extension for the Libav/FFMPEG set of libraries; libavformat, libavcodec, libavutil, and libswscale.
 
-In contrast to many other FFMPEG-related gems, *ruby-ffmpeg* has been implemented as a C extension that calls into FFMPEG's set of libraries and is not a wrapper around the command line version. This allows much tighter integration with Ruby, finer control of the decoding process, and more efficient access of the media data. One example of such tight integration is that *ruby-ffmpeg* works with every IO object, from files, to string buffers, and even HTTP streams.
+In contrast to many other Libav/FFMPEG-related gems, *ruby-ffmpeg* has been implemented as a C extension that calls into Libav/FFMPEG's set of libraries and is not a wrapper around the command line version. This allows much tighter integration with Ruby, finer control of the decoding process, and more efficient access of the media data. One example of such tight integration is that *ruby-ffmpeg* works with every IO object, from files, to string buffers, and even HTTP streams.
 
 Some of *ruby-ffmpeg*'s main features are:
 
@@ -19,7 +19,7 @@ Some of *ruby-ffmpeg*'s main features are:
 
 ## Prerequisites
 
-*ruby-ffmpeg* requires the FFMPEG libraries to be installed on your system.
+*ruby-ffmpeg* requires the Libav/FFMPEG libraries to be installed on your system.
 
 ### MacPorts
 
@@ -29,23 +29,11 @@ On OS X, [MacPorts](http://www.macports.org/) can be used to download and build 
 
 ### Ubuntu
 
-The base version of FFMPEG can be installed via:
+The base version of the necessary Libav libraries can be installed via:
 
-    sudo apt-get install ffmpeg
+    sudo apt-get install libavformat-dev libswscale-dev
 
 Consult the the [Ubuntu Community Help Wiki](https://help.ubuntu.com/community/FFmpeg) for details.
-
-### From Source
-
-FFMPEG can be installed from source like this:
-
-    git clone git://source.ffmpeg.org/ffmpeg.git ffmpeg
-	cd ffmpeg
-	./configure
-	make
-	make install
-
-The [FFMPEG Trac Wiki](https://ffmpeg.org/trac/ffmpeg/wiki/CompilationGuide) provided more information.
 
 ## Installation
 
@@ -54,7 +42,7 @@ Once FFMPEG is available on the system, *ruby-ffmpeg* can be installed on top:
     git clone git://github.com/tja/ruby-ffmpeg.git
 	cd ruby-ffmpeg
     gem build ruby-ffmpeg.gemspec
-    sudo gem install ruby-ffmpeg*.gem
+    gem install ruby-ffmpeg-0.2.0.gem
 
 ## Documentation
 
