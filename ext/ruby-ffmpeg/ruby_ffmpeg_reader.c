@@ -32,7 +32,7 @@ VALUE reader_register_class(VALUE module, VALUE super) {
 	rb_define_method(_klass, "bit_rate", 		reader_bit_rate, 0);
 	rb_define_method(_klass, "streams", 		reader_streams, 0);
 	rb_define_method(_klass, "metadata", 		reader_metadata, 0);
-	
+
 	return _klass;
 }
 
@@ -87,8 +87,7 @@ VALUE reader_initialize(VALUE self, VALUE io) {
 	if (err) rb_raise_av_error(rb_eLoadError, err);
 
 	// Read in stream information
-	err = avformat_find_stream_info(internal->format, NULL);
-	if (err < 0) rb_raise_av_error(rb_eLoadError, err);
+	avformat_find_stream_info(internal->format, NULL);
 
 	// Extract properties
 	internal->streams = streams_to_ruby_array(self, internal->format);
@@ -106,7 +105,7 @@ VALUE reader_initialize(VALUE self, VALUE io) {
 VALUE reader_name(VALUE self) {
 	ReaderInternal * internal;
 	Data_Get_Struct(self, ReaderInternal, internal);
-	
+
 	return rb_str_new2(internal->format->iformat->name);
 }
 
@@ -114,7 +113,7 @@ VALUE reader_name(VALUE self) {
 VALUE reader_description(VALUE self) {
 	ReaderInternal * internal;
 	Data_Get_Struct(self, ReaderInternal, internal);
-	
+
 	return rb_str_new2(internal->format->iformat->long_name);
 }
 
