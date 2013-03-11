@@ -55,7 +55,7 @@ class FFMPEGTest < Test::Unit::TestCase
         assert_equal 1,                   reader.streams[1].index
         assert_equal :audio,              reader.streams[1].type
         assert_equal "aac",               reader.streams[1].codec_name
-        assert_equal "\xFF\x00\x00\x00",  reader.streams[1].codec_tag
+        assert_equal [ 255, 0, 0, 0 ],    reader.streams[1].codec_tag.bytes.to_a
         assert_equal "0.000000",          "%.6f" % reader.streams[1].start_time
         assert_equal "00:00:51.946",      Time.at(reader.streams[1].duration).utc.strftime('%T.%L')
         assert_equal :s16,                reader.streams[1].format
