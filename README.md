@@ -33,7 +33,7 @@ The base version of the necessary Libav libraries can be installed via:
 
     sudo apt-get install libavformat-dev libswscale-dev
 
-Consult the the [Ubuntu Community Help Wiki](https://help.ubuntu.com/community/FFmpeg) for details.
+Consult the [Ubuntu Community Help Wiki](https://help.ubuntu.com/community/FFmpeg) for details.
 
 ## Installation
 
